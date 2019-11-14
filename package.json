@@ -1,0 +1,13 @@
+{
+  "name": "iltestsmtpserver",
+  "author": {
+    "name": "IL"
+  },
+  "description": "Fennel is a lightweight CardDAV / CalDAV server",
+  "engines": {
+    "node": "10.5"
+  },
+  "dependencies": {
+    "smtp-server": "^3.5.0"
+  }
+}
