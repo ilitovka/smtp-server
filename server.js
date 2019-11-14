@@ -22,4 +22,4 @@ process.on('uncaughtException', function(err)
 });
 
 // Put a friendly message on the terminal
-console.log("Server running at http://" + config.ip + ":" + process.env.PORT || config.port + "/");
+console.log("Server running at port " + process.env.PORT || 465 + "/");
