@@ -7,4 +7,19 @@ const server = new SMTPServer({
     }
 });
 
-server.listen(465);
+server.listen(process.env.PORT || 465);
+
+server.on('error', function (e)
+{
+    console.log('Caught error: ' + e.message);
+    console.log(e.stack);
+});
+
+process.on('uncaughtException', function(err)
+{
+    console.log('Caught exception: ' + err.message);
+    console.log(err.stack);
+});
+
+// Put a friendly message on the terminal
+console.log("Server running at http://" + config.ip + ":" + process.env.PORT || config.port + "/");
