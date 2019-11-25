@@ -1,0 +1,62 @@
+{
+  "name": "fennel",
+  "author": {
+    "name": "LordEidi from SwordLord - the coding crew",
+    "email": "<lordeidi@swordlord.com>",
+    "url": "https://swordlord.com/"
+  },
+  "description": "Fennel is a lightweight CardDAV / CalDAV server",
+  "keywords": [
+    "caldav",
+    "carddav",
+    "lightweight"
+  ],
+  "license": "agpl-3.0",
+  "version": "0.2.0-beta",
+  "main": "server.js",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/LordEidi/fennel/issues"
+  },
+  "scripts": {
+    "test": "tape test/**/*.js | faucet"
+  },
+  "homepage": "https://github.com/LordEidi/fennel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LordEidi/fennel.git"
+  },
+  "dependencies": {
+    "crossroads": "^0.12.2",
+    "htdigest": "^2.0.2",
+    "htpasswd": "^2.1.2",
+    "http-auth": "^2.1.9",
+    "libxmljs": "^0.18.0",
+    "log4js": "^0.6.9",
+    "mailparser": "^2.7.6",
+    "moment": "^2.15.1",
+    "mysql": "^2.17.1",
+    "mysql2": "^2.0.0",
+    "node-ical": "^0.10.0",
+    "node-regexp": "^0.1.1",
+    "pretty-data": "^0.40.0",
+    "sequelize": "^4.44.3",
+    "shiro-trie": "^0.3.12",
+    "smtp-server": "^3.5.0",
+    "sqlite3": "^4.0.8",
+    "uuid": "^2.0.3",
+    "xml2js": "^0.4.9"
+  },
+  "devDependencies": {
+    "tape": "^4.0.1",
+    "request": "^2.65.0",
+    "faucet": "0.0.1",
+    "chai": "3.5.0",
+    "chai-http": "4.0.0",
+    "mocha": "5.2.0",
+    "nyc": "14.1.1"
+  },
+  "engines": {
+    "node": "10.5"
+  }
+}

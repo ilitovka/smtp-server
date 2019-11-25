@@ -1,0 +1,7 @@
+*.txt
+*.sqlite
+*.flow
+utils/*
+.DS_Store
+.idea/
+node_modules/
