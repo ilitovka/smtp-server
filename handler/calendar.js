@@ -26,7 +26,9 @@ module.exports = {
     put: put,
     get: gett,
     delete: del,
-    move: move
+    move: move,
+    saveICS: saveICS,
+    mergeICS: mergeICS
 };
 
 function del(comm)
@@ -212,6 +214,96 @@ function put(comm)
             comm.flushResponse();
         });
     });
+}
+
+//TODO::refactor save method
+function saveICS(options)
+{
+    log.debug("calendar.save called");
+
+    var ics_id = options.UID;
+    var calendar = options.calendarId;
+
+    var body = options.content;
+
+    //console.log(body);
+
+    var parser = require('../libs/parser');
+    var pbody = parser.parseICS(body);
+
+    var dtStart = moment(pbody.VCALENDAR.VEVENT.DTSTART);
+    var dtEnd = moment(pbody.VCALENDAR.VEVENT.DTEND);
+
+    // store dtstart and dtend per ICS record so that we can filter for this in the REPORT query
+    var defaults = {
+        calendarId: calendar,
+        startDate: dtStart.toISOString(),
+        endDate:  dtEnd.toISOString(),
+        content: body
+    };
+
+    ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
+    {
+        if(created)
+        {
+            log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
+        }
+        else
+        {
+            var ifNoneMatch = comm.getHeader('If-None-Match');
+            if(ifNoneMatch && ifNoneMatch === "*")
+            {
+                log.debug('If-None-Match matches, return status code 412');
+
+                return false;
+            }
+            else
+            {
+                startDate = dtStart.toISOString();
+                endDate = dtEnd.toISOString();
+
+                ics.content = comm.getReqBody();
+                log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
+            }
+        }
+
+        ics.save().then(function()
+        {
+            log.info('ics updated');
+
+            // update calendar collection
+            CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
+            {
+                if(cal !== null && cal !== undefined)
+                {
+                    cal.increment('synctoken', { by: 1 }).then(function()
+                    {
+                        log.info('synctoken on cal updated');
+                    });
+                }
+            });
+        });
+    });
+}
+
+function mergeICS(currentICS, newICS) {
+    var parser = require('../libs/parser');
+    //const iCal = require('node-ical');
+    var currentParsed = parser.parseICS(currentICS);
+    var newParsed = parser.parseICS(newICS);
+
+    var tempObj = {};
+    if (currentParsed.ATTENDEE !== undefined && currentParsed.ATTENDEE.length > 0) {
+        for (let i = 0; i < currentParsed.ATTENDEE.length; i++) {
+            tempObj[currentParsed.ATTENDEE[i]] = currentParsed.ATTENDEE[i];
+        }
+    }
+
+    if (newParsed.ATTENDEE !== undefined && newParsed.ATTENDEE.length > 0) {
+        for (let j = 0; j < newParsed.ATTENDEE.length; j++) {
+
+        }
+    }
 }
 
 function move(comm)
