@@ -7,7 +7,7 @@ const icsCreate = function (event) {
     event.end = moment(event.end).format('YYYY-M-D-H-m').split("-");
     event.organizer = {
         name: event.organizer.params.CN,
-        email: event.organizer.val
+        email: event.organizer.val.replace('mailto:', '')
     };
     let attendeens = [];
     for (let i = 0; i < event.attendee.length; i++) {
