@@ -299,6 +299,9 @@ function saveICS(options)
 }
 
 function mergeICS(currentICS, newICSParsed) {
+    log.debug(currentICS);
+    log.debug(newICSParsed);
+    
     let currentICSParsed = iCalParser.parseICS(currentICS);
 
     if (newICSParsed.attendee !== undefined && newICSParsed.attendee.length > 0) {
