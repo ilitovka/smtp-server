@@ -5,6 +5,16 @@ const moment = require('moment');
 const icsCreate = function (event) {
     event.start = moment(event.start).format('YYYY-M-D-H-m').split("-");
     event.end = moment(event.end).format('YYYY-M-D-H-m').split("-");
+    event.organizer = {
+        name: event.organizer.params,
+        email: event.organizer.val
+    };
+    let attendeens = [];
+    for (let i = 0; i < event.attendee.length; i++) {
+        attendeens.push(
+            {...{email: event.attendee[i].val}, ...event.attendee[i].params}
+        );
+    }
     /*const event = {
         start: [2018, 5, 30, 6, 30],
         duration: { hours: 6, minutes: 30 },
