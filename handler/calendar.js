@@ -16,7 +16,7 @@ const log = require('../libs/log').log;
 const ICS = require('../libs/db').ICS;
 const ICSHistory = require('../libs/db').ICSHistory;
 const CAL = require('../libs/db').CAL;
-const iCalParser = require('node-ical');
+const iCalParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 
 // Exporting.
@@ -298,11 +298,12 @@ function saveICS(options)
     });
 }
 
-function mergeICS(currentICS, newICSParsed) {
+function mergeICS(currentICS, newICS) {
     log.debug(currentICS);
-    log.debug(newICSParsed);
-    
-    let currentICSParsed = iCalParser.parseICS(currentICS);
+    log.debug(newICS);
+
+    let currentICSParsed = iCalParser.parseFirst(currentICS);
+    let newICSParsed = iCalParser.parseFirst(newICS);
 
     if (newICSParsed.attendee !== undefined && newICSParsed.attendee.length > 0) {
         log.debug(newICSParsed.attendee);
@@ -313,19 +314,10 @@ function mergeICS(currentICS, newICSParsed) {
         log.debug('newParsed.attendee is undefined');
     }
 
-    let event = {};
-    if (Object.keys(currentICSParsed).length > 0) {
-        for (let k in currentICSParsed) {
-            if (currentICSParsed.hasOwnProperty(k)) {
-                event = currentICSParsed[k];
-            }
-        }
-    }
-
-    if (event.attendee !== undefined && event.attendee.length > 0) {
-        log.debug(event.attendee);
-        for (let i = 0; i < event.attendee.length; i++) {
-            log.debug(event.attendee[i]);
+    if (currentICSParsed.attendee !== undefined && currentICSParsed.attendee.length > 0) {
+        log.debug(currentICSParsed.attendee);
+        for (let i = 0; i < currentICSParsed.attendee.length; i++) {
+            log.debug(currentICSParsed.attendee[i]);
         }
     } else {
         log.debug('currentParsed.attendee is undefined');

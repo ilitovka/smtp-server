@@ -43,34 +43,28 @@ customSMTPServer.prototype.process = function (stream) {
             log.debug(parsedMail);
             let parser = new icsParser();
             if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
+                let checksumArray = [];
                 for (let i = 0; i < parsedMail.attachments.length; i++) {
+                    let checksumValue = parsedMail.attachments[i].checksum;
+                    log.debug('Checksum: ' + checksumValue);
+                    if (checksumArray.includes(checksumValue)) {
+                        log.debug('Duplicated: ' + checksumValue);
+                        continue;
+                    }
+                    checksumArray.push(checksumValue);
+
                     let content = parsedMail.attachments[i].content.toString('utf8');
-                    let attachment = parser.parse(content);
+                    let event = parser.parseFirst(content);
 
-                    log.debug('Attachment info: ');
-                    log.debug(attachment);
+                    log.debug('Event info: ');
+                    log.debug(event);
 
-                    if (Object.keys(attachment).length > 0) {
-                        for (let k in attachment) {
-                            if (attachment.hasOwnProperty(k)) {
-                                const event = attachment[k];
-                                if (event.type === 'VEVENT') {
-                                    log.info('Attachment parsed successfully');
-
-                                    let caldavBridge = new bridge();
-                                    let result = caldavBridge.send(content, event);
-                                    if (result) {
-                                        log.info('Attachment saved to DB');
-                                    } else {
-                                        log.info('Attachment ignored');
-                                    }
-                                }
-                            } else {
-                                log.info('Couldn\'t parse attachment object');
-                            }
-                        }
+                    let caldavBridge = new bridge();
+                    let result = caldavBridge.send(content, event);
+                    if (result) {
+                        log.info('Attachment saved to DB');
                     } else {
-                        log.info('Couldn\'t parse attachment');
+                        log.info('Attachment ignored');
                     }
                 }
             }
