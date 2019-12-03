@@ -8,13 +8,16 @@
  **
  -----------------------------------------------------------------------------*/
 
-var xml = require("libxmljs");
-var moment = require('moment');
+const xml = require("libxmljs");
+const moment = require('moment');
 
-var xh = require("../libs/xmlhelper");
-var log = require('../libs/log').log;
-var ICS = require('../libs/db').ICS;
-var CAL = require('../libs/db').CAL;
+const xh = require("../libs/xmlhelper");
+const log = require('../libs/log').log;
+const ICS = require('../libs/db').ICS;
+const ICSHistory = require('../libs/db').ICSHistory;
+const CAL = require('../libs/db').CAL;
+const iCalParser = require('node-ical');
+const icsCreate = require('../include/helper/icsCreate');
 
 // Exporting.
 module.exports = {
@@ -221,21 +224,18 @@ function saveICS(options)
 {
     log.debug("calendar.save called");
 
-    var ics_id = options.UID;
-    var calendar = options.calendarId;
+    let ics_id = options.UID;
+    let calendar = options.calendarId;
 
-    var body = options.content;
+    let body = options.content;
 
     //console.log(body);
 
-    var parser = require('../libs/parser');
-    var pbody = parser.parseICS(body);
-
-    var dtStart = moment(pbody.VCALENDAR.VEVENT.DTSTART);
-    var dtEnd = moment(pbody.VCALENDAR.VEVENT.DTEND);
+    let dtStart = moment(options.parsed.start);
+    let dtEnd = moment(options.parsed.end);
 
     // store dtstart and dtend per ICS record so that we can filter for this in the REPORT query
-    var defaults = {
+    let defaults = {
         calendarId: calendar,
         startDate: dtStart.toISOString(),
         endDate:  dtEnd.toISOString(),
@@ -244,13 +244,14 @@ function saveICS(options)
 
     ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
     {
+        let contentOld = null;
         if(created)
         {
             log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
         }
         else
         {
-            var ifNoneMatch = comm.getHeader('If-None-Match');
+            let ifNoneMatch = comm.getHeader('If-None-Match');
             if(ifNoneMatch && ifNoneMatch === "*")
             {
                 log.debug('If-None-Match matches, return status code 412');
@@ -259,13 +260,29 @@ function saveICS(options)
             }
             else
             {
+                contentOld = ics.content;
                 startDate = dtStart.toISOString();
                 endDate = dtEnd.toISOString();
 
-                ics.content = comm.getReqBody();
+                ics.content = mergeICS(ics.content, body);
+                //ics.content = comm.getReqBody();
                 log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
             }
         }
+
+        ICSHistory.create({
+            calendarId: calendar,
+            startDate: dtStart.toISOString(),
+            endDate:  dtEnd.toISOString(),
+            content: body,
+            contentOld: contentOld
+        }).then(ics => {
+            if (ics) {
+                log.debug('Created ICS history record: ' + JSON.stringify(ics, null, 4));
+            } else {
+                log.debug('Failed creating ICS history record ID:' + ics_id);
+            }
+        });
 
         ics.save().then(function()
         {
@@ -287,23 +304,24 @@ function saveICS(options)
 }
 
 function mergeICS(currentICS, newICS) {
-    var parser = require('../libs/parser');
-    //const iCal = require('node-ical');
-    var currentParsed = parser.parseICS(currentICS);
-    var newParsed = parser.parseICS(newICS);
+    let currentParsed = iCalParser.parseICS(currentICS);
+    let newParsed = iCalParser.parseICS(newICS);
 
-    var tempObj = {};
-    if (currentParsed.ATTENDEE !== undefined && currentParsed.ATTENDEE.length > 0) {
-        for (let i = 0; i < currentParsed.ATTENDEE.length; i++) {
-            tempObj[currentParsed.ATTENDEE[i]] = currentParsed.ATTENDEE[i];
-        }
-    }
+    let tempObj = {};
 
     if (newParsed.ATTENDEE !== undefined && newParsed.ATTENDEE.length > 0) {
         for (let j = 0; j < newParsed.ATTENDEE.length; j++) {
 
         }
     }
+
+    if (currentParsed.ATTENDEE !== undefined && currentParsed.ATTENDEE.length > 0) {
+        for (let i = 0; i < currentParsed.ATTENDEE.length; i++) {
+            tempObj[currentParsed.ATTENDEE[i]] = currentParsed.ATTENDEE[i];
+        }
+    }
+
+    return icsCreate(currentParsed);
 }
 
 function move(comm)

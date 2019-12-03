@@ -1,8 +1,8 @@
 var calendar = require("../../handler/calendar");
+const log = require('../../libs/log').log;
 
 const Bridge = function() {};
 
-//TODO::merge existing ICS with new.
 /**
  * @param {string} attachment
  * @param {string} parsedICS
@@ -11,15 +11,23 @@ const Bridge = function() {};
  *
  * */
 Bridge.prototype.send = function (attachment, parsedICS) {
-    if (parsedICS.UID === undefined) {
+    if (parsedICS.uid === undefined) {
+        log.info('uid is undefined');
+        return false;
+    }
+    if (parsedICS.ORGID === undefined) {
+        log.info('ORGID is undefined');
         return false;
     }
 
     calendar.saveICS({
-        UID:        parsedICS.UID,
-        calendarId: null,
-        content:    attachment
+        UID:        parsedICS.uid,
+        calendarId: parsedICS.ORGID,
+        content:    attachment,
+        parsed:     parsedICS,
     });
+
+    log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
 
     return true;
 };
