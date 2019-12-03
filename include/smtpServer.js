@@ -7,7 +7,7 @@ const log = require('../libs/log').log;
 
 let customSMTPServer = function() {
     var self = this;
-    console.log('Starting SMTP server...');
+    log.info('Starting SMTP server...');
     const server = new SmtpServer({
         authOptional: true,
         onData(stream, session, callback) {
@@ -41,21 +41,24 @@ customSMTPServer.prototype.process = function (stream) {
     MailParser(stream)
         .then(parsedMail => {
             log.debug(parsedMail);
-            var parser = new icsParser();
+            let parser = new icsParser();
             if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
-                for (var i = 0; i < parsedMail.attachments.length; i++) {
-                    var attachment = parser.parse(parsedMail.attachments[i].content.toString('utf8'));
+                for (let i = 0; i < parsedMail.attachments.length; i++) {
+                    let content = parsedMail.attachments[i].content.toString('utf8');
+                    let attachment = parser.parse(content);
+
                     log.debug('Attachment info: ');
                     log.debug(attachment);
+
                     if (Object.keys(attachment).length > 0) {
                         for (let k in attachment) {
                             if (attachment.hasOwnProperty(k)) {
                                 const event = attachment[k];
                                 if (event.type === 'VEVENT') {
                                     log.info('Attachment parsed successfully');
-                                    //log.debug(`${event.summary} is in ${event.location} on the ${event.start.getDate()} of ${months[event.start.getMonth()]} at ${event.start.toLocaleTimeString('en-GB')}`);
+
                                     let caldavBridge = new bridge();
-                                    let result = caldavBridge.send(parsedMail.attachments[i].content.toString('utf8'), event);
+                                    let result = caldavBridge.send(content, event);
                                     if (result) {
                                         log.info('Attachment saved to DB');
                                     } else {

@@ -60,7 +60,7 @@ function del(comm)
     {
         var calendarId = comm.getPathElement(3);
 
-        CAL.find({ where: {pkey: calendarId} }).then(function(cal)
+        CAL.findOne({ where: {pkey: calendarId} }).then(function(cal)
         {
             if(cal === null)
             {
@@ -81,7 +81,7 @@ function del(comm)
     {
         var ics_id = comm.getFilenameFromPath(true);
 
-        ICS.find( { where: {pkey: ics_id}}).then(function(ics)
+        ICS.findOne( { where: {pkey: ics_id}}).then(function(ics)
         {
             if(ics === null)
             {
@@ -108,7 +108,7 @@ function gett(comm)
     comm.setHeader("Content-Type", "text/calendar");
 
     var ics_id = comm.getFilenameFromPath(true);
-    ICS.find( { where: {pkey: ics_id}}).then(function(ics)
+    ICS.findOne( { where: {pkey: ics_id}}).then(function(ics)
     {
         if(ics === null)
         {
@@ -244,7 +244,7 @@ function saveICS(options)
 
     ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
     {
-        let contentOld = null;
+        let contentOld = '';
         if(created)
         {
             log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
@@ -255,12 +255,17 @@ function saveICS(options)
             startDate = dtStart.toISOString();
             endDate = dtEnd.toISOString();
 
-            ics.content = mergeICS(ics.content, body);
-            //ics.content = comm.getReqBody();
+            if (ics.content && body) {
+                ics.content = mergeICS(ics.content, body);
+            } else {
+                ics.content = body;
+            }
+
             log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
         }
 
         ICSHistory.create({
+            pkey: ics_id,
             calendarId: calendar,
             startDate: dtStart.toISOString(),
             endDate:  dtEnd.toISOString(),
@@ -293,25 +298,37 @@ function saveICS(options)
     });
 }
 
-function mergeICS(currentICS, newICS) {
-    let currentParsed = iCalParser.parseICS(currentICS);
-    let newParsed = iCalParser.parseICS(newICS);
+function mergeICS(currentICS, newICSParsed) {
+    let currentICSParsed = iCalParser.parseICS(currentICS);
 
-    let tempObj = {};
+    if (newICSParsed.attendee !== undefined && newICSParsed.attendee.length > 0) {
+        log.debug(newICSParsed.attendee);
+        for (let j = 0; j < newICSParsed.attendee.length; j++) {
+            log.debug(newICSParsed.attendee[j]);
+        }
+    } else {
+        log.debug('newParsed.attendee is undefined');
+    }
 
-    if (newParsed.ATTENDEE !== undefined && newParsed.ATTENDEE.length > 0) {
-        for (let j = 0; j < newParsed.ATTENDEE.length; j++) {
-
+    let event = {};
+    if (Object.keys(currentICSParsed).length > 0) {
+        for (let k in currentICSParsed) {
+            if (currentICSParsed.hasOwnProperty(k)) {
+                event = currentICSParsed[k];
+            }
         }
     }
 
-    if (currentParsed.ATTENDEE !== undefined && currentParsed.ATTENDEE.length > 0) {
-        for (let i = 0; i < currentParsed.ATTENDEE.length; i++) {
-            tempObj[currentParsed.ATTENDEE[i]] = currentParsed.ATTENDEE[i];
+    if (event.attendee !== undefined && event.attendee.length > 0) {
+        log.debug(event.attendee);
+        for (let i = 0; i < event.attendee.length; i++) {
+            log.debug(event.attendee[i]);
         }
+    } else {
+        log.debug('currentParsed.attendee is undefined');
     }
 
-    return icsCreate(currentParsed);
+    return icsCreate(currentICSParsed);
 }
 
 function move(comm)
@@ -340,7 +357,7 @@ function move(comm)
         var aURL = destination.split("/");
         var newCal = aURL[aURL.length - 2];
 
-        ICS.find({ where: {pkey: ics_id} }).then(function(ics)
+        ICS.findOne({ where: {pkey: ics_id} }).then(function(ics)
         {
             if(ics === null)
             {
@@ -516,7 +533,7 @@ function handlePropfindForCalendarNotifications(comm)
 
 function handlePropfindForCalendarId(comm, calendarId)
 {
-    CAL.find({ where: {pkey: calendarId} }).then(function(cal)
+    CAL.findOne({ where: {pkey: calendarId} }).then(function(cal)
     {
         comm.setStandardHeaders();
         comm.setDAVHeaders();
@@ -1202,7 +1219,7 @@ function handleReportCalendarQuery(comm, xmlDoc)
         }
     }
 
-    CAL.find({ where: {pkey: calendarId} } ).then(function(cal)
+    CAL.findOne({ where: {pkey: calendarId} } ).then(function(cal)
     {
         // TODO: filter according to calendar-query.comp-filter
         ICS.findAndCountAll( { where: filter}
@@ -1314,7 +1331,7 @@ function handleReportSyncCollection(comm)
     {
         var calendarId = comm.getPathElement(3);
 
-        CAL.find({ where: {pkey: calendarId} } ).then(function(cal)
+        CAL.findOne({ where: {pkey: calendarId} } ).then(function(cal)
         {
             ICS.findAndCountAll(
                 { where: {calendarId: calendarId}}
@@ -1532,7 +1549,7 @@ function proppatch(comm)
     if(isRoot)
     {
         var calendarId = comm.getCalIdFromURL();
-        CAL.find({ where: {pkey: calendarId} }).then(function(cal)
+        CAL.findOne({ where: {pkey: calendarId} }).then(function(cal)
         {
             if(cal === null)
             {
