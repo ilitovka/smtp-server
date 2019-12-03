@@ -1,7 +1,10 @@
 const ics = require('ics');
 const log = require('../../libs/log').log;
+const moment = require('moment');
 
 const icsCreate = function (event) {
+    event.start = moment(event.start).format('YYYY-M-D-H-m').split("-");
+    event.end = moment(event.end).format('YYYY-M-D-H-m').split("-");
     /*const event = {
         start: [2018, 5, 30, 6, 30],
         duration: { hours: 6, minutes: 30 },
