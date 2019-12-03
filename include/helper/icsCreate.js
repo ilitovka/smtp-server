@@ -6,7 +6,7 @@ const icsCreate = function (event) {
     event.start = moment(event.start).format('YYYY-M-D-H-m').split("-");
     event.end = moment(event.end).format('YYYY-M-D-H-m').split("-");
     event.organizer = {
-        name: event.organizer.params,
+        name: event.organizer.params.CN,
         email: event.organizer.val
     };
     let attendeens = [];
