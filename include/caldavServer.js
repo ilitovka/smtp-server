@@ -213,4 +213,4 @@ process.on('uncaughtException', function(err)
 });
 
 // Put a friendly message on the terminal
-log.info("Server running at http://" + config.ip + ":" + process.env.PORT || config.port + "/");
+log.info("Server running at http://" + config.ip + ":" + (process.env.PORT || config.port) + "/");

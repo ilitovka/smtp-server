@@ -31,6 +31,8 @@
     "htdigest": "^2.0.2",
     "htpasswd": "^2.1.2",
     "http-auth": "^2.1.9",
+    "ics": "^2.18.0",
+    "jsforce": "^1.9.3",
     "libxmljs": "^0.18.0",
     "log4js": "^0.6.9",
     "mailparser": "^2.7.6",

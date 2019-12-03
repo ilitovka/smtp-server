@@ -40,6 +40,21 @@ var ICS = sequelize.define('ICS', {
 /**
  *
  * @type {Model}
+ * represents an event object with a start and an end date
+ */
+var ICSHistory = sequelize.define('ICSHistory', {
+    id: { type: Sequelize.INTEGER, allowNull: false, unique: true, primaryKey: true, autoIncrement: true},
+    pkey: { type: Sequelize.STRING, allowNull: false},
+    calendarId: { type: Sequelize.STRING, allowNull: false},
+    startDate: { type: Sequelize.DATE, allowNull: false},
+    endDate: { type: Sequelize.DATE, allowNull: false},
+    content: { type: Sequelize.TEXT, allowNull: false},
+    contentOld: { type: Sequelize.TEXT, allowNull: false}
+});
+
+/**
+ *
+ * @type {Model}
  * represents a calendar object containing events (ics)
  */
 var CAL = sequelize.define('CAL', {
@@ -136,6 +151,7 @@ sequelize.sync().then(function()
 module.exports = {
     ICS: ICS,
     CAL: CAL,
+    ICSHistory: ICSHistory,
     VCARD: VCARD,
     ADB: ADDRESSBOOK,
     getPermission: function (user) {
