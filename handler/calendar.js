@@ -16,7 +16,7 @@ const log = require('../libs/log').log;
 const ICS = require('../libs/db').ICS;
 const ICSHistory = require('../libs/db').ICSHistory;
 const CAL = require('../libs/db').CAL;
-const iCalParser = require('../include/helper/icsParser');
+const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 
 // Exporting.
@@ -302,8 +302,9 @@ function mergeICS(currentICS, newICS) {
     log.debug(currentICS);
     log.debug(newICS);
 
-    let currentICSParsed = iCalParser.parseFirst(currentICS);
-    let newICSParsed = iCalParser.parseFirst(newICS);
+    let parser = new icsParser();
+    let currentICSParsed = parser.parseFirst(currentICS);
+    let newICSParsed = parser.parseFirst(newICS);
 
     if (newICSParsed.attendee !== undefined && newICSParsed.attendee.length > 0) {
         log.debug(newICSParsed.attendee);
