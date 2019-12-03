@@ -251,23 +251,13 @@ function saveICS(options)
         }
         else
         {
-            let ifNoneMatch = comm.getHeader('If-None-Match');
-            if(ifNoneMatch && ifNoneMatch === "*")
-            {
-                log.debug('If-None-Match matches, return status code 412');
+            contentOld = ics.content;
+            startDate = dtStart.toISOString();
+            endDate = dtEnd.toISOString();
 
-                return false;
-            }
-            else
-            {
-                contentOld = ics.content;
-                startDate = dtStart.toISOString();
-                endDate = dtEnd.toISOString();
-
-                ics.content = mergeICS(ics.content, body);
-                //ics.content = comm.getReqBody();
-                log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
-            }
+            ics.content = mergeICS(ics.content, body);
+            //ics.content = comm.getReqBody();
+            log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
         }
 
         ICSHistory.create({
