@@ -43,7 +43,8 @@ var ICS = sequelize.define('ICS', {
  * represents an event object with a start and an end date
  */
 var ICSHistory = sequelize.define('ICSHistory', {
-    pkey: { type: Sequelize.STRING, allowNull: false, unique: true, primaryKey: true},
+    id: { type: Sequelize.INTEGER, allowNull: false, unique: true, primaryKey: true, autoIncrement: true},
+    pkey: { type: Sequelize.STRING, allowNull: false},
     calendarId: { type: Sequelize.STRING, allowNull: false},
     startDate: { type: Sequelize.DATE, allowNull: false},
     endDate: { type: Sequelize.DATE, allowNull: false},
