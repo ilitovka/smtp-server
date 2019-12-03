@@ -1,5 +1,5 @@
 const iCal = require('node-ical');
-const log = require('../libs/log').log;
+const log = require('../../libs/log').log;
 
 const icsParse = function () {};
 
