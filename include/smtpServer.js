@@ -15,12 +15,11 @@ let customSMTPServer = function() {
             //stream.pipe(process.stdout); // print message to console
             stream.on('data',function(data){
                 string += data.toString();
-                log.debug('stream data: ' + data.toString());
             });
             stream.on("end", () => {
                 log.info('Stream finished.');
                 self.process(string);
-                callback(null, "Message queued as abcdef");
+                callback(null, "Message queued");
             });
         }
     });

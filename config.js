@@ -99,7 +99,12 @@ var config =
         endpoint: process.env.DB_USER !== undefined ? process.env.DB_USER : ''
     },
     configService: {
-        apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : ''
+        apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
+        url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
+    },
+    crypto: {
+        algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-crt',
+        key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : 'szkhw4t4hqed7453wejpfk352shxw8pd'
     }
 };
 

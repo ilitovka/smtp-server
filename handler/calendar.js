@@ -269,7 +269,7 @@ function saveICS(options)
             calendarId: calendar,
             startDate: dtStart.toISOString(),
             endDate:  dtEnd.toISOString(),
-            content: body,
+            content: ics.content,
             contentOld: contentOld
         }).then(ics => {
             if (ics) {
@@ -307,34 +307,39 @@ function mergeICS(currentICS, newICS) {
     let newICSParsed = parser.parseFirst(newICS);
     let attendeeKeys = [];
 
-    if (Object.keys(currentICSParsed.attendee).length > 0) {
+    if (currentICSParsed.attendee === undefined) {
+        currentICSParsed.attendee = [];
+    }
+    if (newICSParsed.attendee === undefined) {
+        newICSParsed.attendee = [];
+    }
+    if (!Array.isArray(currentICSParsed.attendee)) {
         currentICSParsed.attendee = [currentICSParsed.attendee];
     }
-    if (Object.keys(newICSParsed.attendee).length > 0) {
+    if (!Array.isArray(newICSParsed.attendee)) {
         newICSParsed.attendee = [newICSParsed.attendee];
     }
 
-    if (currentICSParsed.attendee !== undefined && currentICSParsed.attendee.length > 0) {
+    if (currentICSParsed.attendee.length > 0) {
         log.debug(currentICSParsed.attendee);
         for (let i = 0; i < currentICSParsed.attendee.length; i++) {
-            log.debug(currentICSParsed.attendee[i]);
-
-            attendeeKeys[currentICSParsed.attendee[i].val] = newICSParsed.attendee[i];
+            attendeeKeys[currentICSParsed.attendee[i].val] = currentICSParsed.attendee[i];
         }
     } else {
         log.debug('currentParsed.attendee is undefined');
     }
 
-    if (newICSParsed.attendee !== undefined && newICSParsed.attendee.length > 0) {
+    if (newICSParsed.attendee.length > 0) {
         log.debug(newICSParsed.attendee);
         for (let j = 0; j < newICSParsed.attendee.length; j++) {
-            log.debug(newICSParsed.attendee[j]);
-
             attendeeKeys[newICSParsed.attendee[j].val] = newICSParsed.attendee[j];
         }
     } else {
         log.debug('newParsed.attendee is undefined');
     }
+
+    log.debug('Attendees: ');
+    log.debug(attendeeKeys);
 
     currentICSParsed.attendee = attendeeKeys;
 

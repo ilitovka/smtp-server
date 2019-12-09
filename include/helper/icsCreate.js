@@ -11,22 +11,25 @@ const icsCreate = function (event) {
             organizer: {
                 name: event.organizer.params.CN,
                 email: event.organizer.val.replace('mailto:', '')
-            }
+            },
+            uid: event.uid
         };
 
         let attendees = [];
-        for (let i = 0; i < event.attendee.length; i++) {
-            let attendee = event.attendee[i];
+        for (let key in event.attendee) {
+            let attendee = event.attendee[key];
             attendees.push(
                 {
                     email:      attendee.val.replace('mailto:', ''),
-                    rsvp:       attendee.params.PARTSTAT,
+                    rsvp:       true,
                     partstat:   attendee.params.PARTSTAT,
                     role:       attendee.params.ROLE
                 }
             );
         }
         eventMerged.attendees = attendees;
+
+        log.debug(eventMerged);
 
         return ics.createEvent(eventMerged).value;
     } catch (e) {
