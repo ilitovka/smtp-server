@@ -46,7 +46,7 @@ var config =
     //ip: '0.0.0.0',
 
     // db specific configuration. you can use whatever sequelize supports.
-    db_name: 'fennel',
+    db_name: process.env.DB_NAME !== undefined ? process.env.DB_NAME : 'fennel',
     db_uid: process.env.DB_USER !== undefined ? process.env.DB_USER : 'ilitovka',
     db_pwd: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'ilitovka',
     db_dialect: process.env.DB_TYPE !== undefined ? process.env.DB_TYPE : 'mysql',
