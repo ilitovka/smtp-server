@@ -32,7 +32,7 @@
 // Place all your configuration options here
 //init .env variables
 require('dotenv').config();
-console.log(process.env);
+
 var config =
 {
     version_nr: '0.1.0',
