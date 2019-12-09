@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "crossroads": "^0.12.2",
+    "dotenv": "^8.2.0",
     "htdigest": "^2.0.2",
     "htpasswd": "^2.1.2",
     "http-auth": "^2.1.9",

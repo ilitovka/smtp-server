@@ -30,7 +30,9 @@
  -----------------------------------------------------------------------------*/
 
 // Place all your configuration options here
-
+//init .env variables
+require('dotenv').config();
+console.log(process.env);
 var config =
 {
     version_nr: '0.1.0',
@@ -45,12 +47,13 @@ var config =
 
     // db specific configuration. you can use whatever sequelize supports.
     db_name: 'fennel',
-    db_uid: 'ilitovka',
-    db_pwd: 'ilitovka',
-    db_dialect: 'mysql',
+    db_uid: process.env.DB_USER !== undefined ? process.env.DB_USER : 'ilitovka',
+    db_pwd: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'ilitovka',
+    db_dialect: process.env.DB_TYPE !== undefined ? process.env.DB_TYPE : 'mysql',
     db_logging: true,
+    db_ssl: process.env.DB_SSL !== undefined && process.env.DB_SSL == "1" ? true : false,
     //db_storage: 'fennel.sqlite',
-    db_host: 'localhost', // For myql, postgres etc.
+    db_host: process.env.DB_HOST !== undefined ? process.env.DB_HOST : 'localhost', // For myql, postgres etc.
 
     // Authentication
     // Authentication methods so far: courier, htaccess, ldap
@@ -91,6 +94,12 @@ var config =
 
     smtpServer: {
         port: 25
+    },
+    sfApi: {
+        endpoint: process.env.DB_USER !== undefined ? process.env.DB_USER : ''
+    },
+    configService: {
+        apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : ''
     }
 };
 
