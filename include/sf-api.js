@@ -14,7 +14,7 @@ let sfApi = function() {
 sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
     let accessToken = this.tokenStorage.getAccessTokenByOrgId(icsParsed.ORGID);
 
-    if (this.accessToken === undefined) {
+    if (accessToken === undefined) {
         throw new Error('SF token is undefined');
     }
 
