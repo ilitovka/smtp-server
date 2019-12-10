@@ -32,7 +32,15 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
         });
     }
 
-    return this._sendAttendeeStatuses(body);
+    return this._sendAttendeeStatuses(body).then(res => {
+        log.debug('SF API result:');
+        log.debug(res);
+        return res;
+    }).catch(err => {
+        log.debug('SF API error:');
+        log.debug(err);
+        throw new Error('SF API /services/apexrest/AttendeeStatuses/ method failed.');
+    });
 };
 
 /**

@@ -41,13 +41,18 @@ sfTokenStorage.prototype.updateToken = function(orgId, token) {
     return this.accessTokens[orgId].getToken();
 };
 
+/**
+ * @param orgId {string} SF Org ID
+ * @return {string} access token
+ * @throws Error
+ * */
 sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
     if (!orgId) {
         log.info('OrgID is undefined');
         return null;
     }
 
-    if (this.accessTokens.includes(orgId)) {
+    if (this.accessTokens[orgId] !== undefined) {
         let accessTokenObject = this.accessTokens[orgId];
 
         if (accessTokenObject instanceof accessToken) {

@@ -33,8 +33,8 @@ configServiceClient.prototype.generateAccessToken = function (orgId) {
             },
             url:        this.config.configService.url + '/api/sf/generate-token',
             body:       JSON.stringify({
-                orgId: orgId,
-                orgType: this.config.mode
+                orgId:      orgId,
+                orgType:    this.config.mode
             })
         }, function (error, response, body) {
             try {
@@ -69,16 +69,12 @@ configServiceClient.prototype.getAccessToken = function (orgId) {
         }
 
         this.Request({
-            method:     'POST',
+            method:     'GET',
             headers:    {
                 'Content-Type' : 'application/json',
                 'Authorization': ' Bearer ' + this.config.configService.apiKey
             },
-            url:        this.config.configService.url + '/api/sf/get-token',
-            body:       JSON.stringify({
-                orgId: orgId,
-                orgType: this.config.mode
-            })
+            url:        this.config.configService.url + '/api/sf/token/' + orgId
         }, function (error, response, body) {
             try {
                 if (error) {

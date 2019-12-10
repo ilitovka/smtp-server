@@ -245,7 +245,7 @@ function saveICS(options)
         content: body
     };
 
-    ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
+    return ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
     {
         let contentOld = '';
         if(created)
@@ -286,7 +286,7 @@ function saveICS(options)
             }
         });
 
-        ics.save().then(function()
+        return ics.save().then(function()
         {
             log.info('ics updated');
 

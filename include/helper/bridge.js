@@ -25,14 +25,14 @@ Bridge.prototype.send = function (attachment, parsedICS) {
     }
 
     //Save to caldav
-    calendar.saveICS({
+    let result = calendar.saveICS({
         UID:        parsedICS.uid,
         calendarId: parsedICS.ORGID,
         content:    attachment,
         parsed:     parsedICS,
     });
 
-    if (parsedICS.ORGID !== undefined) {
+    if (parsedICS.ORGID !== undefined && result) {
         //send to SalesForce
         this.sfApi.sendAttendeeStatuses(parsedICS);
     }
