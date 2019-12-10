@@ -32,8 +32,10 @@ Bridge.prototype.send = function (attachment, parsedICS) {
         parsed:     parsedICS,
     });
 
-    //send to SalesForce
-    this.sfApi.sendAttendeeStatuses(parsedICS);
+    if (parsedICS.ORGID !== undefined) {
+        //send to SalesForce
+        this.sfApi.sendAttendeeStatuses(parsedICS);
+    }
 
     log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
 

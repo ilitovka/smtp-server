@@ -8,7 +8,7 @@ let sfTokenStorage = function() {
     this.accessTokens = [];
 
     if (config.sfApi.accessToken && config.mode !== undefined && config.mode === 'sandbox') {
-        this.addToken(config.sfApi.orgID, new accessToken(config.sfApi.accessToken, moment().unix() + 8 * 3600 ))
+        this.addToken(config.sfApi.orgID, new accessToken(config.sfApi.accessToken, moment().unix() + 3 * 24 * 3600 ))
     }
 
     this.configService = new configService();
