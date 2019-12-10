@@ -52,7 +52,7 @@ var ICS = sequelize.define('ICS', {
 var ICSHistory = sequelize.define('ICSHistory', {
     id: { type: Sequelize.INTEGER, allowNull: false, unique: true, primaryKey: true, autoIncrement: true},
     pkey: { type: Sequelize.STRING, allowNull: false},
-    calendarId: { type: Sequelize.STRING, allowNull: false},
+    calendarId: { type: Sequelize.STRING, allowNull: true},
     startDate: { type: Sequelize.DATE, allowNull: false},
     endDate: { type: Sequelize.DATE, allowNull: false},
     content: { type: Sequelize.TEXT, allowNull: false},

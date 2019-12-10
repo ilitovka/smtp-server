@@ -2,6 +2,12 @@ const ics = require('ics');
 const log = require('../../libs/log').log;
 const moment = require('moment');
 
+/**
+ *
+ * @param event {object} Parsed ICS event
+ *
+ * @return {string}
+ * */
 const icsCreate = function (event) {
     try {
         const eventMerged = {

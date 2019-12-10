@@ -220,6 +220,9 @@ function put(comm)
 }
 
 //TODO::refactor save method
+/**
+ * @param options {object}
+ * */
 function saveICS(options)
 {
     log.debug("calendar.save called");
@@ -254,6 +257,10 @@ function saveICS(options)
             contentOld = ics.content;
             startDate = dtStart.toISOString();
             endDate = dtEnd.toISOString();
+
+            if (!calendar) {
+                calendar = ics.calendarId
+            }
 
             if (ics.content && body) {
                 ics.content = mergeICS(ics.content, body);
@@ -298,6 +305,12 @@ function saveICS(options)
     });
 }
 
+/**
+ * @param currentICS {string}
+ * @param newICS {string}
+ *
+ * return {string}
+ * */
 function mergeICS(currentICS, newICS) {
     log.debug(currentICS);
     log.debug(newICS);

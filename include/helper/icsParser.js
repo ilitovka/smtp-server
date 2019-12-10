@@ -13,6 +13,10 @@ icsParse.prototype.parse = function(text) {
     return iCal.sync.parseICS(text);
 };
 
+/**
+ * @param text {string} ICS in string format
+ * @return {mixed} boolean or object
+ * */
 icsParse.prototype.parseFirst = function(text) {
     let events = this.parse(text);
     if (Object.keys(events).length > 0) {

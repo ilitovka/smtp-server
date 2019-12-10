@@ -5,6 +5,9 @@ const bridge = require('./helper/bridge');
 const icsParser = require('./helper/icsParser');
 const log = require('../libs/log').log;
 
+/**
+ * @constructor
+ * */
 let customSMTPServer = function() {
     var self = this;
     log.info('Starting SMTP server...');
@@ -36,6 +39,9 @@ let customSMTPServer = function() {
     log.info("Server running at port " + config.smtpServer.port);
 };
 
+/**
+ * @param stream {string} Incoming mail
+ * */
 customSMTPServer.prototype.process = function (stream) {
     MailParser(stream)
         .then(parsedMail => {
@@ -58,6 +64,7 @@ customSMTPServer.prototype.process = function (stream) {
                     log.debug('Event info: ');
                     log.debug(event);
 
+                    //Send parsed ICS to caldav
                     let caldavBridge = new bridge();
                     let result = caldavBridge.send(content, event);
                     if (result) {

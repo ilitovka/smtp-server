@@ -16,8 +16,9 @@ Bridge.prototype.send = function (attachment, parsedICS) {
         return false;
     }
     if (parsedICS.ORGID === undefined) {
+        parsedICS.ORGID = null;
         log.info('ORGID is undefined');
-        return false;
+        //return false;
     }
 
     calendar.saveICS({
