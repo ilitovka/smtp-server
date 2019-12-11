@@ -11,6 +11,9 @@ const log = require('../libs/log').log;
 let customSMTPServer = function() {
     var self = this;
     log.info('Starting SMTP server...');
+
+    this.bridge = new bridge();
+
     const server = new SmtpServer({
         authOptional: true,
         onData(stream, session, callback) {
@@ -64,9 +67,8 @@ customSMTPServer.prototype.process = function (stream) {
                     log.debug('Event info: ');
                     log.debug(event);
 
-                    //Send parsed ICS to caldav
-                    let caldavBridge = new bridge();
-                    let result = caldavBridge.send(content, event);
+                    //Send parsed ICS to caldav/SF
+                    let result = this.bridge.send(content, event);
                     if (result) {
                         log.info('Attachment saved to DB');
                     } else {

@@ -96,16 +96,19 @@ var config =
         port: 25
     },
     sfApi: {
-        endpoint: process.env.DB_USER !== undefined ? process.env.DB_USER : ''
+        endpoint: process.env.SFAPI_ENDPOINT !== undefined ? process.env.SFAPI_ENDPOINT : '',
+        accessToken:  process.env.SFAPI_ACCESSTOKEN || '',
+        orgID:  process.env.SFAPI_ORGID || '',
     },
     configService: {
         apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
         url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
     },
     crypto: {
-        algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-crt',
+        algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',
         key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : 'szkhw4t4hqed7453wejpfk352shxw8pd'
-    }
+    },
+    mode: process.env.MODE !== undefined ? process.env.MODE : 'sandbox'
 };
 
 // Exporting.

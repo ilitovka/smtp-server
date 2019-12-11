@@ -1,7 +1,10 @@
-var calendar = require("../../handler/calendar");
+const calendar = require("../../handler/calendar");
 const log = require('../../libs/log').log;
+const sfApi = require('../../include/sf-api');
 
-const Bridge = function() {};
+const Bridge = function() {
+    this.sfApi = new sfApi();
+};
 
 /**
  * @param {string} attachment
@@ -21,12 +24,22 @@ Bridge.prototype.send = function (attachment, parsedICS) {
         //return false;
     }
 
-    calendar.saveICS({
+    //Save to caldav
+    let result = calendar.saveICS({
         UID:        parsedICS.uid,
         calendarId: parsedICS.ORGID,
         content:    attachment,
         parsed:     parsedICS,
     });
+
+    if (parsedICS.ORGID !== undefined && result) {
+        //send to SalesForce
+        this.sfApi.sendAttendeeStatuses(parsedICS).then(result => {
+            log.debug(result);
+        }).catch(err => {
+            log.debug(err);
+        });
+    }
 
     log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
 
