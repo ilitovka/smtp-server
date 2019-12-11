@@ -1,4 +1,5 @@
 const config = require('../config').config;
+const log = require('../libs/log').log;
 
 /**
  * ConfigService client, being used to validate ord id
@@ -68,6 +69,7 @@ configServiceClient.prototype.getAccessToken = function (orgId) {
             return reject('Config Service API KEY should be configured');
         }
 
+        log.debug(this.config.configService.url + '/api/sf/token/' + orgId);
         this.Request({
             method:     'GET',
             headers:    {
@@ -115,8 +117,7 @@ configServiceClient.prototype.refreshAccessToken = function (orgId) {
             },
             url:        this.config.configService.url + '/api/sf/refresh-token',
             body:       JSON.stringify({
-                orgId: orgId,
-                orgType: this.config.mode
+                orgId: orgId
             })
         }, function (error, response, body) {
             try {

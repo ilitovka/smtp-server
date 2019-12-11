@@ -12,35 +12,38 @@ let sfApi = function() {
  * @param icsParsed {object} Parsed ICS file
  * */
 sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
-    let accessToken = this.tokenStorage.getAccessTokenByOrgId(icsParsed.ORGID);
+    return (new Promise((resolve, reject) => {
+        let orgId = icsParsed.ORGID.slice(0, 15);
+        this.tokenStorage.getAccessTokenByOrgId(orgId).then(accessToken => {
+            log.debug(accessToken);
+            if (accessToken === undefined) {
+                return reject('SF token is undefined');
+            }
 
-    if (accessToken === undefined) {
-        throw new Error('SF token is undefined');
-    }
+            this.connect(accessToken);
 
-    this.connect(accessToken);
+            // body payload structure is depending to the Apex REST method interface.
+            let body = {
+                attendees: []
+            };
+            for (let i = 0; i < icsParsed.attendee.length; i++) {
+                body.attendees.push({
+                    EventId: icsParsed.uid,
+                    attendee: icsParsed.attendee[i].val.replace('mailto:', ''),
+                    Decision: icsParsed.attendee[i].params.PARTSTAT
+                });
+            }
 
-    // body payload structure is depending to the Apex REST method interface.
-    let body = {
-        attendees: []
-    };
-    for (let i = 0; i < icsParsed.attendee.length; i++) {
-        body.attendees.push({
-            EventId: icsParsed.uid,
-            attendee: icsParsed.attendee[i].val.replace('mailto:', ''),
-            Decision: icsParsed.attendee[i].params.PARTSTAT
+            this._sendAttendeeStatuses(body).then(res => {
+                return resolve(res);
+            }).catch(err => {
+                return reject({ message: err, code: 'SF_API_ATTENDEESTATUSESS_METHOD_ERROR' });
+            });
+        }).catch(err => {
+            log.debug(err);
+            return reject({ message: err, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR' });
         });
-    }
-
-    return this._sendAttendeeStatuses(body).then(res => {
-        log.debug('SF API result:');
-        log.debug(res);
-        return res;
-    }).catch(err => {
-        log.debug('SF API error:');
-        log.debug(err);
-        throw new Error('SF API /services/apexrest/AttendeeStatuses/ method failed.');
-    });
+    }));
 };
 
 /**
@@ -48,12 +51,12 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
  * */
 sfApi.prototype.connect = function (accessToken) {
     try {
-        log.debug(this.sfOrgUrl);
-        log.debug(accessToken);
+        log.debug('Connecting to SF');
         this.connect = new jsforce.Connection({
-            instanceUrl : this.sfOrgUrl,
-            accessToken : accessToken
+            instanceUrl : accessToken.getInstanceUrl(),
+            accessToken : accessToken.getToken()
         });
+        log.debug('connected');
     } catch (e) {
         log.info(e);
         throw new Error('Couldn\'t connect to SF API');
@@ -83,8 +86,6 @@ sfApi.prototype._sendInvite = function (attendees) {
             if (err) {
                 return console.error(err);
             }
-
-            log.debug("response: ", res);
 
             return res;
         });
