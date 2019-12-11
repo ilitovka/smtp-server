@@ -42,6 +42,15 @@ sfTokenStorage.prototype.updateToken = function(orgId, token) {
 };
 
 /**
+ * @param access_token {string} - access token object
+ * @param instance_url {string} - access token object
+ * @param expire {time} - access token object
+ * */
+sfTokenStorage.prototype.createToken = function(access_token, instance_url, expire) {
+    return new accessToken(access_token, instance_url, expire);
+};
+
+/**
  * @param orgId {string} SF Org ID
  * @return {Promise} access token
  * @throws Error
@@ -58,34 +67,63 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
 
             if (accessTokenObject instanceof accessToken) {
                 if (accessTokenObject.isExpire()) {
-                    this.configService.refreshAccessToken(orgId).then((result) => {
-                        log.debug('Refresh access token result: ');
-                        log.debug(result);
-                        if (result) {
-                            let expire = moment().unix() + 8 * 3600;
-                            if (result.expiration) {
-                                expire = result.expiration;
-                            }
-                            return resolve(this.updateToken(orgId, new accessToken(result.access_token, result.instance_url, expire)));
-                        } else {
-                            return reject('Something wrong.');
-                        }
-                    }).catch(err => {
-                        log.info(err);
-                        return reject(err);
-                    });
+                    this._refreshToken(orgId)
+                        .then(result => {
+                            return resolve(result);
+                        })
+                        .catch(err => {
+                            return reject(err);
+                        });
                 }
-                return resolve(accessTokenObject.getToken());
+                return resolve(accessTokenObject);
             }
         }
 
+        this._getAccessToken(orgId)
+            .then(result => {
+                return resolve(result);
+            })
+            .catch(err => {
+                return reject(err);
+            });
+    }));
+};
+
+sfTokenStorage.prototype._refreshToken = function (orgId) {
+    return (new Promise((resolve, reject) => {
+        if (!orgId) {
+            return reject('OrgID is undefined');
+        }
+
+        this.configService.refreshAccessToken(orgId).then((result) => {
+            if (result) {
+                this._getAccessToken(orgId)
+                    .then(result => {
+                        return resolve(result);
+                    })
+                    .catch(err => {
+                        return reject(err);
+                    });
+            } else {
+                return reject('Something wrong.');
+            }
+        }).catch(err => {
+            return reject(err);
+        });
+    }));
+};
+
+sfTokenStorage.prototype._getAccessToken = function (orgId) {
+    return (new Promise((resolve, reject) => {
+        if (!orgId) {
+            return reject('OrgID is undefined');
+        }
+
         this.configService.getAccessToken(orgId).then((result) => {
-            log.debug('Get access token result: ');
-            log.info(result);
             if (result) {
                 let expire = moment().unix() + 8 * 3600;
-                if (result.expiration) {
-                    expire = result.expiration;
+                if (result.expireTime) {
+                    expire = result.expireTime;
                 }
                 return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire)));
             } else {

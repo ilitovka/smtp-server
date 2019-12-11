@@ -48,7 +48,6 @@ let customSMTPServer = function() {
 customSMTPServer.prototype.process = function (stream) {
     MailParser(stream)
         .then(parsedMail => {
-            log.debug(parsedMail);
             let parser = new icsParser();
             if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
                 let checksumArray = [];

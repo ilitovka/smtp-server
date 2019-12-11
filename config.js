@@ -106,7 +106,7 @@ var config =
     },
     crypto: {
         algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',
-        key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : 'szkhw4t4hqed7453wejpfk352shxw8pd'
+        key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : ''
     },
     mode: process.env.MODE !== undefined ? process.env.MODE : 'sandbox'
 };
