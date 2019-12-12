@@ -67,12 +67,8 @@ customSMTPServer.prototype.process = function (stream) {
                     log.debug(event);
 
                     //Send parsed ICS to caldav/SF
-                    let result = this.bridge.send(content, event);
-                    if (result) {
-                        log.info('Attachment saved to DB');
-                    } else {
-                        log.info('Attachment ignored');
-                    }
+                    log.info('Attachment saving to DB');
+                    this.bridge.send(content, event);
                 }
             }
         })

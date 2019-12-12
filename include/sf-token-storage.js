@@ -69,21 +69,26 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
                 if (accessTokenObject.isExpire()) {
                     this._refreshToken(orgId)
                         .then(result => {
+                            log.info('Access token refreshed and received');
                             return resolve(result);
                         })
                         .catch(err => {
+                            log.info('Access token refresh failed: getAccessTokenByOrgId.then()');
                             return reject(err);
                         });
                 }
+                log.info('Access token found in memory: getAccessTokenByOrgId.then()');
                 return resolve(accessTokenObject);
             }
         }
 
         this._getAccessToken(orgId)
             .then(result => {
+                log.info('Access token successfully received');
                 return resolve(result);
             })
             .catch(err => {
+                log.info('Get Access token is failed');
                 return reject(err);
             });
     }));
@@ -97,6 +102,7 @@ sfTokenStorage.prototype._refreshToken = function (orgId) {
 
         this.configService.refreshAccessToken(orgId).then((result) => {
             if (result) {
+                log.info('Access token successfully refreshed.');
                 this._getAccessToken(orgId)
                     .then(result => {
                         return resolve(result);
@@ -105,9 +111,11 @@ sfTokenStorage.prototype._refreshToken = function (orgId) {
                         return reject(err);
                     });
             } else {
-                return reject('Something wrong.');
+                log.info('Refresh Access token is failed: _refreshToken.then()');
+                return reject('Refresh Access token is failed.');
             }
         }).catch(err => {
+            log.info('Refresh Access token is failed: _refreshToken.catch()');
             return reject(err);
         });
     }));
@@ -125,11 +133,14 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
                 if (result.expireTime) {
                     expire = result.expireTime;
                 }
+                log.info('Access token successfully received: _getAccessToken');
                 return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire)));
             } else {
+                log.info('Access token failed: _getAccessToken.then()');
                 return reject('Something wrong');
             }
         }).catch(err => {
+            log.info('Access token failed: _getAccessToken.catch()');
             return reject(err);
         });
     }));
