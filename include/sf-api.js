@@ -26,11 +26,12 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
             let body = {
                 attendees: []
             };
-            for (let i = 0; i < icsParsed.attendee.length; i++) {
+            for (let key in icsParsed.attendee) {
+                let attendee = icsParsed.attendee[key];
                 body.attendees.push({
                     EventId: icsParsed.uid,
-                    attendee: icsParsed.attendee[i].val.replace('mailto:', ''),
-                    Decision: icsParsed.attendee[i].params.PARTSTAT
+                    attendee: attendee.val.replace('mailto:', ''),
+                    Decision: attendee.params.PARTSTAT
                 });
             }
 
