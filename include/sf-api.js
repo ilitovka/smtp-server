@@ -26,6 +26,9 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
             let body = {
                 attendees: []
             };
+            if (!Array.isArray(icsParsed.attendee)) {
+                icsParsed.attendee = [icsParsed.attendee];
+            }
             for (let key in icsParsed.attendee) {
                 let attendee = icsParsed.attendee[key];
                 body.attendees.push({
