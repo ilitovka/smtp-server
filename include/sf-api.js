@@ -6,6 +6,7 @@ const sfTokenStorage = require('../include/sf-token-storage');
 let sfApi = function() {
     this.sfOrgUrl = config.sfApi.endpoint;
     this.tokenStorage = new sfTokenStorage();
+    this.connection = null;
 };
 
 /**
@@ -61,7 +62,7 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
 sfApi.prototype.connect = function (accessToken) {
     try {
         log.debug('Connecting to SF');
-        this.connect = new jsforce.Connection({
+        this.connection = new jsforce.Connection({
             instanceUrl : accessToken.getInstanceUrl(),
             accessToken : accessToken.getToken()
         });
@@ -74,7 +75,7 @@ sfApi.prototype.connect = function (accessToken) {
 
 sfApi.prototype._sendAttendeeStatuses = function (body) {
     try {
-        return this.connect.apex.patch('/services/apexrest/AttendeeStatuses/', body, function(err, res) {
+        return this.connection.apex.patch('/services/apexrest/AttendeeStatuses/', body, function(err, res) {
             if (err) {
                 return console.error(err);
             }
@@ -91,7 +92,7 @@ sfApi.prototype._sendAttendeeStatuses = function (body) {
 
 sfApi.prototype._sendInvite = function (attendees) {
     try {
-        return this.connect.apex.post('/services/apexrest/SendEmail/', attendees, function(err, res) {
+        return this.connection.apex.post('/services/apexrest/SendEmail/', attendees, function(err, res) {
             if (err) {
                 return console.error(err);
             }
