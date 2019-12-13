@@ -29,7 +29,8 @@ const icsCreate = function (event) {
                     email:      attendee.val.replace('mailto:', ''),
                     rsvp:       true,
                     partstat:   attendee.params.PARTSTAT,
-                    role:       attendee.params.ROLE
+                    role:       attendee.params.ROLE,
+                    name:       attendee.params.CN
                 }
             );
         }
