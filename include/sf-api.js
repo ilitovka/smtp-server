@@ -42,7 +42,6 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
             log.debug(body);
             this._sendAttendeeStatuses(body).then(res => {
                 log.info('Attendee statuses sent successfully: _sendAttendeeStatuses');
-                log.info(res);
                 return resolve(res);
             }).catch(err => {
                 log.info('Attendee statuses sent failed: _sendAttendeeStatuses');
@@ -50,7 +49,6 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
             });
         }).catch(err => {
             log.info('Attendee statuses sent failed: _sendAttendeeStatuses');
-            log.debug(err);
             return reject({ message: err, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR' });
         });
     }));

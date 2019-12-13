@@ -12,9 +12,6 @@ function testConfigService() {
         let tokenStorageObject = new sfStorage();
 
         tokenStorageObject.getAccessTokenByOrgId('00D5D000000DEVV').then(res => {
-            log.debug('CS API result (getAccessTokenByOrgId):');
-            log.debug(res);
-            log.debug(res.getToken());
             return res;
         }).catch(err => {
             log.debug('CS API error:');

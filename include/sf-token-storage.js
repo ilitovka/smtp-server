@@ -128,8 +128,9 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
         }
 
         this.configService.getAccessToken(orgId).then((result) => {
+            log.debug(result);
             if (result) {
-                let expire = moment().unix() + 8 * 3600;
+                let expire = moment().unix() + config.configService.defaultLifetime;
                 if (result.expireTime) {
                     expire = result.expireTime;
                 }

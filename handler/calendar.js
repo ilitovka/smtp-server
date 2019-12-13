@@ -245,64 +245,86 @@ function saveICS(options)
         content: body
     };
 
-    return ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
-    {
-        let contentOld = '';
-        if(created)
+    return (new Promise((resolve, reject) => {
+        return ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
         {
-            log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
-        }
-        else
-        {
-            contentOld = ics.content;
-            startDate = dtStart.toISOString();
-            endDate = dtEnd.toISOString();
-
-            if (!calendar) {
-                calendar = ics.calendarId
-            }
-
-            if (ics.content && body) {
-                ics.content = mergeICS(ics.content, body);
-            } else {
-                ics.content = body;
-            }
-
-            log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
-        }
-
-        ICSHistory.create({
-            pkey: ics_id,
-            calendarId: calendar,
-            startDate: dtStart.toISOString(),
-            endDate:  dtEnd.toISOString(),
-            content: ics.content,
-            contentOld: contentOld
-        }).then(ics => {
-            if (ics) {
-                log.debug('Created ICS history record: ' + JSON.stringify(ics, null, 4));
-            } else {
-                log.debug('Failed creating ICS history record ID:' + ics_id);
-            }
-        });
-
-        return ics.save().then(function()
-        {
-            log.info('ics updated');
-
-            // update calendar collection
-            CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
+            let contentOld = '';
+            if(created)
             {
-                if(cal !== null && cal !== undefined)
-                {
-                    cal.increment('synctoken', { by: 1 }).then(function()
-                    {
-                        log.info('synctoken on cal updated');
-                    });
+                log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
+            }
+            else
+            {
+                contentOld = ics.content;
+                startDate = dtStart.toISOString();
+                endDate = dtEnd.toISOString();
+
+                if (!calendar) {
+                    calendar = ics.calendarId
+                }
+
+                if (ics.content && body) {
+                    ics.content = mergeICS(ics.content, body);
+                } else {
+                    ics.content = body;
+                }
+
+                log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
+            }
+
+            ICSHistory.create({
+                pkey: ics_id,
+                calendarId: calendar,
+                startDate: dtStart.toISOString(),
+                endDate:  dtEnd.toISOString(),
+                content: ics.content,
+                contentOld: contentOld
+            }).then(ics => {
+                if (ics) {
+                    log.debug('Created ICS history record: ' + JSON.stringify(ics, null, 4));
+                } else {
+                    log.debug('Failed creating ICS history record ID:' + ics_id);
                 }
             });
+
+            return ics.save().then(result => {
+                log.info('ics updated');
+
+                // update calendar collection
+                let defaultCalendar = {
+                    pkey: calendar,
+                    owner: 'demo',
+                    timezone: '',
+                    order: 1,
+                    free_busy_set: '',
+                    supported_cal_component: 'VEVENT',
+                    colour: '#fff',
+                    displayname: 'ICS server',
+                    synctoken: 0
+                };
+                CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then(function(cal)
+                {
+                    if(cal !== null && cal !== undefined)
+                    {
+                        cal.increment('synctoken', { by: 1 }).then(function()
+                        {
+                            log.info('synctoken on cal updated');
+
+                        });
+                    }
+                });
+
+                log.info(result);
+                return resolve('ICS successfully saved.');
+            }).catch(err => {
+                log.info(err);
+                return reject('ICS.save failed.');
+            });
+        }).catch(err => {
+            log.info(err);
+            return reject('ICS.findOrCreate failed.');
         });
-    });
+    }));
 }
 
 /**
@@ -312,9 +334,6 @@ function saveICS(options)
  * return {string}
  * */
 function mergeICS(currentICS, newICS) {
-    log.debug(currentICS);
-    log.debug(newICS);
-
     let parser = new icsParser();
     let currentICSParsed = parser.parseFirst(currentICS);
     let newICSParsed = parser.parseFirst(newICS);
@@ -350,9 +369,6 @@ function mergeICS(currentICS, newICS) {
     } else {
         log.debug('newParsed.attendee is undefined');
     }
-
-    log.debug('Attendees: ');
-    log.debug(attendeeKeys);
 
     currentICSParsed.attendee = attendeeKeys;
 
