@@ -35,8 +35,6 @@ const icsCreate = function (event) {
         }
         eventMerged.attendees = attendees;
 
-        log.debug(eventMerged);
-
         return ics.createEvent(eventMerged).value;
     } catch (e) {
         return '';

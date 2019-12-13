@@ -40,11 +40,10 @@ Bridge.prototype.send = function (attachment, parsedICS) {
                 log.debug(err);
             });
         }
+        log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
     }).catch(err => {
         log.debug(err);
     });
-
-    log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
 
     return true;
 };

@@ -304,17 +304,16 @@ function saveICS(options)
                 };
                 CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then(function(cal)
                 {
-                    if(cal !== null && cal !== undefined)
-                    {
-                        cal.increment('synctoken', { by: 1 }).then(function()
-                        {
-                            log.info('synctoken on cal updated');
-
-                        });
-                    }
+                    // if(cal !== null && cal !== undefined)
+                    // {
+                    //     cal.increment('synctoken', { by: 1 }).then(function()
+                    //     {
+                    //         log.info('synctoken on cal updated');
+                    //
+                    //     });
+                    // }
                 });
 
-                log.info(result);
                 return resolve('ICS successfully saved.');
             }).catch(err => {
                 log.info(err);

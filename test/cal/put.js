@@ -83,7 +83,7 @@ test('Calling PUT on calendar', function (t) {
 
     var options = {
         method: 'PUT',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA/" + uuidEvent + ".icf",
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar/" + uuidEvent + ".icf",
         auth: {
             'user': username,
             'pass': password,
