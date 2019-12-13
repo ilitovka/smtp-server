@@ -62,7 +62,7 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
             return reject('OrgID is undefined');
         }
 
-        if (this.accessTokens[orgId] !== undefined) {
+        /*if (this.accessTokens[orgId] !== undefined) {
             let accessTokenObject = this.accessTokens[orgId];
 
             if (accessTokenObject instanceof accessToken) {
@@ -80,7 +80,7 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
                 log.info('Access token found in memory: getAccessTokenByOrgId.then()');
                 return resolve(accessTokenObject);
             }
-        }
+        }*/
 
         this._getAccessToken(orgId)
             .then(result => {
