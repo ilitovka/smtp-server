@@ -30,6 +30,8 @@
  -----------------------------------------------------------------------------*/
 
 // Place all your configuration options here
+//init .env variables
+require('dotenv').config();
 
 var config =
 {
@@ -44,13 +46,14 @@ var config =
     //ip: '0.0.0.0',
 
     // db specific configuration. you can use whatever sequelize supports.
-    db_name: 'fennel',
-    db_uid: 'ilitovka',
-    db_pwd: 'ilitovka',
-    db_dialect: 'mysql',
+    db_name: process.env.DB_NAME !== undefined ? process.env.DB_NAME : 'fennel',
+    db_uid: process.env.DB_USER !== undefined ? process.env.DB_USER : 'root',
+    db_pwd: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : '',
+    db_dialect: process.env.DB_TYPE !== undefined ? process.env.DB_TYPE : 'postgres',
     db_logging: true,
+    db_ssl: process.env.DB_SSL !== undefined && process.env.DB_SSL == "1" ? true : false,
     //db_storage: 'fennel.sqlite',
-    db_host: 'localhost', // For myql, postgres etc.
+    db_host: process.env.DB_HOST !== undefined ? process.env.DB_HOST : 'localhost', // For myql, postgres etc.
 
     // Authentication
     // Authentication methods so far: courier, htaccess, ldap
@@ -90,8 +93,23 @@ var config =
     test_user_pwd: 'demo',
 
     smtpServer: {
-        port: 25
-    }
+        port: process.env.SMTP_PORT !== undefined ? process.env.SMTP_PORT : 25,
+    },
+    sfApi: {
+        endpoint: process.env.SFAPI_ENDPOINT !== undefined ? process.env.SFAPI_ENDPOINT : '',
+        accessToken:  process.env.SFAPI_ACCESSTOKEN || '',
+        orgID:  process.env.SFAPI_ORGID || '',
+    },
+    configService: {
+        apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
+        url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
+        defaultLifetime: process.env.ACCESS_TOKEN_DEFAULT_LIFETIME !== undefined ? process.env.ACCESS_TOKEN_DEFAULT_LIFETIME : 3600,
+    },
+    crypto: {
+        algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',
+        key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : ''
+    },
+    mode: process.env.MODE !== undefined ? process.env.MODE : 'sandbox'
 };
 
 // Exporting.

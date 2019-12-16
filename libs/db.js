@@ -17,12 +17,19 @@ var Sequelize = require('sequelize');
  *
  * @type {*|Promise.Sequelize|Sequelize}
  */
-var sequelize = new Sequelize(config.db_name, config.db_uid, config.db_pwd, {
+var options = {
     host: config.db_host || 'localhost',
     dialect: config.db_dialect,
     logging: function( info ) {if(config.db_logging){log.info(info)}}, // thanks to mdarveau for the fix
     storage: config.db_storage
-});
+};
+if (config.db_ssl) {
+    options.ssl = true;
+    options.dialectOptions = {
+        ssl: true
+    };
+}
+var sequelize = new Sequelize(config.db_name, config.db_uid, config.db_pwd, options);
 
 /**
  *
@@ -35,6 +42,21 @@ var ICS = sequelize.define('ICS', {
     startDate: { type: Sequelize.DATE, allowNull: false},
     endDate: { type: Sequelize.DATE, allowNull: false},
     content: { type: Sequelize.TEXT, allowNull: false}
+});
+
+/**
+ *
+ * @type {Model}
+ * represents an event object with a start and an end date
+ */
+var ICSHistory = sequelize.define('ICSHistory', {
+    id: { type: Sequelize.INTEGER, allowNull: false, unique: true, primaryKey: true, autoIncrement: true},
+    pkey: { type: Sequelize.STRING, allowNull: false},
+    calendarId: { type: Sequelize.STRING, allowNull: true},
+    startDate: { type: Sequelize.DATE, allowNull: false},
+    endDate: { type: Sequelize.DATE, allowNull: false},
+    content: { type: Sequelize.TEXT, allowNull: false},
+    contentOld: { type: Sequelize.TEXT, allowNull: false}
 });
 
 /**
@@ -136,6 +158,7 @@ sequelize.sync().then(function()
 module.exports = {
     ICS: ICS,
     CAL: CAL,
+    ICSHistory: ICSHistory,
     VCARD: VCARD,
     ADB: ADDRESSBOOK,
     getPermission: function (user) {

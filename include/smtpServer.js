@@ -3,13 +3,30 @@ const MailParser = require("mailparser").simpleParser;
 const config = require('../config').config;
 const bridge = require('./helper/bridge');
 const icsParser = require('./helper/icsParser');
+const log = require('../libs/log').log;
 
+/**
+ * @constructor
+ * */
 let customSMTPServer = function() {
+    let self = this;
+    log.info('Starting SMTP server...');
+
+    this.bridge = new bridge();
+
     const server = new SmtpServer({
+        authOptional: true,
         onData(stream, session, callback) {
-            this.process(stream);
-            stream.pipe(process.stdout); // print message to console
-            stream.on("end", callback);
+            let string = '';
+            //stream.pipe(process.stdout); // print message to console
+            stream.on('data',function(data){
+                string += data.toString();
+            });
+            stream.on("end", () => {
+                log.info('Stream finished.');
+                self.process(string);
+                callback(null, "Message queued");
+            });
         }
     });
 
@@ -17,33 +34,47 @@ let customSMTPServer = function() {
 
     server.on('error', function (e)
     {
-        console.log('Caught error: ' + e.message);
-        console.log(e.stack);
+        log.info('Caught error: ' + e.message);
+        log.info(e.stack);
     });
 
 // Put a friendly message on the terminal
-    console.log("Server running at port " + config.smtpServer.port);
+    log.info("Server running at port " + config.smtpServer.port);
 };
 
+/**
+ * @param stream {string} Incoming mail
+ * */
 customSMTPServer.prototype.process = function (stream) {
-    MailParser(stream, options)
-        .then(parsed => {
-            var parser = new icsParser();
-            var parsedAttachments = [];
-            if (parsed.attachments !== undefined && parsed.attachments.length > 0) {
-                for (var i = 0; i < parsed.attachments.length; i++) {
-                    var attachment = parser.parse(parsed.attachments[i].content);
+    MailParser(stream)
+        .then(parsedMail => {
+            let parser = new icsParser();
+            if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
+                let checksumArray = [];
+                for (let i = 0; i < parsedMail.attachments.length; i++) {
+                    let checksumValue = parsedMail.attachments[i].checksum;
+                    log.debug('Checksum: ' + checksumValue);
+                    if (checksumArray.includes(checksumValue)) {
+                        log.debug('Duplicated: ' + checksumValue);
+                        continue;
+                    }
+                    checksumArray.push(checksumValue);
 
-                    caldavBridge = new bridge();
-                    caldavBridge.send(parsed.attachments[i], attachment);
+                    let content = parsedMail.attachments[i].content.toString('utf8');
+                    let event = parser.parseFirst(content);
 
-                    parsedAttachments.push(attachment);
+                    log.debug('Event info: ');
+                    log.debug(event);
+
+                    //Send parsed ICS to caldav/SF
+                    log.info('Attachment saving to DB');
+                    this.bridge.send(content, event);
                 }
             }
         })
         .catch(error => {
-            console.log('Caught error: ' + error.message);
-            console.log(error.stack);
+            log.info('Caught error: ' + error.message);
+            log.info(error.stack);
         });
 };
 module.exports = customSMTPServer;
