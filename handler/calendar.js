@@ -313,10 +313,10 @@ function saveICS(options)
                     displayname: 'ICS server',
                     synctoken: 0
                 };
-                CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then(function(cal)
+                CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).spread(function(cal)
                 {
                     if(cal !== null && cal !== undefined) {
-                        cal.update({synctoken: sequelize.literal('synctoken +1')}).then(() => {
+                        cal.save({synctoken: sequelize.literal('synctoken +1')}).then(() => {
                             log.info('synctoken on cal updated');
                         });
                     }
