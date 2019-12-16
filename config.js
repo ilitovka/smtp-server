@@ -47,9 +47,9 @@ var config =
 
     // db specific configuration. you can use whatever sequelize supports.
     db_name: process.env.DB_NAME !== undefined ? process.env.DB_NAME : 'fennel',
-    db_uid: process.env.DB_USER !== undefined ? process.env.DB_USER : 'ilitovka',
-    db_pwd: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'ilitovka',
-    db_dialect: process.env.DB_TYPE !== undefined ? process.env.DB_TYPE : 'mysql',
+    db_uid: process.env.DB_USER !== undefined ? process.env.DB_USER : 'root',
+    db_pwd: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : '',
+    db_dialect: process.env.DB_TYPE !== undefined ? process.env.DB_TYPE : 'postgres',
     db_logging: true,
     db_ssl: process.env.DB_SSL !== undefined && process.env.DB_SSL == "1" ? true : false,
     //db_storage: 'fennel.sqlite',
@@ -93,7 +93,7 @@ var config =
     test_user_pwd: 'demo',
 
     smtpServer: {
-        port: 25
+        port: process.env.SMTP_PORT !== undefined ? process.env.SMTP_PORT : 25,
     },
     sfApi: {
         endpoint: process.env.SFAPI_ENDPOINT !== undefined ? process.env.SFAPI_ENDPOINT : '',
