@@ -9,7 +9,7 @@ const log = require('../libs/log').log;
  * @constructor
  * */
 let customSMTPServer = function() {
-    var self = this;
+    let self = this;
     log.info('Starting SMTP server...');
 
     this.bridge = new bridge();
@@ -17,7 +17,7 @@ let customSMTPServer = function() {
     const server = new SmtpServer({
         authOptional: true,
         onData(stream, session, callback) {
-            var string = '';
+            let string = '';
             //stream.pipe(process.stdout); // print message to console
             stream.on('data',function(data){
                 string += data.toString();

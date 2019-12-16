@@ -82,6 +82,13 @@ function onHitRoot(comm)
     comm.flushResponse();
 }
 
+function onHitHealth(comm) {
+    log.debug("Called the health path.");
+
+    comm.getRes().writeHead(200);
+    comm.flushResponse();
+}
+
 function onHitWellKnown(comm, params)
 {
     log.debug("Called .well-known URL for " + params + ". Redirecting to /p/");
@@ -173,29 +180,70 @@ crossroads.addRoute('/cal/:username:/:cal:/:params*:', onHitCalendar);
 crossroads.addRoute('/card/:username:/:card:/:params*:', onHitCard);
 crossroads.addRoute('/.well-known/:params*:', onHitWellKnown);
 crossroads.addRoute('/', onHitRoot);
+crossroads.addRoute('/health', onHitHealth);
 crossroads.bypassed.add(onBypass);
 
 // start the server and process requests
-var server = http.createServer(basic, function (req, res)
+let server = http.createServer(function (req, res)
 {
-    log.debug("Method: " + req.method + ", URL: " + req.url);
+    let nonAccessPages = ['/health'];
+    let access = false;
+    if (!nonAccessPages.includes(req.url)) {
+        let auth = req.headers['authorization'];  // auth is in base64(username:password)  so we need to decode the base64
 
-    // will contain the whole body submitted
-    var reqBody = "";
+        if(!auth) {     // No Authorization header was passed in so it's the first time the browser hit us
 
-    req.on('data', function (data)
-    {
-        reqBody += data.toString();
-    });
+            // Sending a 401 will require authentication, we need to send the 'WWW-Authenticate' to tell them the sort of authentication to use
+            // Basic auth is quite literally the easiest and least secure, it simply gives back  base64( username + ":" + password ) from the browser
+            res.statusCode = 401;
+            res.setHeader('WWW-Authenticate', 'Basic realm="Secure Area"');
 
-    req.on('end',function()
-    {
-        var comm = new communication(req, res, reqBody);
+            res.end('<html><body>This is a secure area. Try reloading to login.');
+        } else if(auth) {    // The Authorization was passed in so now we validate it
 
-        var sUrl = url.parse(req.url).pathname;
-        log.debug("Request body: " + reqBody);
-        crossroads.parse(sUrl, [comm]);
-    });
+            let tmp = auth.split(' ');   // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
+
+            let buf = Buffer.alloc(tmp[1], 'base64'); // create a buffer and tell it the data coming in is base64
+            let plain_auth = buf.toString();        // read it back out as a string
+
+            let creds = plain_auth.split(':');      // split on a ':'
+            let username = creds[0];
+            let password = creds[1];
+
+            authlib.checkLogin(basic, username, password, (result) => {
+                if (!result) {
+                    res.statusCode = 401; // Force them to retry authentication
+                    res.setHeader('WWW-Authenticate', 'Basic realm="Secure Area"');
+
+                    res.end('<html><body>Forbidden</body></html>');
+                } else {
+                    access = true;
+                }
+            });
+        }
+    } else {
+        access = true;
+    }
+    if (access) {
+        log.debug("Method: " + req.method + ", URL: " + req.url);
+
+        // will contain the whole body submitted
+        let reqBody = "";
+
+        req.on('data', function (data)
+        {
+            reqBody += data.toString();
+        });
+
+        req.on('end',function()
+        {
+            var comm = new communication(req, res, reqBody);
+
+            var sUrl = url.parse(req.url).pathname;
+            log.debug("Request body: " + reqBody);
+            crossroads.parse(sUrl, [comm]);
+        });
+    }
 });
 
 server.listen(process.env.PORT || config.port);

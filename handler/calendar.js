@@ -304,14 +304,11 @@ function saveICS(options)
                 };
                 CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then(function(cal)
                 {
-                    // if(cal !== null && cal !== undefined)
-                    // {
-                    //     cal.increment('synctoken', { by: 1 }).then(function()
-                    //     {
-                    //         log.info('synctoken on cal updated');
-                    //
-                    //     });
-                    // }
+                    if(cal !== null && cal !== undefined) {
+                        cal.update({synctoken: sequelize.literal('synctoken +1')}).then(() => {
+                            log.info('synctoken on cal updated');
+                        });
+                    }
                 });
 
                 return resolve('ICS successfully saved.');
