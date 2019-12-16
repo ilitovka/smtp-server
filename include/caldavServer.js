@@ -203,7 +203,7 @@ let server = http.createServer(function (req, res)
 
             let tmp = auth.split(' ');   // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
 
-            let buf = Buffer.alloc(tmp[1], 'base64'); // create a buffer and tell it the data coming in is base64
+            let buf = new Buffer(tmp[1], 'base64'); // create a buffer and tell it the data coming in is base64
             let plain_auth = buf.toString();        // read it back out as a string
 
             let creds = plain_auth.split(':');      // split on a ':'
