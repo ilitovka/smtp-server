@@ -1,9 +1,9 @@
 const saveICS = require("../../handler/calendar").saveICS;
 const log = require('../../libs/log').log;
-const sfApi = require('../../include/sf-api');
+const bridgeSF = require('../../include/helper/bridgeSF');
 
 const Bridge = function() {
-    this.sfApi = new sfApi();
+    this.bridgeSF = new bridgeSF();
 };
 
 /**
@@ -33,7 +33,7 @@ Bridge.prototype.send = function (attachment, parsedICS) {
     }).then(result => {
         log.info(result);
 
-        this.sendSf(parsedICS).then(result => {
+        this.bridgeSF.sendSf(parsedICS).then(result => {
             log.info(result);
         }).catch(err => {
             log.info(err);
@@ -47,26 +47,5 @@ Bridge.prototype.send = function (attachment, parsedICS) {
     return true;
 };
 
-/**
- * @param {string} parsedICS
- *
- * @return {Promise}
- *
- * */
-Bridge.prototype.sendSf = function(parsedICS) {
-    return new Promise((resolve, reject) => {
-        if (parsedICS.ORGID !== undefined) {
-            return reject("ORGID is undefined");
-        }
-        //send to SalesForce
-        this.sfApi.sendAttendeeStatuses(parsedICS).then(result => {
-            log.debug(result);
-            return resolve(result);
-        }).catch(err => {
-            log.debug(err);
-            return reject(err);
-        });
-    });
-};
 
 module.exports = Bridge;

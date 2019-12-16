@@ -18,7 +18,8 @@ const ICSHistory = require('../libs/db').ICSHistory;
 const CAL = require('../libs/db').CAL;
 const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
-const bridge = require('../include/helper/bridge');
+const bridgeSF = require('../include/helper/bridgeSF');
+const sequelize = require('../libs/db').sequelize;
 
 // Exporting.
 module.exports = {
@@ -199,7 +200,7 @@ function put(comm)
 
             let parsedICS = icsParser(ics.content);
 
-            let bridgeObject = new bridge();
+            let bridgeObject = new bridgeSF();
             bridgeObject.sendSf(parsedICS).then(result => {
                 log.info(result);
             }).catch(err => {
