@@ -62,25 +62,16 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
             return reject('OrgID is undefined');
         }
 
-        /*if (this.accessTokens[orgId] !== undefined) {
+        if (this.accessTokens[orgId] !== undefined) {
             let accessTokenObject = this.accessTokens[orgId];
 
             if (accessTokenObject instanceof accessToken) {
-                if (accessTokenObject.isExpire()) {
-                    this._refreshToken(orgId)
-                        .then(result => {
-                            log.info('Access token refreshed and received');
-                            return resolve(result);
-                        })
-                        .catch(err => {
-                            log.info('Access token refresh failed: getAccessTokenByOrgId.then()');
-                            return reject(err);
-                        });
+                if (!accessTokenObject.isExpire()) {
+                    log.info('Access token found in memory: getAccessTokenByOrgId');
+                    return resolve(accessTokenObject);
                 }
-                log.info('Access token found in memory: getAccessTokenByOrgId.then()');
-                return resolve(accessTokenObject);
             }
-        }*/
+        }
 
         this._getAccessToken(orgId)
             .then(result => {
@@ -131,8 +122,8 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
             log.debug(result);
             if (result) {
                 let expire = moment().unix() + config.configService.defaultLifetime;
-                if (result.expireTime) {
-                    expire = result.expireTime;
+                if (result.access_token_expiration) {
+                    expire = moment(result.access_token_expiration).unix();
                 }
                 log.info('Access token successfully received: _getAccessToken');
                 return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire)));
