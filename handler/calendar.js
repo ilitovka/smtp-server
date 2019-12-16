@@ -18,6 +18,7 @@ const ICSHistory = require('../libs/db').ICSHistory;
 const CAL = require('../libs/db').CAL;
 const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
+const bridge = require('../include/helper/bridge');
 
 // Exporting.
 module.exports = {
@@ -195,6 +196,15 @@ function put(comm)
         ics.save().then(function()
         {
             log.info('ics updated');
+
+            let parsedICS = icsParser(ics.content);
+
+            let bridgeObject = new bridge();
+            bridgeObject.sendSf(parsedICS).then(result => {
+                log.info(result);
+            }).catch(err => {
+                log.info(err);
+            });
 
             // update calendar collection
             CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
