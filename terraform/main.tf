@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "task" {
       cpu = 0
       environment = var.container_env_vars
       essential = true
-      image = var.container_image
+      image = "${var.aws_account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/oce-ics-api:${var.aws_ecr_image_tag}"
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -57,8 +57,8 @@ resource "aws_ecs_task_definition" "task" {
   cpu = var.ecs_task_cpu
   memory = var.ecs_task_memory
   network_mode = "awsvpc"
-  task_role_arn = "arn:aws:iam::694723881910:role/ecsTaskExecutionRole"
-  execution_role_arn = "arn:aws:iam::694723881910:role/ecsTaskExecutionRole"
+  task_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
+  execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
   requires_compatibilities = ["FARGATE"]
 
 }

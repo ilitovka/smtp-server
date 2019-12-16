@@ -9,7 +9,7 @@ build:
     - echo $CI_COMMIT_TAG
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:qa --destination $CI_REGISTRY_IMAGE:$CI_JOB_ID
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:qa --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   only:
     - dev
     - OCE-39996-setup-mail-server
@@ -19,6 +19,9 @@ build:
 update-ecs:
   stage: deploy
   image: corevaluedh/terraform-v0.12
+  variables:
+    TF_VAR_aws_ecr_image_tag: $CI_COMMIT_SHA
+    TF_VAR_aws_account_id: "694723881910"
   before_script:
     - cd terraform
     - export TF_IN_AUTOMATION=1

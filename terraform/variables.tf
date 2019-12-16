@@ -7,9 +7,12 @@ variable "container_env_vars" {
     }))
 }
 
-variable "container_image" {
-	default = "694723881910.dkr.ecr.us-east-2.amazonaws.com/oce-ics-api:qa"
+variable "aws_account_id" {
 }
+
+variable "aws_ecr_image_tag" {
+}
+
 
 variable "awslogs_group" {
   default = "/ecs/oce-ics-api"
