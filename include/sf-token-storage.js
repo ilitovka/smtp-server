@@ -4,6 +4,11 @@ const config = require('../config').config;
 const crypto = require('../include/helper/crypto');
 const configService = require('../include/configService');
 
+/**
+ * @constructor
+ *
+ * @description Storage for access tokens
+ * */
 let sfTokenStorage = function() {
     this.accessTokens = [];
 
@@ -85,6 +90,12 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
     }));
 };
 
+/**
+ * @description Refresh SF Access Token via Config Service
+ * @param orgId {string}
+ *
+ * @return {Promise}
+ * */
 sfTokenStorage.prototype._refreshToken = function (orgId) {
     return (new Promise((resolve, reject) => {
         if (!orgId) {
@@ -112,6 +123,12 @@ sfTokenStorage.prototype._refreshToken = function (orgId) {
     }));
 };
 
+/**
+ * @description Retrive SF ORGID access token/instance url/expiration from Config Service
+ * @param orgId {string}
+ *
+ * @return {Promise}
+ * */
 sfTokenStorage.prototype._getAccessToken = function (orgId) {
     return (new Promise((resolve, reject) => {
         if (!orgId) {
@@ -138,12 +155,22 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
     }));
 };
 
+/**
+ * @param token {string}
+ * @param instance_url {string}
+ * @param expire {date}
+ *
+ * @constructor
+ * */
 let accessToken = function(token, instance_url, expire) {
     this.tokenCrypted = crypto.encrypt(token);
     this.instance_url = instance_url;
     this.expireTime = expire;
 };
 
+/**
+ * @return {boolean}
+ * */
 accessToken.prototype.isExpire = function() {
     if (this.expireTime < moment().unix()) {
         return true;
@@ -151,10 +178,18 @@ accessToken.prototype.isExpire = function() {
     return false;
 };
 
+/**
+ * @description return decrypted access token
+ * @return {string}
+ * */
 accessToken.prototype.getToken = function() {
     return crypto.decrypt(this.tokenCrypted);
 };
 
+/**
+ * @description return SF org instance url
+ * @return {string}
+ * */
 accessToken.prototype.getInstanceUrl = function() {
     return this.instance_url;
 };

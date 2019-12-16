@@ -1,4 +1,4 @@
-const calendar = require("../../handler/calendar");
+const saveICS = require("../../handler/calendar").saveICS;
 const log = require('../../libs/log').log;
 const sfApi = require('../../include/sf-api');
 
@@ -25,7 +25,7 @@ Bridge.prototype.send = function (attachment, parsedICS) {
     }
 
     //Save to caldav
-    calendar.saveICS({
+    saveICS({
         UID:        parsedICS.uid,
         calendarId: parsedICS.ORGID,
         content:    attachment,
