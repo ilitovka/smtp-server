@@ -1,4 +1,6 @@
-build:
+
+# Build Docker image, push to AWS ECS registry and tag by commit hash and env
+.build-push-image-abstract: &build-push-image-template
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug-v0.14.0
@@ -9,28 +11,53 @@ build:
     - echo $CI_COMMIT_TAG
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:qa --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  only:
-    - dev
-    - OCE-39996-setup-mail-server
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:${ENVIRONMENT:-qa} --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   tags:
     - "694723881910"
 
-update-ecs:
+build-push-image-qa:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: "qa"
+  only:
+    - dev
+
+build-push-image-prod:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: "prod"
+  only:
+    - master
+
+# Update AWS intrustructure
+# This could even spin up entirely new intrustructure with VPC, SGs, public and private subnets,  
+# Internet Gateway, NAT Gateway, LBs (application and network), ECS cluster, service, task definition, IAM role
+.update-ecs-abstract: &update-ecs-template
   stage: deploy
   image: corevaluedh/terraform-v0.12
-  variables:
-    TF_VAR_aws_ecr_image_tag: $CI_COMMIT_SHA
-    TF_VAR_aws_account_id: "694723881910"
   before_script:
     - cd terraform
     - export TF_IN_AUTOMATION=1
+    - export TF_VAR_aws_ecr_image_tag=$CI_COMMIT_SHA
   script:
     - terraform init -input=false
+    - terraform workspace new ${TERRAFORM_WORKSPACE:-qa} || true
+    - terraform workspace select ${TERRAFORM_WORKSPACE:-qa}
     - terraform plan -out=tfplan -input=false 
     - terraform apply -input=false tfplan
-  only:
-    - dev
-    - OCE-39996-setup-mail-server
   tags:
     - "694723881910"
+
+update-ecs-qa:
+  <<: *update-ecs-template
+  variables:
+    TERRAFORM_WORKSPACE: "qa"
+  only:
+    - dev
+
+update-ecs-prod:
+  <<: *update-ecs-template
+  variables:
+    TERRAFORM_WORKSPACE: "prod"
+  only:
+    - master

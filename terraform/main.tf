@@ -3,6 +3,26 @@ provider "aws" {
   region  = "us-east-2"
 }
 
+
+data "aws_region" "current" {}
+
+# terraform state file setup
+# create an S3 bucket to store the state file in
+# resource "aws_s3_bucket" "iqvia-oce-terraform-state" {
+#     bucket = "iqvia-oce-terraform-state"
+ 
+#     versioning {
+#       enabled = true
+#     }
+ 
+#     lifecycle {
+#       prevent_destroy = true
+#     }
+
+#     acl = "private"
+    
+# }
+
 terraform {
   backend "s3" {
     bucket = "iqvia-oce-terraform-state"
@@ -12,137 +32,23 @@ terraform {
   }
 }
 
-data "aws_region" "current" {}
-
-data "aws_ecs_task_definition" "task" {
-  task_definition = "${aws_ecs_task_definition.task.family}"
+locals {
+  region = data.aws_region.current.name
+  account = data.aws_caller_identity.current.account_id
+  environment = terraform.workspace
 }
 
-resource "aws_ecs_cluster" "ics" {
-    name = "oce-ics-api"
-    capacity_providers = ["FARGATE","FARGATE_SPOT"]
-}
-
-# TODO: roles should be defined as resources
-resource "aws_ecs_task_definition" "task" {
-  family = "oce-ics-api"
-  container_definitions = jsonencode(
-    [{
-      cpu = 0
-      environment = var.container_env_vars
-      essential = true
-      image = "${var.aws_account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/oce-ics-api:${var.aws_ecr_image_tag}"
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group = var.awslogs_group
-          awslogs-region = data.aws_region.current.name
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-      mountPoints = []
-      name = "oce-ics-api"
-      portMappings = [{
-        containerPort = 8888
-        hostPort = 8888
-        protocol = "tcp"
-      }, {
-        containerPort = 25
-        hostPort = 25
-        protocol = "tcp"
-      }]
-      volumesFrom = []
-    }]
-  )
-  cpu = var.ecs_task_cpu
-  memory = var.ecs_task_memory
-  network_mode = "awsvpc"
-  task_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
-  execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
-  requires_compatibilities = ["FARGATE"]
-
-}
-
-# TODO: VPC should described with subnets, security groups and so on
-
-# resource "aws_vpc" "main" {
-#   cidr_block = "10.3.0.0/16"
-
-#   tags = {
-#     Name = "oce-ics"
+# create a dynamodb table for locking the state file
+# resource "aws_dynamodb_table" "dynamodb-terraform-state-lock" {
+#   name = "terraform-state-lock-dynamo"
+#   hash_key = "LockID"
+#   read_capacity = 20
+#   write_capacity = 20
+ 
+#   attribute {
+#     name = "LockID"
+#     type = "S"
 #   }
+
 # }
 
-resource "aws_lb_target_group" "api" {
-  name        = "oce-ics-api-tg"
-  port        = 8888
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = var.vpc_id
-
-  health_check {
-    interval            = 30
-    path                = "/health"
-    #path                = "/"
-    port                = 8888
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    timeout             = 5
-    protocol            = "HTTP"
-    matcher             = "200"
-    #matcher             = "401"
-  }
-}
-
-resource "aws_lb_target_group" "mail" {
-  name        = "oce-ics-mail-tg"
-  port        = 25
-  protocol    = "TCP"
-  target_type = "ip"
-  vpc_id      = var.vpc_id
-
-  health_check {
-    interval            = 30
-    port                = 25
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    protocol            = "TCP"
-  }
-}
-
-resource "aws_ecs_service" "service" {
-  name = "oce-ics-${var.environment}"
-  cluster = aws_ecs_cluster.ics.id
-  
-  # Track the latest ACTIVE revision
-  task_definition = "${aws_ecs_task_definition.task.family}:${max("${aws_ecs_task_definition.task.revision}", "${data.aws_ecs_task_definition.task.revision}")}"
-  launch_type = "FARGATE"
-  desired_count = 1
-
-  platform_version ="LATEST"
-
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = var.ecs_service_security_groups
-    subnets          = var.ecs_service_subnets
-  }
-
-  deployment_controller {
-    type = "ECS"
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.mail.arn
-    container_name   = "oce-ics-api"
-    container_port   = 25
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.api.arn
-    container_name   = "oce-ics-api"
-    container_port   = 8888
-  }
-
-  health_check_grace_period_seconds = 0
-  tags = {}
-}
