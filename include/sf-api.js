@@ -32,10 +32,12 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
             }
             for (let key in icsParsed.attendee) {
                 let attendee = icsParsed.attendee[key];
+                let email = attendee.val.toLowerCase().replace('mailto:', '');
                 body.attendees.push({
                     EventId: icsParsed.uid,
-                    attendee: attendee.val.toLowerCase().replace('mailto:', ''),
-                    Decision: attendee.params.PARTSTAT
+                    attendee: email,
+                    Decision: attendee.params.PARTSTAT,
+                    trid: icsParsed.xTRID[email] || ''
                 });
             }
 
