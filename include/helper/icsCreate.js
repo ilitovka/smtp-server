@@ -16,7 +16,7 @@ const icsCreate = function (event) {
             status: event.status,
             organizer: {
                 name: event.organizer.params.CN,
-                email: event.organizer.val.replace('mailto:', '')
+                email: event.organizer.val.toLowerCase().replace('mailto:', '')
             },
             uid: event.uid
         };
@@ -26,7 +26,7 @@ const icsCreate = function (event) {
             let attendee = event.attendee[key];
             attendees.push(
                 {
-                    email:      attendee.val.replace('mailto:', ''),
+                    email:      attendee.val.toLowerCase().replace('mailto:', ''),
                     rsvp:       true,
                     partstat:   attendee.params.PARTSTAT,
                     role:       attendee.params.ROLE,
@@ -38,6 +38,7 @@ const icsCreate = function (event) {
 
         return ics.createEvent(eventMerged).value;
     } catch (e) {
+        log.debug(e.stack);
         return '';
     }
 };

@@ -96,14 +96,15 @@ var config =
         port: process.env.SMTP_PORT !== undefined ? process.env.SMTP_PORT : 25,
     },
     sfApi: {
-        endpoint: process.env.SFAPI_ENDPOINT !== undefined ? process.env.SFAPI_ENDPOINT : '',
+        endpoint: process.env.SFAPI_ENDPOINT || '',
         accessToken:  process.env.SFAPI_ACCESSTOKEN || '',
         orgID:  process.env.SFAPI_ORGID || '',
+        defaultNamespace:  process.env.SFAPI_NAMESPACE || '',
     },
     configService: {
         apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
         url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
-        defaultLifetime: process.env.ACCESS_TOKEN_DEFAULT_LIFETIME !== undefined ? process.env.ACCESS_TOKEN_DEFAULT_LIFETIME : 3600,
+        defaultLifetime: process.env.ACCESS_TOKEN_DEFAULT_LIFETIME !== undefined ? process.env.ACCESS_TOKEN_DEFAULT_LIFETIME : 300,
     },
     crypto: {
         algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',

@@ -2,7 +2,7 @@ const config = require('../../config').config;
 const icsParser = require('./icsParser');
 const log = require('../../libs/log').log;
 
-let mailParser = function() {
+let MailParser = function() {
     this.parser = new icsParser();
 };
 
@@ -11,7 +11,7 @@ let mailParser = function() {
  *
  * @return {Promise}
  * */
-mailParser.prototype.parseAttachments = function (parsedMail) {
+MailParser.prototype.parseAttachments = function (parsedMail) {
     return new Promise((resolve, reject) => {
         let recipient   = parsedMail.headers.get('to');
         let subject     = parsedMail.headers.get('subject');
@@ -49,8 +49,18 @@ mailParser.prototype.parseAttachments = function (parsedMail) {
                 if (!Array.isArray(event.attendee)) {
                     event.attendee = [event.attendee];
                 }
+                let organizer = '@';
+                if (recipient.value[0] !== undefined && recipient.value[0].address !== undefined) {
+                    organizer = recipient.value[0].address;
+                }
                 if (event.ORGID === undefined) {
-                    event.ORGID = recipient.value[0].address.split('@')[0];
+                    event.ORGID = organizer.split('@')[0];
+                }
+                if (event.organizer === undefined) {
+                    event.organizer = {
+                        params: organizer,
+                        val: 'mailto:' + organizer
+                    };
                 }
 
                 log.debug('Event info: ');
@@ -63,4 +73,4 @@ mailParser.prototype.parseAttachments = function (parsedMail) {
     });
 };
 
-module.exports = mailParser;
+module.exports = MailParser;

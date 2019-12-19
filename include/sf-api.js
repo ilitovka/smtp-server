@@ -60,6 +60,7 @@ sfApi.prototype.sendAttendeeStatuses = function(icsParsed) {
 sfApi.prototype.connect = function (accessToken) {
     try {
         log.debug('Connecting to SF');
+        this.prefix = accessToken.getPrefix() ? accessToken.getPrefix() + '/' : '';
         this.connection = new jsforce.Connection({
             instanceUrl : accessToken.getInstanceUrl(),
             accessToken : accessToken.getToken()
@@ -73,7 +74,8 @@ sfApi.prototype.connect = function (accessToken) {
 
 sfApi.prototype._sendAttendeeStatuses = function (body) {
     try {
-        return this.connection.apex.patch('/services/apexrest/AttendeeStatuses/', body, function(err, res) {
+        log.debug('Connecting: /services/apexrest/' + this.prefix + 'AttendeeStatuses/');
+        return this.connection.apex.patch('/services/apexrest/' + this.prefix + 'AttendeeStatuses/', body, function(err, res) {
             if (err) {
                 return console.error(err);
             }
@@ -90,7 +92,8 @@ sfApi.prototype._sendAttendeeStatuses = function (body) {
 
 sfApi.prototype._sendInvite = function (attendees) {
     try {
-        return this.connection.apex.post('/services/apexrest/SendEmail/', attendees, function(err, res) {
+        log.debug('Connecting: /services/apexrest/' + this.prefix + 'SendEmail/');
+        return this.connection.apex.post('/services/apexrest/' + this.prefix + 'SendEmail/', attendees, function(err, res) {
             if (err) {
                 return console.error(err);
             }

@@ -138,12 +138,14 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
         this.configService.getAccessToken(orgId).then((result) => {
             log.debug(result);
             if (result) {
-                let expire = moment().unix() + config.configService.defaultLifetime;
-                if (result.access_token_expiration) {
-                    expire = moment(result.access_token_expiration).unix();
-                }
+                let expire = result.access_token_expiration !== undefined ?
+                    moment(result.access_token_expiration).unix()
+                    : moment().unix() + config.configService.defaultLifetime;
+                let prefix = result.namespace_prefix !== undefined ? result.namespace_prefix : config.sfApi.defaultNamespace;
+
                 log.info('Access token successfully received: _getAccessToken');
-                return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire)));
+
+                return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire, prefix)));
             } else {
                 log.info('Access token failed: _getAccessToken.then()');
                 return reject('Something wrong');
@@ -158,24 +160,23 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
 /**
  * @param token {string}
  * @param instance_url {string}
- * @param expire {date}
+ * @param expire {number}
+ * @param prefix {string}
  *
  * @constructor
  * */
-let accessToken = function(token, instance_url, expire) {
+let accessToken = function(token, instance_url, expire, prefix) {
     this.tokenCrypted = crypto.encrypt(token);
     this.instance_url = instance_url;
     this.expireTime = expire;
+    this.prefix = prefix;
 };
 
 /**
  * @return {boolean}
  * */
 accessToken.prototype.isExpire = function() {
-    if (this.expireTime < moment().unix()) {
-        return true;
-    }
-    return false;
+    return this.expireTime < moment().unix();
 };
 
 /**
@@ -192,6 +193,14 @@ accessToken.prototype.getToken = function() {
  * */
 accessToken.prototype.getInstanceUrl = function() {
     return this.instance_url;
+};
+
+/**
+ * @description return SF org prefix (namespace)
+ * @return {string}
+ * */
+accessToken.prototype.getPrefix = function() {
+    return this.prefix;
 };
 
 module.exports = sfTokenStorage;
