@@ -4,6 +4,7 @@ const config = require('../config').config;
 const bridge = require('./helper/bridge');
 const icsParser = require('./helper/icsParser');
 const log = require('../libs/log').log;
+const parse = require('./helper/mailParser');
 
 /**
  * @constructor
@@ -13,6 +14,7 @@ let customSMTPServer = function() {
     log.info('Starting SMTP server...');
 
     this.bridge = new bridge();
+    this.parse = new parse();
 
     const server = new SmtpServer({
         authOptional: true,
@@ -48,29 +50,13 @@ let customSMTPServer = function() {
 customSMTPServer.prototype.process = function (stream) {
     MailParser(stream)
         .then(parsedMail => {
-            let parser = new icsParser();
-            if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
-                let checksumArray = [];
-                for (let i = 0; i < parsedMail.attachments.length; i++) {
-                    let checksumValue = parsedMail.attachments[i].checksum;
-                    log.debug('Checksum: ' + checksumValue);
-                    if (checksumArray.includes(checksumValue)) {
-                        log.debug('Duplicated: ' + checksumValue);
-                        continue;
-                    }
-                    checksumArray.push(checksumValue);
-
-                    let content = parsedMail.attachments[i].content.toString('utf8');
-                    let event = parser.parseFirst(content);
-
-                    log.debug('Event info: ');
-                    log.debug(event);
-
-                    //Send parsed ICS to caldav/SF
-                    log.info('Attachment saving to DB');
-                    this.bridge.send(content, event);
-                }
-            }
+            this.parse.parseAttachments(parsedMail).then(result => {
+                //Send parsed ICS to caldav/SF
+                log.info('Attachment saving to DB');
+                this.bridge.send(result.content, result.event);
+            }).catch(err => {
+                log.debug('Attachment parse failed');
+            });
         })
         .catch(error => {
             log.info('Caught error: ' + error.message);

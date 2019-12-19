@@ -20,7 +20,7 @@ Bridge.prototype.send = function (attachment, parsedICS) {
     }
     if (parsedICS.ORGID === undefined) {
         parsedICS.ORGID = null;
-        log.info('ORGID is undefined');
+        log.info('ORGID is undefined: Bridge.prototype.send');
         //return false;
     }
 

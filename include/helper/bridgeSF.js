@@ -18,7 +18,7 @@ const BridgeSF = function() {
 BridgeSF.prototype.sendSf = function(parsedICS) {
     return new Promise((resolve, reject) => {
         if (parsedICS.ORGID === undefined) {
-            return reject("ORGID is undefined");
+            return reject("ORGID is undefined: BridgeSF.prototype.sendSf");
         }
         //send to SalesForce
         this.sfApi.sendAttendeeStatuses(parsedICS).then(result => {
