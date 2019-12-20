@@ -1,9 +1,18 @@
 const config = require('../../config').config;
 const icsParser = require('./icsParser');
 const log = require('../../libs/log').log;
+const baseAdapter = require('../adapters/base');
+const googleAdapter = require('../adapters/google');
+const outlookAdapter = require('../adapters/outlook');
 
 let MailParser = function() {
     this.parser = new icsParser();
+
+    this.adapters = {
+        google: new googleAdapter(),
+        outlook: new outlookAdapter(),
+        def: new baseAdapter(),
+    };
 };
 
 /**
@@ -13,64 +22,30 @@ let MailParser = function() {
  * */
 MailParser.prototype.parseAttachments = function (parsedMail) {
     return new Promise((resolve, reject) => {
-        let recipient   = parsedMail.headers.get('to');
-        let subject     = parsedMail.headers.get('subject');
+        let adapter = this.getAdapterByMail(parsedMail);
 
-        if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
-            let checksumArray = [];
-            for (let i = 0; i < parsedMail.attachments.length; i++) {
-                let checksumValue = parsedMail.attachments[i].checksum;
-                log.debug('Checksum: ' + checksumValue);
-                if (checksumArray.includes(checksumValue)) {
-                    log.debug('Duplicated: ' + checksumValue);
-                    continue;
-                }
-                checksumArray.push(checksumValue);
-
-                let content = parsedMail.attachments[i].content.toString('utf8');
-                let event = this.parser.parseFirst(content);
-
-                if (event.attendee === undefined) {
-                    event.attendee = [];
-                    for (let i = 0; i < recipient.value.length; i++) {
-                        let answer = subject.split(':');
-                        event.attendee.push({
-                            params: {
-                                RSVP: true,
-                                ROLE: 'REQ-PARTICIPANT',
-                                PARTSTAT: answer[0],
-                                CN: recipient.value[i].address
-                            },
-                            val: 'mailto:' + recipient.value[i].address
-                        });
-
-                    }
-                }
-                if (!Array.isArray(event.attendee)) {
-                    event.attendee = [event.attendee];
-                }
-                let organizer = '@';
-                if (recipient.value[0] !== undefined && recipient.value[0].address !== undefined) {
-                    organizer = recipient.value[0].address;
-                }
-                if (event.ORGID === undefined) {
-                    event.ORGID = organizer.split('@')[0];
-                }
-                if (event.organizer === undefined) {
-                    event.organizer = {
-                        params: organizer,
-                        val: 'mailto:' + organizer
-                    };
-                }
-
-                log.debug('Event info: ');
-                log.debug(event);
-
-                return resolve({content: content, event: event});
-            }
-        }
-        return reject("Couldn't find attachment");
+        adapter.parseAttachment(parsedMail).then(result => {
+            return resolve(result);
+        }).catch(err => {
+            reject(err);
+        });
     });
+};
+
+/**
+ * @param parsedMail {object} parsed attachment
+ * @return {object} BaseAdapter
+ * */
+MailParser.prototype.getAdapterByMail = function(parsedMail) {
+    let adapter = this.adapters.def;
+
+    for (let key in this.adapters) {
+        if (this.adapters[key].checkMail(parsedMail)) {
+            return this.adapters[key];
+        }
+    }
+
+    return adapter;
 };
 
 module.exports = MailParser;
