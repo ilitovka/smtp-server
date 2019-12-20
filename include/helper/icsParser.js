@@ -1,7 +1,8 @@
 const iCal = require('node-ical');
 const log = require('../../libs/log').log;
 
-const icsParse = function () {};
+const icsParse = function () {
+};
 
 /**
  * @param {string} text
@@ -9,34 +10,34 @@ const icsParse = function () {};
  * @return {array}
  *
  * */
-icsParse.prototype.parse = function(text) {
-    return iCal.sync.parseICS(text);
+icsParse.prototype.parse = function (text) {
+  return iCal.sync.parseICS(text);
 };
 
 /**
  * @param text {string} ICS in string format
  * @return {mixed} boolean or object
  * */
-icsParse.prototype.parseFirst = function(text) {
-    let events = this.parse(text);
-    if (Object.keys(events).length > 0) {
-        for (let k in events) {
-            if (events.hasOwnProperty(k)) {
-                const event = events[k];
-                if (event.type === 'VEVENT') {
-                    log.info('Attachment parsed successfully');
+icsParse.prototype.parseFirst = function (text) {
+  let events = this.parse(text);
+  if (Object.keys(events).length > 0) {
+    for (let k in events) {
+      if (events.hasOwnProperty(k)) {
+        const event = events[k];
+        if (event.type === 'VEVENT') {
+          log.info('Attachment parsed successfully');
 
-                    return event;
-                }
-            } else {
-                log.info('Couldn\'t parse attachment object');
-            }
+          return event;
         }
-    } else {
-        log.info('Couldn\'t parse attachment');
+      } else {
+        log.info('Couldn\'t parse attachment object');
+      }
     }
+  } else {
+    log.info('Couldn\'t parse attachment');
+  }
 
-    return false;
+  return false;
 };
 
 module.exports = icsParse;

@@ -34,7 +34,7 @@
 require('dotenv').config();
 
 var config =
-{
+  {
     version_nr: '0.1.0',
 
     // Server specific configuration
@@ -83,37 +83,37 @@ var config =
     //
     // The current set will allow the owner to access his or her own stuff
     authorisation: [
-        'cal:$username:*',
-        'card:$username:*',
-        'p:options,report,propfind',
-        'p:$username:*'
+      'cal:$username:*',
+      'card:$username:*',
+      'p:options,report,propfind',
+      'p:$username:*'
     ],
 
     test_user_name: 'demo',
     test_user_pwd: 'demo',
 
     smtpServer: {
-        port: process.env.SMTP_PORT !== undefined ? process.env.SMTP_PORT : 25,
+      port: process.env.SMTP_PORT !== undefined ? process.env.SMTP_PORT : 25,
     },
     sfApi: {
-        endpoint: process.env.SFAPI_ENDPOINT || '',
-        accessToken:  process.env.SFAPI_ACCESSTOKEN || '',
-        orgID:  process.env.SFAPI_ORGID || '',
-        defaultNamespace:  process.env.SFAPI_NAMESPACE || '',
+      endpoint: process.env.SFAPI_ENDPOINT || '',
+      accessToken: process.env.SFAPI_ACCESSTOKEN || '',
+      orgID: process.env.SFAPI_ORGID || '',
+      defaultNamespace: process.env.SFAPI_NAMESPACE || '',
     },
     configService: {
-        apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
-        url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
-        defaultLifetime: process.env.ACCESS_TOKEN_DEFAULT_LIFETIME !== undefined ? process.env.ACCESS_TOKEN_DEFAULT_LIFETIME : 300,
+      apiKey: process.env.CONFIG_SERVICE_API_KEY !== undefined ? process.env.CONFIG_SERVICE_API_KEY : '',
+      url: process.env.CONFIG_SERVICE_URL !== undefined ? process.env.CONFIG_SERVICE_URL : '',
+      defaultLifetime: process.env.ACCESS_TOKEN_DEFAULT_LIFETIME !== undefined ? process.env.ACCESS_TOKEN_DEFAULT_LIFETIME : 300,
     },
     crypto: {
-        algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',
-        key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : ''
+      algorithm: process.env.CRYPTO_ALGORITHM !== undefined ? process.env.CRYPTO_ALGORITHM : 'aes-256-cbc',
+      key: process.env.CRYPTO_KEY !== undefined ? process.env.CRYPTO_KEY : ''
     },
     mode: process.env.MODE !== undefined ? process.env.MODE : 'sandbox'
-};
+  };
 
 // Exporting.
 module.exports = {
-    config: config
+  config: config
 };
