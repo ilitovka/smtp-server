@@ -37,7 +37,7 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
           EventId: icsParsed.uid,
           attendee: email,
           Decision: attendee.params.PARTSTAT,
-          trid: icsParsed.xTRID[email] || ''
+          //trid: icsParsed.xTRID[email] || ''
         });
       }
 
