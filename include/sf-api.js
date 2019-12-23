@@ -34,7 +34,7 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
         let attendee = icsParsed.attendee[key];
         let email = attendee.val.toLowerCase().replace('mailto:', '');
         body.attendees.push({
-          EventId: icsParsed.uid,
+          EventId: icsParsed.eventId,
           attendee: email,
           Decision: attendee.params.PARTSTAT,
           //trid: icsParsed.xTRID[email] || ''
@@ -76,8 +76,8 @@ sfApi.prototype.connect = function (accessToken) {
 
 sfApi.prototype._sendAttendeeStatuses = function (body) {
   try {
-    log.debug('Connecting: /services/apexrest/' + this.prefix + 'AttendeeStatuses/');
-    return this.connection.apex.patch('/services/apexrest/' + this.prefix + 'AttendeeStatuses/', body, function (err, res) {
+    log.debug('Connecting: /services/apexrest/' + this.prefix + 'EmailStatus/');
+    return this.connection.apex.patch('/services/apexrest/' + this.prefix + 'EmailStatus/', body, function (err, res) {
       if (err) {
         return console.error(err);
       }
