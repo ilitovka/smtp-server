@@ -175,6 +175,7 @@ crossroads.bypassed.add(onBypass);
 
 // start the server and process requests
 let server = http.createServer(function (req, res) {
+  log.info('Request from IP: ' + req.socket.remoteAddress);
   let nonAccessPages = ['/health'];
   let access = false;
   if (!nonAccessPages.includes(req.url)) {
