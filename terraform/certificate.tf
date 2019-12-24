@@ -1,5 +1,5 @@
 locals {
-  app_env_domain_name = "${terraform.workspace}" == "default" ? var.app_domain_name : "${terraform.workspace}.${var.app_domain_name}"
+  app_env_domain_name = "${terraform.workspace}" == "prod" ? var.app_domain_name : "${terraform.workspace}.${var.app_domain_name}"
 }
 
 resource "aws_acm_certificate" "cert" {
