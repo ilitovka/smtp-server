@@ -10,10 +10,6 @@ variable "ecs_task_memory" {
   default = 2048
 }
 
-variable "az_count" {
-  default = 2
-}
-
 variable "ecs_autoscale_min_instances" {
   default = "1"
 }
