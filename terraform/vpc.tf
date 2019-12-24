@@ -66,7 +66,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_eip" "gw" {
-  count      = var.az_count
+  count      = length(data.aws_availability_zones.available.names)
   vpc        = true
   depends_on = [aws_internet_gateway.gw]
 
@@ -76,7 +76,7 @@ resource "aws_eip" "gw" {
 }
 
 resource "aws_nat_gateway" "gw" {
-  count         = var.az_count
+  count         = length(data.aws_availability_zones.available.names)
   subnet_id     = element(aws_subnet.public.*.id, count.index)
   allocation_id = element(aws_eip.gw.*.id, count.index)
 
@@ -88,7 +88,7 @@ resource "aws_nat_gateway" "gw" {
 # Create a new route table for the private subnets.
 # And make it route non-local traffic through the NAT gateway to the internet.
 resource "aws_route_table" "private" {
-  count  = var.az_count
+  count  = length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.main.id
 
   route {
@@ -103,13 +103,13 @@ resource "aws_route_table" "private" {
 
 # Explicitely associate the newly created route tables to the private subnets (so they don't default to the main route table).
 resource "aws_route_table_association" "private" {
-  count          = var.az_count
+  count          = length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
 resource "aws_route_table" "public" {
-  count  = var.az_count
+  count  = length(data.aws_availability_zones.available.names)
   vpc_id = aws_vpc.main.id
 
   route {
@@ -123,9 +123,32 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = var.az_count
+  count          = length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = element(aws_route_table.public.*.id, count.index)
+}
+
+# Create a new route table for the RDS subnets.
+# And make it route non-local traffic through the NAT gateway to the internet.
+resource "aws_route_table" "rds" {
+  count  = length(data.aws_availability_zones.available.names)
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
+  }
+
+  tags = {
+    Name = "oce-ics-rt-${terraform.workspace}-rds-${count.index + 1}"
+  }
+}
+
+# Explicitely associate the newly created route tables to the RDS subnets (so they don't default to the main route table).
+resource "aws_route_table_association" "rds" {
+  count          = length(data.aws_availability_zones.available.names)
+  subnet_id      = element(aws_subnet.rds.*.id, count.index)
+  route_table_id = element(aws_route_table.rds.*.id, count.index)
 }
 
 
