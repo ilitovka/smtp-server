@@ -20,7 +20,7 @@ locals {
 
 # Create private subnets for each availability zone.
 resource "aws_subnet" "private" {
-  count             = length(data.aws_availability_zones.available.names)
+  count             = var.az_count
   cidr_block        = cidrsubnet(local.cidr_block_private_ecs, 4, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.main.id
@@ -33,7 +33,7 @@ resource "aws_subnet" "private" {
 
 # Create public subnets for each availability zone.
 resource "aws_subnet" "public" {
-  count                   = length(data.aws_availability_zones.available.names)
+  count                   = var.az_count
   cidr_block              = cidrsubnet(local.cidr_block_public_ecs, 4, count.index)
 
   availability_zone       = data.aws_availability_zones.available.names[count.index]
@@ -47,7 +47,7 @@ resource "aws_subnet" "public" {
 
 # Create RDS subnets (private) for each availability zone.
 resource "aws_subnet" "rds" {
-  count             = length(data.aws_availability_zones.available.names)
+  count             = var.az_count
   cidr_block        = cidrsubnet(local.netnum_private_db, 4, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.main.id
@@ -66,7 +66,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_eip" "gw" {
-  count      = length(data.aws_availability_zones.available.names)
+  count      = var.az_count
   vpc        = true
   depends_on = [aws_internet_gateway.gw]
 
@@ -76,7 +76,7 @@ resource "aws_eip" "gw" {
 }
 
 resource "aws_nat_gateway" "gw" {
-  count         = length(data.aws_availability_zones.available.names)
+  count         = var.az_count
   subnet_id     = element(aws_subnet.public.*.id, count.index)
   allocation_id = element(aws_eip.gw.*.id, count.index)
 
@@ -88,7 +88,7 @@ resource "aws_nat_gateway" "gw" {
 # Create a new route table for the private subnets.
 # And make it route non-local traffic through the NAT gateway to the internet.
 resource "aws_route_table" "private" {
-  count  = length(data.aws_availability_zones.available.names)
+  count  = var.az_count
   vpc_id = aws_vpc.main.id
 
   route {
@@ -103,13 +103,13 @@ resource "aws_route_table" "private" {
 
 # Explicitely associate the newly created route tables to the private subnets (so they don't default to the main route table).
 resource "aws_route_table_association" "private" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = var.az_count
   subnet_id      = element(aws_subnet.private.*.id, count.index)
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
 resource "aws_route_table" "public" {
-  count  = length(data.aws_availability_zones.available.names)
+  count  = var.az_count
   vpc_id = aws_vpc.main.id
 
   route {
@@ -123,7 +123,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = var.az_count
   subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = element(aws_route_table.public.*.id, count.index)
 }
@@ -131,7 +131,7 @@ resource "aws_route_table_association" "public" {
 # Create a new route table for the RDS subnets.
 # And make it route non-local traffic through the NAT gateway to the internet.
 resource "aws_route_table" "rds" {
-  count  = length(data.aws_availability_zones.available.names)
+  count  = var.az_count
   vpc_id = aws_vpc.main.id
 
   route {
@@ -146,7 +146,7 @@ resource "aws_route_table" "rds" {
 
 # Explicitely associate the newly created route tables to the RDS subnets (so they don't default to the main route table).
 resource "aws_route_table_association" "rds" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = var.az_count
   subnet_id      = element(aws_subnet.rds.*.id, count.index)
   route_table_id = element(aws_route_table.rds.*.id, count.index)
 }

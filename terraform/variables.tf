@@ -26,5 +26,8 @@ variable "app_domain_name" {}
 
 variable "domain_name_zone" {}
 
+variable "az_count" {
+  default = "2"
+}
 
 
