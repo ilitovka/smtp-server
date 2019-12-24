@@ -8,6 +8,8 @@ resource "random_password" "password" {
 resource "aws_db_instance" "default" {
   identifier = "oce-ics-db-${local.environment}"
 
+  availability_zone = data.aws_availability_zones.available.names[0]
+
   allocated_storage    = 20
   max_allocated_storage = 100
 
