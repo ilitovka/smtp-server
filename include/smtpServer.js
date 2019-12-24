@@ -25,7 +25,6 @@ let customSMTPServer = function () {
         string += data.toString();
       });
       stream.on("end", () => {
-        log.info('Request from IP: ' + req.socket.remoteAddress);
         log.info('Stream finished.');
         self.process(string);
         callback(null, "Message queued");
