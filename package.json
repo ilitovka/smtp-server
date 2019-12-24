@@ -28,10 +28,14 @@
   },
   "dependencies": {
     "crossroads": "^0.12.2",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
     "htdigest": "^2.0.2",
     "htpasswd": "^2.1.2",
     "http-auth": "^2.1.9",
-    "libxmljs": "^0.18.0",
+    "ics": "^2.18.0",
+    "jsforce": "^1.9.3",
+    "libxmljs": "^0.19.7",
     "log4js": "^0.6.9",
     "mailparser": "^2.7.6",
     "moment": "^2.15.1",
@@ -39,6 +43,7 @@
     "mysql2": "^2.0.0",
     "node-ical": "^0.10.0",
     "node-regexp": "^0.1.1",
+    "pg": "^7.14.0",
     "pretty-data": "^0.40.0",
     "sequelize": "^4.44.3",
     "shiro-trie": "^0.3.12",
@@ -57,6 +62,6 @@
     "nyc": "14.1.1"
   },
   "engines": {
-    "node": "10.5"
+    "node": "12.3"
   }
 }
