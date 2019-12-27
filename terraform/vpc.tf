@@ -66,7 +66,6 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_eip" "gw" {
-  count      = var.az_count
   vpc        = true
   depends_on = [aws_internet_gateway.gw]
 
@@ -76,9 +75,8 @@ resource "aws_eip" "gw" {
 }
 
 resource "aws_nat_gateway" "gw" {
-  count         = var.az_count
-  subnet_id     = element(aws_subnet.public.*.id, count.index)
-  allocation_id = element(aws_eip.gw.*.id, count.index)
+  subnet_id     = aws_subnet.public.0.id
+  allocation_id = aws_eip.gw.id
 
   tags = {
     Name = "oce-ics-ng-${terraform.workspace}"
@@ -93,7 +91,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
+    nat_gateway_id = aws_nat_gateway.gw.id
   }
 
   tags = {
@@ -136,7 +134,7 @@ resource "aws_route_table" "rds" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = element(aws_nat_gateway.gw.*.id, count.index)
+    nat_gateway_id = aws_nat_gateway.gw.id
   }
 
   tags = {
