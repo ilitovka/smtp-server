@@ -50,9 +50,10 @@ sfTokenStorage.prototype.updateToken = function (orgId, token) {
  * @param access_token {string} - access token object
  * @param instance_url {string} - access token object
  * @param expire {time} - access token object
+ * @param prefix {string}
  * */
-sfTokenStorage.prototype.createToken = function (access_token, instance_url, expire) {
-  return new accessToken(access_token, instance_url, expire);
+sfTokenStorage.prototype.createToken = function (access_token, instance_url, expire, prefix) {
+  return new accessToken(access_token, instance_url, expire, prefix);
 };
 
 /**

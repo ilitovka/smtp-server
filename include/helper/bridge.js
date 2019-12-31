@@ -8,43 +8,48 @@ const Bridge = function () {
 
 /**
  * @param {string} attachment
- * @param {string} parsedICS
+ * @param {object} parsedICS
  *
- * @return {boolean}
+ * @return {Promise}
  *
  * */
 Bridge.prototype.send = function (attachment, parsedICS) {
-  if (parsedICS.uid === undefined) {
-    log.info('uid is undefined');
-    return false;
-  }
-  if (parsedICS.ORGID === undefined) {
-    parsedICS.ORGID = null;
-    log.info('ORGID is undefined: Bridge.prototype.send');
-    //return false;
-  }
+  return new Promise((resolve, reject) => {
+    if (parsedICS.uid === undefined) {
+      log.info('uid is undefined');
+      return reject('uid is undefined');
+    }
+    if (parsedICS.ORGID === undefined) {
+      parsedICS.ORGID = null;
+      log.info('ORGID is undefined: Bridge.prototype.send');
+    }
 
-  //Save to caldav
-  saveICS({
-    UID: parsedICS.uid,
-    calendarId: parsedICS.ORGID,
-    content: attachment,
-    parsed: parsedICS,
-  }).then(result => {
-    log.info(result);
-
-    this.bridgeSF.sendSf(parsedICS).then(result => {
+    //Save to caldav
+    saveICS({
+      UID: parsedICS.uid,
+      calendarId: parsedICS.ORGID,
+      content: attachment,
+      parsed: parsedICS,
+    }).then(result => {
       log.info(result);
+
+      this.bridgeSF.sendSf(parsedICS).then(result => {
+        log.info(result);
+
+        return resolve(result);
+      }).catch(err => {
+        log.info(err);
+
+        return reject(err);
+      });
+
+      log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
     }).catch(err => {
-      log.info(err);
+      log.debug(err);
+
+      return reject(err);
     });
-
-    log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
-  }).catch(err => {
-    log.debug(err);
   });
-
-  return true;
 };
 
 

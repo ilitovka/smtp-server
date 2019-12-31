@@ -53,7 +53,7 @@ test('Calling PROPFIND getctag and synctoken on calendar with existent ID', func
 
     var options = {
         method: 'PROPFIND',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA/",
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar/",
         auth: {
             'user': username,
             'pass': password,

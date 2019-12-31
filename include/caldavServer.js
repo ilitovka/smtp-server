@@ -177,8 +177,8 @@ crossroads.bypassed.add(onBypass);
 let server = http.createServer(function (req, res) {
   log.info('Request from IP: ' + req.socket.remoteAddress);
   let nonAccessPages = ['/health'];
-  let access = false;
-  if (!nonAccessPages.includes(req.url)) {
+  let access = true;
+  /*if (!nonAccessPages.includes(req.url)) {
     let auth = req.headers['authorization'];  // auth is in base64(username:password)  so we need to decode the base64
 
     if (!auth) {     // No Authorization header was passed in so it's the first time the browser hit us
@@ -213,7 +213,7 @@ let server = http.createServer(function (req, res) {
     }
   } else {
     access = true;
-  }
+  }*/
   if (access) {
     log.debug("Method: " + req.method + ", URL: " + req.url);
 
