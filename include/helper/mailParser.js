@@ -27,7 +27,7 @@ MailParser.prototype.parseAttachments = function (parsedMail) {
     adapter.parseAttachment(parsedMail).then(result => {
       return resolve(result);
     }).catch(err => {
-      reject(err);
+      return reject(err);
     });
   });
 };

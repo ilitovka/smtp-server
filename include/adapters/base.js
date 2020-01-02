@@ -68,7 +68,12 @@ class BaseAdapter {
           event.xTRID = this.retrieveXTRID(event);
 
           log.debug('Event info: ');
-          log.debug(event);
+          log.debug({
+            organizer: event.organizer,
+            attendee: event.attendee,
+            uid: event.uid,
+            eventId: event.eventId
+          });
 
           return resolve({content: content, event: event});
         }

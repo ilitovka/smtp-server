@@ -58,7 +58,7 @@ test('Calling REPORT synctoken on calendar', function (t) {
 
     var options = {
         method: 'REPORT',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA",
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar",
         auth: {
             'user': username,
             'pass': password,
@@ -134,7 +134,7 @@ test('Calling REPORT comp-filter on calendar WITHOUT data, changeset with etags 
 
     var options = {
         method: 'REPORT',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA",
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar",
         auth: {
             'user': username,
             'pass': password,
@@ -160,7 +160,7 @@ test('Calling REPORT comp-filter on calendar WITHOUT data, changeset with etags 
             // store for a later test case
             ics_file = nodeHref.text();
 
-            t.ok(nodeHref.text().match(/^\/cal\/[a-z0-9]+\/2A2AF854-18A0-47CB-870A-D94CA2341BAA\/[A-Z0-9_-]+\.ics$/g), "href has right URL");
+            t.ok(nodeHref.text().match(/^\/cal\/[a-z0-9]+\/test\-calendar\/[A-Z0-9_-]+\.ics$/gi), "href has right URL");
 
             /*
 
@@ -239,7 +239,7 @@ test('Calling REPORT comp-filter on calendar WITH data, full calendar-data', fun
 
     var options = {
         method: 'REPORT',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA",
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar",
         auth: {
             'user': username,
             'pass': password,
@@ -265,7 +265,7 @@ test('Calling REPORT comp-filter on calendar WITH data, full calendar-data', fun
             // store for a later test case
             ics_file = nodeHref.text();
 
-            t.ok(nodeHref.text().match(/^\/cal\/[a-z0-9]+\/2A2AF854-18A0-47CB-870A-D94CA2341BAA\/[A-Z0-9_-]+\.ics$/g), "href has right URL");
+            t.ok(nodeHref.text().match(/^\/cal\/[a-z0-9]+\/test-calendar\/[A-Z0-9_-]+\.ics$/gi), "href has right URL");
 
             t.comment("++ TODO: Check for full ICS data is missing");
             // TODO: Check for full ICS data...
@@ -328,7 +328,7 @@ test('Calling GET ICS on calendar', function (t) {
 
     var options = {
         method: 'GET',
-        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/2A2AF854-18A0-47CB-870A-D94CA2341BAA/" + ics_file,
+        uri: "http://" + config.ip + ":" + config.port + "/cal/" + username + "/test-calendar/" + ics_file,
         auth: {
             'user': username,
             'pass': password,
