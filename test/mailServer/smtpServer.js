@@ -1,5 +1,5 @@
-let test = require('tape');
-const SmtpServer = require("smtp-server").SMTPServer;
+const test = require('tape');
+const SmtpServer = require('../../include/smtpServer');
 const MailParser = require("mailparser").simpleParser;
 
 test('Calling smtpServer', function (t) {
@@ -224,11 +224,11 @@ test('Calling smtpServer', function (t) {
     'RU5UDQpFTkQ6VkNBTEVOREFSDQo=\n' +
     '--0000000000001ecf8a059afca5d0--\n';
 
-  MailParser(stream)
-    .then(parsedMail => {
-      t.pass("Mail parsed successfully");
-    })
-    .catch(error => {
-      t.fail('Failed mail parse');
-    });
+  let smtpServerObject = new SmtpServer();
+
+  smtpServerObject.process(stream).then(() => {
+    t.pass("Mail parsed successfully");
+  }).catch(() => {
+    t.fail('Failed mail parse');
+  });
 });

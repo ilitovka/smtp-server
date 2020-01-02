@@ -10,13 +10,16 @@ const parse = require('./helper/mailParser');
 /**
  * @constructor
  * */
-let customSMTPServer = function () {
-  let self = this;
-  log.info('Starting SMTP server...');
-
+let CustomSMTPServer = function () {
   this.bridge = new Bridge();
   this.bridgeSF = new BridgeSF();
   this.parse = new parse();
+};
+
+CustomSMTPServer.prototype.run = function() {
+  let self = this;
+
+  log.info('Starting SMTP server...');
 
   const server = new SmtpServer({
     authOptional: true,
@@ -47,24 +50,33 @@ let customSMTPServer = function () {
 
 /**
  * @param stream {string} Incoming mail
+ * @return {Promise}
  * */
-customSMTPServer.prototype.process = function (stream) {
-  MailParser(stream)
-    .then(parsedMail => {
-      this.parse.parseAttachments(parsedMail).then(result => {
-        //Send parsed ICS to caldav/SF
-        log.info('Attachment saving to DB');
-        return this.bridge.send(result.content, result.event);
-      }).then(result => {
-        return this.bridgeSF.sendSf(result);
-      }).catch(err => {
-        log.debug('Attachment parse failed');
+CustomSMTPServer.prototype.process = function (stream) {
+  return new Promise((resolve, reject) => {
+    MailParser(stream)
+      .then(parsedMail => {
+        this.parse.parseAttachments(parsedMail).then(result => {
+          //Send parsed ICS to caldav/SF
+          log.info('Attachment saving to DB');
+          return this.bridge.send(result.content, result.event);
+        }).then(result => {
+          return this.bridgeSF.sendSf(result);
+        }).catch(err => {
+          log.debug('Attachment parse failed');
+
+          return reject(err);
+        }).finally((result) => {
+          return resolve(result);
+        });
+      })
+      .catch(error => {
+        log.info('Caught error: ' + error.message);
+        log.info(error.stack);
+
+        return reject(error);
       });
-    })
-    .catch(error => {
-      log.info('Caught error: ' + error.message);
-      log.info(error.stack);
-    });
+  });
 };
 
-module.exports = customSMTPServer;
+module.exports = CustomSMTPServer;

@@ -358,7 +358,6 @@ function mergeICS(currentICS, newICS) {
     }
 
     if (currentICSParsed.attendee.length > 0) {
-        log.debug(currentICSParsed.attendee);
         for (let i = 0; i < currentICSParsed.attendee.length; i++) {
             attendeeKeys[currentICSParsed.attendee[i].val] = currentICSParsed.attendee[i];
         }
@@ -367,7 +366,6 @@ function mergeICS(currentICS, newICS) {
     }
 
     if (newICSParsed.attendee.length > 0) {
-        log.debug(newICSParsed.attendee);
         for (let j = 0; j < newICSParsed.attendee.length; j++) {
             attendeeKeys[newICSParsed.attendee[j].val] = newICSParsed.attendee[j];
         }

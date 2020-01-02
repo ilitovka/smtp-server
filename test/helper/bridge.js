@@ -83,6 +83,3 @@ test('Calling CalDav bridge', function (t) {
   });
 
 });
-/*
-* TODO::update dependencies. This locking finish test and process never exit.
-/**/
