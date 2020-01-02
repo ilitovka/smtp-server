@@ -461,6 +461,9 @@ function put(comm)
     // if not, lets create it, otherwise let's return its values...
     ADB.findOne({ where: {ownerId: username, name: adbName} }).then(function(adb)
     {
+        if (!adb) {
+            return null;
+        }
         var defaults = {
             addressbookId: adb.pkey,
             content: body,

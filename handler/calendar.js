@@ -32,8 +32,7 @@ module.exports = {
     get: gett,
     delete: del,
     move: move,
-    saveICS: saveICS,
-    mergeICS: mergeICS
+    saveICS: saveICS
 };
 
 function del(comm)

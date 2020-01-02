@@ -1,10 +1,7 @@
 const saveICS = require("../../handler/calendar").saveICS;
 const log = require('../../libs/log').log;
-const bridgeSF = require('../../include/helper/bridgeSF');
 
-const Bridge = function () {
-  this.bridgeSF = new bridgeSF();
-};
+const Bridge = function () {};
 
 /**
  * @param {string} attachment
@@ -30,20 +27,10 @@ Bridge.prototype.send = function (attachment, parsedICS) {
       calendarId: parsedICS.ORGID,
       content: attachment,
       parsed: parsedICS,
-    }).then(result => {
-      log.info(result);
-
-      this.bridgeSF.sendSf(parsedICS).then(result => {
-        log.info(result);
-
-        return resolve(result);
-      }).catch(err => {
-        log.info(err);
-
-        return reject(err);
-      });
-
+    }).then(() => {
       log.info('Event ID:' + parsedICS.uid + ' parsed and saved to calendar ID:' + parsedICS.ORGID);
+
+      return resolve(parsedICS);
     }).catch(err => {
       log.debug(err);
 

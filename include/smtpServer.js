@@ -1,7 +1,8 @@
 const SmtpServer = require("smtp-server").SMTPServer;
 const MailParser = require("mailparser").simpleParser;
 const config = require('../config').config;
-const bridge = require('./helper/bridge');
+const Bridge = require('./helper/bridge');
+const BridgeSF = require('./helper/bridgeSF');
 const icsParser = require('./helper/icsParser');
 const log = require('../libs/log').log;
 const parse = require('./helper/mailParser');
@@ -13,7 +14,8 @@ let customSMTPServer = function () {
   let self = this;
   log.info('Starting SMTP server...');
 
-  this.bridge = new bridge();
+  this.bridge = new Bridge();
+  this.bridgeSF = new BridgeSF();
   this.parse = new parse();
 
   const server = new SmtpServer({
@@ -52,7 +54,9 @@ customSMTPServer.prototype.process = function (stream) {
       this.parse.parseAttachments(parsedMail).then(result => {
         //Send parsed ICS to caldav/SF
         log.info('Attachment saving to DB');
-        this.bridge.send(result.content, result.event);
+        return this.bridge.send(result.content, result.event);
+      }).then(result => {
+        return this.bridgeSF.sendSf(result);
       }).catch(err => {
         log.debug('Attachment parse failed');
       });
@@ -62,4 +66,5 @@ customSMTPServer.prototype.process = function (stream) {
       log.info(error.stack);
     });
 };
+
 module.exports = customSMTPServer;

@@ -1,9 +1,7 @@
 const test = require('tape');
 const moment = require('moment');
-/*
-* TODO::update dependencies. This locking finish test and process never exit.
 
-const bridgeTest = require('../../include/helper/bridge');
+const bridge = require('../../include/helper/bridge');
 
 test('Calling CalDav bridge', function (t) {
   t.plan(1);
@@ -84,4 +82,7 @@ test('Calling CalDav bridge', function (t) {
     t.fail(err);
   });
 
-});/**/
+});
+/*
+* TODO::update dependencies. This locking finish test and process never exit.
+/**/
