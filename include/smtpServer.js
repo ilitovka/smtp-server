@@ -3,7 +3,6 @@ const MailParser = require("mailparser").simpleParser;
 const config = require('../config').config;
 const Bridge = require('./helper/bridge');
 const BridgeSF = require('./helper/bridgeSF');
-const icsParser = require('./helper/icsParser');
 const log = require('../libs/log').log;
 const parse = require('./helper/mailParser');
 
