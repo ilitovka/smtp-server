@@ -11,7 +11,7 @@ test('Calling icsCreate', function (t) {
     'BEGIN:VEVENT\r\n' +
     'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000\r\n' +
     'SUMMARY:Untitled event\r\n' +
-    'DTSTAMP:20191219T162147Z\r\n' +
+    'DTSTAMP:20191219T142147Z\r\n' +
     'DTSTART:20191229T132100Z\r\n' +
     'DTEND:20191229T135100Z\r\n' +
     'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00d5d000000devvua4@test.com\r\n' +
@@ -28,7 +28,7 @@ test('Calling icsCreate', function (t) {
     class: 'PUBLIC',
     created: new Date('2019-12-19T14:21:47.000Z'),
     end: new Date('2019-12-29T13:51:47.000Z'),
-    dtstamp: new Date('2019-12-19T14:21:47.000Z'),
+    dtstamp: (new Date('2019-12-19T14:21:47.000')),
     start: new Date('2019-12-29T13:21:47.000Z'),
     datetype: 'date-time',
     organizer:
