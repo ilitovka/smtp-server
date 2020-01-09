@@ -20,6 +20,7 @@ const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 const bridgeSF = require('../include/helper/bridgeSF');
 const sequelize = require('../libs/db').sequelize;
+const Op = sequelize.Op
 
 // Exporting.
 module.exports = {
@@ -1252,12 +1253,12 @@ function handleReportCalendarQuery(comm, xmlDoc)
             {
                 case 'start':
                     var filterStart = moment(attr.value());
-                    filter.startDate = { $gte: filterStart.toISOString() };
+                    filter.startDate = { [Op.gte]: filterStart.toISOString() };
                     break;
 
                 case 'end':
                     var filterEnd = moment(attr.value());
-                    filter.endDate = { $lte: filterEnd.toISOString() };
+                    filter.endDate = { [Op.gte]: filterEnd.toISOString() };
                     break;
 
                 default:
