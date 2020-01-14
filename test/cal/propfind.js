@@ -325,7 +325,7 @@ test('Calling PROPFIND getetag and notificationtype on calendar notifications', 
     payload += "<A:propfind xmlns:A=\"DAV:\">\n\r";
     payload += "<A:prop>\n\r";
     payload += "<A:getetag/>\n\r";
-    payload += "<C:C:notificationtype xmlns:C=\"http://calendarserver.org/ns/\"/>\n\r";
+    //payload += "<C:C:notificationtype xmlns:C=\"http://calendarserver.org/ns/\"/>\n\r";
     payload += "</A:prop>\n\r";
     payload += "</A:propfind>\n\r";
 
