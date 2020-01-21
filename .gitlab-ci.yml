@@ -6,7 +6,7 @@ stages:
 # Run unit/integration testing
 .run-tests-abstract: &run-tests-template
   stage: test
-  image: node:12.13-alpine
+  image: node:12.13
   services:
     - postgres:alpine
   variables:
