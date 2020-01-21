@@ -29,11 +29,12 @@
  **
 -----------------------------------------------------------------------------*/
 try {
-    var caldavServer = require('./include/caldavServer');
-    var SMTPServer = require('./include/smtpServer');
+    let caldavServer = require('./include/caldavServer');
+    let SMTPServer = require('./include/smtpServer');
 
     //run smtp server
-    var customSmtpServer = new SMTPServer();
+    let customSmtpServer = new SMTPServer();
+    customSmtpServer.run();
 } catch (e) {
     console.log('Caught error: ' + e.message);
     console.log(e.stack);

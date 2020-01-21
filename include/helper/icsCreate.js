@@ -20,6 +20,9 @@ const icsCreate = function (event) {
       },
       uid: event.uid
     };
+    if (event.dtstamp) {
+      eventMerged.timestamp = moment(event.dtstamp).format('YYYYMDTHms') + 'Z';
+    }
 
     let attendees = [];
     for (let key in event.attendee) {

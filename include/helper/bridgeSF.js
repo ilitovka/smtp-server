@@ -10,7 +10,7 @@ const BridgeSF = function () {
 };
 
 /**
- * @param {string} parsedICS
+ * @param {object} parsedICS
  *
  * @return {Promise}
  *

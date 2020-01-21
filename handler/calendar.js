@@ -20,6 +20,7 @@ const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 const bridgeSF = require('../include/helper/bridgeSF');
 const sequelize = require('../libs/db').sequelize;
+const Op = sequelize.Op
 
 // Exporting.
 module.exports = {
@@ -32,8 +33,7 @@ module.exports = {
     get: gett,
     delete: del,
     move: move,
-    saveICS: saveICS,
-    mergeICS: mergeICS
+    saveICS: saveICS
 };
 
 function del(comm)
@@ -257,7 +257,7 @@ function saveICS(options)
     };
 
     return (new Promise((resolve, reject) => {
-        return ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
+        ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
         {
             let contentOld = '';
             if(created)
@@ -267,8 +267,6 @@ function saveICS(options)
             else
             {
                 contentOld = ics.content;
-                startDate = dtStart.toISOString();
-                endDate = dtEnd.toISOString();
 
                 if (!calendar) {
                     calendar = ics.calendarId
@@ -296,40 +294,41 @@ function saveICS(options)
                 } else {
                     log.debug('Failed creating ICS history record ID:' + ics_id);
                 }
-            });
 
-            return ics.save().then(result => {
-                log.info('ics updated');
+                return ics.save().then(result => {
+                    log.info('ics updated');
 
-                // update calendar collection
-                let defaultCalendar = {
-                    pkey: calendar,
-                    owner: 'demo',
-                    timezone: '',
-                    order: 1,
-                    free_busy_set: '',
-                    supported_cal_component: 'VEVENT',
-                    colour: '#fff',
-                    displayname: 'ICS server',
-                    synctoken: 0
-                };
-                CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).spread(function(cal)
-                {
-                    if(cal !== null && cal !== undefined) {
-                        cal.save({synctoken: sequelize.literal('synctoken +1')}).then(() => {
-                            log.info('synctoken on cal updated');
-                        });
-                    }
+                    // update calendar collection
+                    let defaultCalendar = {
+                        pkey: calendar,
+                        owner: 'demo',
+                        timezone: '',
+                        order: 1,
+                        free_busy_set: '',
+                        supported_cal_component: 'VEVENT',
+                        colour: '#fff',
+                        displayname: 'ICS server',
+                        synctoken: 0
+                    };
+                    CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).spread(function(cal)
+                    {
+                        if(cal !== null && cal !== undefined) {
+                            cal.save({synctoken: sequelize.literal('synctoken +1')}).then(() => {
+                                log.info('synctoken on cal updated');
+                            });
+                        }
+                    });
+
+                    return resolve('ICS successfully saved.');
+                }).catch(err => {
+                    log.info(err);
+                    return reject('ICS.save failed.');
                 });
-
-                return resolve('ICS successfully saved.');
             }).catch(err => {
-                log.info(err);
-                return reject('ICS.save failed.');
+                return resolve("Couldn't save ICSHistory.");
             });
         }).catch(err => {
-            log.info(err);
-            return reject('ICS.findOrCreate failed.');
+            return reject(err);
         });
     }));
 }
@@ -360,7 +359,6 @@ function mergeICS(currentICS, newICS) {
     }
 
     if (currentICSParsed.attendee.length > 0) {
-        log.debug(currentICSParsed.attendee);
         for (let i = 0; i < currentICSParsed.attendee.length; i++) {
             attendeeKeys[currentICSParsed.attendee[i].val] = currentICSParsed.attendee[i];
         }
@@ -369,7 +367,6 @@ function mergeICS(currentICS, newICS) {
     }
 
     if (newICSParsed.attendee.length > 0) {
-        log.debug(newICSParsed.attendee);
         for (let j = 0; j < newICSParsed.attendee.length; j++) {
             attendeeKeys[newICSParsed.attendee[j].val] = newICSParsed.attendee[j];
         }
@@ -1256,12 +1253,12 @@ function handleReportCalendarQuery(comm, xmlDoc)
             {
                 case 'start':
                     var filterStart = moment(attr.value());
-                    filter.startDate = { $gte: filterStart.toISOString() };
+                    filter.startDate = { [Op.gte]: filterStart.toISOString() };
                     break;
 
                 case 'end':
                     var filterEnd = moment(attr.value());
-                    filter.endDate = { $lte: filterEnd.toISOString() };
+                    filter.endDate = { [Op.gte]: filterEnd.toISOString() };
                     break;
 
                 default:
