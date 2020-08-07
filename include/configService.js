@@ -1,13 +1,12 @@
-const config = require('../config').config;
 const log = require('../libs/log').log;
 
 /**
  * ConfigService client, being used to validate ord id
  *
  */
-let configServiceClient = function () {
+let configServiceClient = function (config, request) {
   this.config = config;
-  this.Request = require('request');
+  this.Request = request;
 };
 
 /**

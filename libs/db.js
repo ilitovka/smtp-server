@@ -146,11 +146,9 @@ function _getPermission(user)
     // get permissions from groups
 }
 
-sequelize.sync().then(function()
-    {
+sequelize.sync().then(() => {
         log.info("Database structure updated");
-    }).error(function(error)
-    {
+    }).catch((error) => {
         log.error("Database structure update crashed: " + error);
     }
 );
@@ -165,5 +163,6 @@ module.exports = {
     getPermission: function (user) {
         return _getPermission(user);
     },
-    sequelize: sequelize
+    sequelize: sequelize,
+    Op: Sequelize.Op
 };

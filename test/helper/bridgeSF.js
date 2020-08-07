@@ -1,8 +1,19 @@
 const test = require('tape');
+
+const di = require('../../di').di;
 const bridgeSF = require('../../include/helper/bridgeSF');
 
 test('Calling bridgeSF', function (t) {
   t.plan(1);
+
+  di.get('request').setCallback((params, callback) => {
+    callback(undefined, { statusCode: 200 }, JSON.stringify({
+      access_token: "access_token",
+      instance_url: "instance_url",
+      access_token_expiration: Date.now() + 3600,
+      namespace_prefix: ""
+    }));
+  });
 
   let bridgeObject = new bridgeSF();
 
@@ -18,7 +29,7 @@ test('Calling bridgeSF', function (t) {
     organizer:
       {
         params: {CN: 'OCEADMIN OCEADMIN'},
-        val: 'mailto:00D5D000000DEVVUA4@test.com'
+        val: 'mailto:00DS0000003Eixf@test.com'
       },
     attendee:
       [
@@ -46,14 +57,16 @@ test('Calling bridgeSF', function (t) {
     sequence: '0',
     summary: 'summary',
     transparency: 'OPAQUE',
-    ORGID: '00D5D000000DEVVUA4',
+    ORGID: '00DS0000003Eixf',
     uid: 'qwerty',
     eventId: 'oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000'
   };
 
   bridgeObject.sendSf(parsedICS).then(res => {
     t.pass("Sent successfully");
+    di.get('request').setCallback(false);
   }).catch(err => {
-    t.fail('Failed send ics to SF');
+    t.fail('Failed send ics to SF: ' + err.message);
+    di.get('request').setCallback(false);
   });
 });

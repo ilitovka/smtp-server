@@ -1,22 +1,18 @@
 const log = require('../libs/log').log;
-const moment = require('moment');
-const config = require('../config').config;
-const crypto = require('../include/helper/crypto');
-const configService = require('../include/configService');
-
+const crypto = require('crypto');
 /**
  * @constructor
  *
  * @description Storage for access tokens
  * */
-let sfTokenStorage = function () {
+let sfTokenStorage = function (config, moment, helperCrypto, configService) {
   this.accessTokens = [];
 
-  if (config.sfApi.accessToken && config.mode !== undefined && config.mode === 'sandbox') {
-    this.addToken(config.sfApi.orgID, new accessToken(config.sfApi.accessToken, moment().unix() + 3 * 24 * 3600))
-  }
+  this.config = config;
+  this.moment = moment;
+  this.helperCrypto = helperCrypto;
 
-  this.configService = new configService();
+  this.configService = configService;
 };
 
 /**
@@ -53,7 +49,7 @@ sfTokenStorage.prototype.updateToken = function (orgId, token) {
  * @param prefix {string}
  * */
 sfTokenStorage.prototype.createToken = function (access_token, instance_url, expire, prefix) {
-  return new accessToken(access_token, instance_url, expire, prefix);
+  return new accessToken(access_token, instance_url, expire, prefix, this.helperCrypto, this.moment);
 };
 
 /**
@@ -140,13 +136,13 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
       log.debug(result);
       if (result) {
         let expire = result.access_token_expiration !== undefined ?
-          moment(result.access_token_expiration).unix()
-          : moment().unix() + config.configService.defaultLifetime;
-        let prefix = result.namespace_prefix !== undefined ? result.namespace_prefix : config.sfApi.defaultNamespace;
+          this.moment(result.access_token_expiration).unix()
+          : this.moment().unix() + this.config.configService.defaultLifetime;
+        let prefix = result.namespace_prefix !== undefined ? result.namespace_prefix : this.config.sfApi.defaultNamespace;
 
         log.info('Access token successfully received: _getAccessToken');
 
-        return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire, prefix)));
+        return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire, prefix, this.helperCrypto, this.moment)));
       } else {
         log.info('Access token failed: _getAccessToken.then()');
         return reject('Something wrong');
@@ -166,18 +162,20 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
  *
  * @constructor
  * */
-let accessToken = function (token, instance_url, expire, prefix) {
-  this.tokenCrypted = crypto.encrypt(token);
+let accessToken = function (token, instance_url, expire, prefix, crypto, moment) {
   this.instance_url = instance_url;
   this.expireTime = expire;
   this.prefix = prefix;
+  this.crypto = crypto;
+  this.moment = moment;
+  this.tokenCrypted = this.crypto.encrypt(token);
 };
 
 /**
  * @return {boolean}
  * */
 accessToken.prototype.isExpire = function () {
-  return this.expireTime < moment().unix();
+  return this.expireTime < this.moment().unix();
 };
 
 /**
@@ -185,7 +183,7 @@ accessToken.prototype.isExpire = function () {
  * @return {string}
  * */
 accessToken.prototype.getToken = function () {
-  return crypto.decrypt(this.tokenCrypted);
+  return this.crypto.decrypt(this.tokenCrypted);
 };
 
 /**

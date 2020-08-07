@@ -20,7 +20,7 @@ const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 const bridgeSF = require('../include/helper/bridgeSF');
 const sequelize = require('../libs/db').sequelize;
-const Op = sequelize.Op
+const Op = require('../libs/db').Op;
 
 // Exporting.
 module.exports = {
@@ -128,7 +128,7 @@ function gett(comm)
     });
 }
 
-function put(comm)
+async function put(comm)
 {
     log.debug("calendar.put called");
 
@@ -153,8 +153,9 @@ function put(comm)
         content: body
     };
 
-    ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
-    {
+    await ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
+        let ics = res[0];
+        let created = res[1];
         if(created)
         {
             log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
@@ -226,7 +227,17 @@ function put(comm)
 
             comm.setResponseCode(201);
             comm.flushResponse();
+        }).catch((err) => {
+            log.info(err);
+            comm.setStandardHeaders();
+            comm.setResponseCode(500);
+            comm.flushResponse();
         });
+    }).catch((err) => {
+        log.info(err);
+        comm.setStandardHeaders();
+        comm.setResponseCode(500);
+        comm.flushResponse();
     });
 }
 
@@ -257,8 +268,9 @@ function saveICS(options)
     };
 
     return (new Promise((resolve, reject) => {
-        ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
-        {
+        ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
+            let ics = res[0];
+            let created = res[1];
             let contentOld = '';
             if(created)
             {
@@ -310,8 +322,8 @@ function saveICS(options)
                         displayname: 'ICS server',
                         synctoken: 0
                     };
-                    CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).spread(function(cal)
-                    {
+                    CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then((res) => {
+                        let cal = res[0];
                         if(cal !== null && cal !== undefined) {
                             cal.save({synctoken: sequelize.literal('synctoken +1')}).then(() => {
                                 log.info('synctoken on cal updated');
@@ -1144,22 +1156,23 @@ function makeCalendar(comm)
             displayname: displayname
         };
 
-        CAL.findOrCreate({ where: {pkey: filename}, defaults: defaults }).spread(function(cal, created)
+        CAL.findOrCreate({ where: {pkey: filename}, defaults: defaults }).then((res) => {
+            let cal = res[0];
+            let created = res[1];
+            if(created)
             {
-                if(created)
-                {
-                    log.debug('Created CAL: ' + JSON.stringify(cal, null, 4));
-                }
-                else
-                {
-                    log.debug('Loaded CAL: ' + JSON.stringify(cal, null, 4));
-                }
+                log.debug('Created CAL: ' + JSON.stringify(cal, null, 4));
+            }
+            else
+            {
+                log.debug('Loaded CAL: ' + JSON.stringify(cal, null, 4));
+            }
 
-                cal.save().then(function()
-                {
-                    log.warn('cal saved');
-                });
+            cal.save().then(function()
+            {
+                log.warn('cal saved');
             });
+        });
 
         comm.setResponseCode(201);
         comm.appendResBody(response);

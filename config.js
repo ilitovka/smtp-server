@@ -44,6 +44,7 @@ var config =
     //port: 80,
     ip: '127.0.0.1',
     //ip: '0.0.0.0',
+    type: process.env.type !== undefined ? process.env.type : 'test',
 
     // db specific configuration. you can use whatever sequelize supports.
     db_name: process.env.DB_NAME !== undefined ? process.env.DB_NAME : 'fennel',

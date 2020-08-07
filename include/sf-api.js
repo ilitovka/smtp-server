@@ -1,11 +1,10 @@
 const log = require('../libs/log').log;
-const config = require('../config').config;
-const jsforce = require('jsforce');
-const sfTokenStorage = require('../include/sf-token-storage');
 
-let sfApi = function () {
-  this.sfOrgUrl = config.sfApi.endpoint;
-  this.tokenStorage = new sfTokenStorage();
+let sfApi = function (config, jsforce, sfTokenStorage) {
+  this.config = config;
+  this.sfOrgUrl = this.config.sfApi.endpoint;
+  this.jsforce = jsforce;
+  this.tokenStorage = sfTokenStorage;
   this.connection = null;
 };
 
@@ -51,7 +50,7 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
       });
     }).catch(err => {
       log.info('Attendee statuses sent failed: _sendAttendeeStatuses');
-      return reject({message: err, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR'});
+      return reject({message: err.message, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR'});
     });
   }));
 };
@@ -63,7 +62,7 @@ sfApi.prototype.connect = function (accessToken) {
   try {
     log.debug('Connecting to SF');
     this.prefix = accessToken.getPrefix() ? accessToken.getPrefix() + '/' : '';
-    this.connection = new jsforce.Connection({
+    this.connection = new this.jsforce.Connection({
       instanceUrl: accessToken.getInstanceUrl(),
       accessToken: accessToken.getToken()
     });
@@ -88,7 +87,7 @@ sfApi.prototype._sendAttendeeStatuses = function (body) {
     });
   } catch (e) {
     log.info(e);
-    throw new Error('Couldn\'t send attendee statuses to SF API');
+    throw new Error('Couldn\'t send attendee statuses to SF API. Error: ' + e.message);
   }
 };
 

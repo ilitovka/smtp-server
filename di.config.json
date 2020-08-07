@@ -1,0 +1,72 @@
+{
+  "run": {
+    "fs": { "require":  "fs" },
+    "http": { "require":  "http" },
+    "path": { "require":  "path" },
+    "dotenv": { "require":  "dotenv" },
+    "ics": { "require":  "ics" },
+    "http-auth": { "require":  "http-auth" },
+    "crypto": { "require": "crypto" },
+    "jsforce": { "require":  "jsforce" },
+    "express": { "require":  "express" },
+    "moment": { "require":  "moment" },
+    "request": { "require":  "request" },
+    "mailparser": { "require": "mailparser" },
+    "log4js": { "require": "log4js" },
+    "mime-types": {"require":  "mime-types"},
+    "app": {
+      "require":  "express",
+      "new":      true
+    },
+    "mustache-express": {
+      "require":  "mustache-express"
+    },
+    "logger": {
+      "require":  "includes/logger.js",
+      "new":      true,
+      "args":     ["di"]
+    },
+    "validate": {
+      "require":  "includes/validate.js",
+      "new":      true,
+      "args":     ["di"]
+    },
+    "service": {
+      "require":  "includes/app.js",
+      "new":      true,
+      "store":    false,
+      "args":     ["DI"]
+    },
+    "sf-api": {
+      "require": "include/sf-api.js",
+      "new":      true,
+      "args":     ["config", "jsforce", "sf-token-storage"]
+    },
+    "sf-token-storage": {
+      "require": "include/sf-token-storage.js",
+      "new":      true,
+      "args":     ["config", "moment", "helper-crypto", "config-service"]
+    },
+    "config-service": {
+      "require": "include/configService.js",
+      "new":      true,
+      "args":     ["config", "request"]
+    },
+    "helper-crypto": {
+      "require": "include/helper/crypto.js",
+      "new":      true,
+      "args":     ["crypto", "config"]
+    }
+  },
+  "test": {
+    "jsforce": {
+      "require":  "test/mocks/jsforce.js"
+    },
+    "fs": {
+      "require":  "test/mocks/fs.js"
+    },
+    "request": {
+      "require":  "test/mocks/request.js"
+    }
+  }
+}
