@@ -1,10 +1,8 @@
-let Di = function () {
-  /**
-   * Initializing DI container.
-   */
-  this.di = new (require('simple-mdi'))(require('fs-extra'), require('./di.config.json'), process.env.type || 'test', __dirname);
+/**
+ * Initializing DI container.
+ */
+const di = new (require('simple-mdi'))(require('fs-extra'), require('./di.config.json'), process.env.type || 'test', __dirname);
 
-  this.di.addDependency('dir', __dirname);
-};
+di.addDependency('dir', __dirname);
 
-module.exports = new Di();
+module.exports = di;

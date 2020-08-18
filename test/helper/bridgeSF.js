@@ -1,7 +1,7 @@
 const test = require('tape');
 
-const di = require('../../di').di;
-const bridgeSF = require('../../include/helper/bridgeSF');
+const di = require('../../di');
+const bridgeObject = di.get('helper-sf-bridge');
 
 test('Calling bridgeSF', function (t) {
   t.plan(1);
@@ -14,8 +14,6 @@ test('Calling bridgeSF', function (t) {
       namespace_prefix: ""
     }));
   });
-
-  let bridgeObject = new bridgeSF();
 
   let parsedICS = {
     type: 'VEVENT',

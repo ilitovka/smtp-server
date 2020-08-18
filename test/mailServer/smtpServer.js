@@ -1,6 +1,6 @@
 const test = require('tape');
-const di = require('../../di').di;
-const SmtpServer = require('../../include/smtpServer');
+const di = require('../../di');
+const smtpServerObject = di.get('smtpServer');
 
 test('Calling smtpServer', function (t) {
   t.plan(1);
@@ -223,8 +223,6 @@ test('Calling smtpServer', function (t) {
     'bW1hcnkNClRSQU5TUDpPUEFRVUUNClgtT1JHSUQ6MDBENUQwMDAwMDBERVZWVUE0DQpFTkQ6VkVW\n' +
     'RU5UDQpFTkQ6VkNBTEVOREFSDQo=\n' +
     '--0000000000001ecf8a059afca5d0--\n';
-
-  let smtpServerObject = new SmtpServer();
 
   di.get('request').setCallback((params, callback) => {
     callback(undefined, { statusCode: 200 }, JSON.stringify({

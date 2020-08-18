@@ -1,5 +1,5 @@
 let test = require('tape');
-const di = require('../../di').di;
+const di = require('../../di');
 const tokenStorageObject = di.get('sf-token-storage');
 
 test('Calling token storage', function (t) {

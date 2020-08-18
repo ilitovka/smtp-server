@@ -12,19 +12,25 @@
     "moment": { "require":  "moment" },
     "request": { "require":  "request" },
     "mailparser": { "require": "mailparser" },
+    "smtp-server": { "require": "smtp-server" },
     "log4js": { "require": "log4js" },
     "mime-types": {"require":  "mime-types"},
     "app": {
       "require":  "express",
       "new":      true
     },
+    "smtpServer": {
+      "require":  "include/smtpServer.js",
+      "new":      true,
+      "args":     ["di"]
+    },
     "logger": {
-      "require":  "includes/logger.js",
+      "require":  "include/logger.js",
       "new":      true,
       "args":     ["di"]
     },
     "console-logger": {
-      "require":  "includes/loggers/console.js",
+      "require":  "include/loggers/console.js",
       "new":      true,
       "args":     ["console"]
     },
@@ -51,6 +57,19 @@
       "require": "include/helper/crypto.js",
       "new":      true,
       "args":     ["crypto", "config"]
+    },
+    "helper-mail-parser": {
+      "require": "include/helper/mailParser.js",
+      "new":      true
+    },
+    "helper-caldav-bridge": {
+      "require": "include/helper/bridge.js",
+      "new":      true
+    },
+    "helper-sf-bridge": {
+      "require": "include/helper/bridgeSF.js",
+      "new":      true,
+      "args":     ["sf-api"]
     }
   },
   "test": {

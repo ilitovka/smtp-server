@@ -1,6 +1,6 @@
 let test = require('tape');
 let expect = require('chai').expect;
-const di = require('../../di').di;
+const di = require('../../di');
 const configServiceObject = di.get('config-service');
 const config  = di.get('config');
 const Request = di.get('request');

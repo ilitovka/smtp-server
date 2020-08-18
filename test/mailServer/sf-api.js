@@ -1,6 +1,6 @@
 let test = require('tape');
 
-const di = require('../../di').di;
+const di = require('../../di');
 const sfApiObj = di.get('sf-api');
 
 test('Calling sf-api', function (t) {
