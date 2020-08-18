@@ -18,24 +18,15 @@
       "require":  "express",
       "new":      true
     },
-    "mustache-express": {
-      "require":  "mustache-express"
-    },
     "logger": {
       "require":  "includes/logger.js",
       "new":      true,
       "args":     ["di"]
     },
-    "validate": {
-      "require":  "includes/validate.js",
+    "console-logger": {
+      "require":  "includes/loggers/console.js",
       "new":      true,
-      "args":     ["di"]
-    },
-    "service": {
-      "require":  "includes/app.js",
-      "new":      true,
-      "store":    false,
-      "args":     ["DI"]
+      "args":     ["console"]
     },
     "sf-api": {
       "require": "include/sf-api.js",
@@ -46,6 +37,10 @@
       "require": "include/sf-token-storage.js",
       "new":      true,
       "args":     ["config", "moment", "helper-crypto", "config-service"]
+    },
+    "config": {
+      "require": "config.js",
+      "new":      false
     },
     "config-service": {
       "require": "include/configService.js",

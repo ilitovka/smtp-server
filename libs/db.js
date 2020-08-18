@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------*/
 
 var log = require('../libs/log').log;
-var config = require('../config').config;
+var config = require('../config');
 
 var Sequelize = require('sequelize');
 
@@ -22,7 +22,7 @@ var options = {
     dialect: config.db_dialect,
     logging: function( info ) {if(config.db_logging){log.info(info)}}, // thanks to mdarveau for the fix
     storage: config.db_storage,
-    operatorsAliases: false
+    operatorsAliases: '0'
 };
 if (config.db_ssl) {
     options.ssl = true;

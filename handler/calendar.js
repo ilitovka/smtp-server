@@ -153,92 +153,99 @@ async function put(comm)
         content: body
     };
 
-    await ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
-        let ics = res[0];
-        let created = res[1];
-        if(created)
-        {
-            log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
-        }
-        else
-        {
-            var ifNoneMatch = comm.getHeader('If-None-Match');
-            if(ifNoneMatch && ifNoneMatch === "*")
+    try {
+        await ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
+            let ics = res[0];
+            let created = res[1];
+            if(created)
             {
-                log.debug('If-None-Match matches, return status code 412');
+                log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
+            }
+            else
+            {
+                var ifNoneMatch = comm.getHeader('If-None-Match');
+                if(ifNoneMatch && ifNoneMatch === "*")
+                {
+                    log.debug('If-None-Match matches, return status code 412');
+
+                    comm.setStandardHeaders();
+
+                    var date = new Date();
+                    comm.setHeader("ETag", Number(date));
+
+                    comm.setResponseCode(412);
+
+                    comm.appendResBody(xh.getXMLHead());
+
+                    comm.appendResBody("<d:error xmlns:d=\"DAV:\" xmlns:s=\"http://swordlord.org/ns\">");
+                    comm.appendResBody("<s:exception>Fennel\DAV\Exception\PreconditionFailed</s:exception>");
+                    comm.appendResBody("<s:message>An If-None-Match header was specified, but the ETag matched (or * was specified).</s:message>");
+                    comm.appendResBody("<s:header>If-None-Match</s:header>");
+                    comm.appendResBody("</d:error>");
+
+                    comm.flushResponse();
+                    return;
+                }
+                else
+                {
+                    startDate = dtStart.toISOString();
+                    endDate = dtEnd.toISOString();
+
+                    ics.content = comm.getReqBody();
+                    log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
+                }
+            }
+
+            ics.save().then(function()
+            {
+                log.info('ics updated');
+
+                let parsedICS = icsParser(ics.content);
+
+                let bridgeObject = new bridgeSF();
+                bridgeObject.sendSf(parsedICS).then(result => {
+                    log.info(result);
+                }).catch(err => {
+                    log.info(err);
+                });
+
+                // update calendar collection
+                CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
+                {
+                    if(cal !== null && cal !== undefined)
+                    {
+                        cal.increment('synctoken', { by: 1 }).then(function()
+                        {
+                            log.info('synctoken on cal updated');
+                        });
+                    }
+                });
 
                 comm.setStandardHeaders();
 
                 var date = new Date();
                 comm.setHeader("ETag", Number(date));
 
-                comm.setResponseCode(412);
-
-                comm.appendResBody(xh.getXMLHead());
-
-                comm.appendResBody("<d:error xmlns:d=\"DAV:\" xmlns:s=\"http://swordlord.org/ns\">");
-                comm.appendResBody("<s:exception>Fennel\DAV\Exception\PreconditionFailed</s:exception>");
-                comm.appendResBody("<s:message>An If-None-Match header was specified, but the ETag matched (or * was specified).</s:message>");
-                comm.appendResBody("<s:header>If-None-Match</s:header>");
-                comm.appendResBody("</d:error>");
-
+                comm.setResponseCode(201);
                 comm.flushResponse();
-                return;
-            }
-            else
-            {
-                startDate = dtStart.toISOString();
-                endDate = dtEnd.toISOString();
-
-                ics.content = comm.getReqBody();
-                log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
-            }
-        }
-
-        ics.save().then(function()
-        {
-            log.info('ics updated');
-
-            let parsedICS = icsParser(ics.content);
-
-            let bridgeObject = new bridgeSF();
-            bridgeObject.sendSf(parsedICS).then(result => {
-                log.info(result);
-            }).catch(err => {
+            }).catch((err) => {
                 log.info(err);
+                comm.setStandardHeaders();
+                comm.setResponseCode(500);
+                comm.flushResponse();
             });
-
-            // update calendar collection
-            CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
-            {
-                if(cal !== null && cal !== undefined)
-                {
-                    cal.increment('synctoken', { by: 1 }).then(function()
-                    {
-                        log.info('synctoken on cal updated');
-                    });
-                }
-            });
-
-            comm.setStandardHeaders();
-
-            var date = new Date();
-            comm.setHeader("ETag", Number(date));
-
-            comm.setResponseCode(201);
-            comm.flushResponse();
         }).catch((err) => {
             log.info(err);
             comm.setStandardHeaders();
             comm.setResponseCode(500);
             comm.flushResponse();
         });
-    }).catch((err) => {
+    } catch (err) {
         log.info(err);
         comm.setStandardHeaders();
         comm.setResponseCode(500);
         comm.flushResponse();
-    });
+    }
 }
 
 //TODO::refactor save method

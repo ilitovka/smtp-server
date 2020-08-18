@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------*/
 
 var log = require('../libs/log').log;
-var config = require('../config').config;
+var config = require('../config');
 
 var fs = require('fs');
 var path = require('path');

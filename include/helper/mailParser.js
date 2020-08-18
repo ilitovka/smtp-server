@@ -1,4 +1,4 @@
-const config = require('../../config').config;
+const config = require('../../config');
 const icsParser = require('./icsParser');
 const log = require('../../libs/log').log;
 const baseAdapter = require('../adapters/base');

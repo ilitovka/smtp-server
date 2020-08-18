@@ -28,7 +28,7 @@
  ** $Id:
  **
 -----------------------------------------------------------------------------*/
-var config = require('../config').config;
+var config = require('../config');
 var authlib = require('../libs/authentication');
 var http = require('http');
 var url = require('url');

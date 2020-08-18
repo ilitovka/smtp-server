@@ -1,6 +1,6 @@
 const SmtpServer = require("smtp-server").SMTPServer;
 const MailParser = require("mailparser").simpleParser;
-const config = require('../config').config;
+const config = require('../config');
 const Bridge = require('./helper/bridge');
 const BridgeSF = require('./helper/bridgeSF');
 const log = require('../libs/log').log;

@@ -35,7 +35,7 @@ var request = require('request');
 var xml = require("libxmljs");
 var moment = require('moment');
 
-var config = require('../../config').config;
+var config = require('../../config');
 
 var username = config.test_user_name;
 var password = config.test_user_pwd;
