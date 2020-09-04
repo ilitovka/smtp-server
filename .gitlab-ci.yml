@@ -39,6 +39,7 @@ build-push-image-prod:
     - cd terraform
     - export TF_IN_AUTOMATION=1
     - export TF_VAR_aws_ecr_image_tag=$CI_COMMIT_SHA
+    - export TF_VAR_autoscale_enabled="true"
   script:
     - terraform init -input=false
     - terraform workspace new ${TERRAFORM_WORKSPACE:-qa} || true
