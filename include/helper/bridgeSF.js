@@ -1,12 +1,11 @@
-const sfApi = require('../../include/sf-api');
 const log = require('../../libs/log').log;
 
 /**
  * @description Bridge to SF
  * @constructor
  * */
-const BridgeSF = function () {
-  this.sfApi = new sfApi();
+const BridgeSF = function (sfAPi) {
+  this.sfApi = sfAPi;
 };
 
 /**

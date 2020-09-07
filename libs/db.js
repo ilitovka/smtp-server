@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------*/
 
 var log = require('../libs/log').log;
-var config = require('../config').config;
+var config = require('../config');
 
 var Sequelize = require('sequelize');
 
@@ -22,7 +22,7 @@ var options = {
     dialect: config.db_dialect,
     logging: function( info ) {if(config.db_logging){log.info(info)}}, // thanks to mdarveau for the fix
     storage: config.db_storage,
-    operatorsAliases: false
+    operatorsAliases: '0'
 };
 if (config.db_ssl) {
     options.ssl = true;
@@ -146,11 +146,9 @@ function _getPermission(user)
     // get permissions from groups
 }
 
-sequelize.sync().then(function()
-    {
+sequelize.sync().then(() => {
         log.info("Database structure updated");
-    }).error(function(error)
-    {
+    }).catch((error) => {
         log.error("Database structure update crashed: " + error);
     }
 );
@@ -165,5 +163,6 @@ module.exports = {
     getPermission: function (user) {
         return _getPermission(user);
     },
-    sequelize: sequelize
+    sequelize: sequelize,
+    Op: Sequelize.Op
 };

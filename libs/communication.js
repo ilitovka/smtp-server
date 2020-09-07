@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------*/
 
 var log = require('../libs/log').log;
-var config = require('../config').config;
+var config = require('../config');
 
 var userLib = require('../libs/user');
 var url = require('url');

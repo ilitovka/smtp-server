@@ -20,7 +20,7 @@ const icsParser = require('../include/helper/icsParser');
 const icsCreate = require('../include/helper/icsCreate');
 const bridgeSF = require('../include/helper/bridgeSF');
 const sequelize = require('../libs/db').sequelize;
-const Op = sequelize.Op
+const Op = require('../libs/db').Op;
 
 // Exporting.
 module.exports = {
@@ -128,7 +128,7 @@ function gett(comm)
     });
 }
 
-function put(comm)
+async function put(comm)
 {
     log.debug("calendar.put called");
 
@@ -153,81 +153,99 @@ function put(comm)
         content: body
     };
 
-    ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
-    {
-        if(created)
-        {
-            log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
-        }
-        else
-        {
-            var ifNoneMatch = comm.getHeader('If-None-Match');
-            if(ifNoneMatch && ifNoneMatch === "*")
+    try {
+        await ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
+            let ics = res[0];
+            let created = res[1];
+            if(created)
             {
-                log.debug('If-None-Match matches, return status code 412');
+                log.debug('Created ICS: ' + JSON.stringify(ics, null, 4));
+            }
+            else
+            {
+                var ifNoneMatch = comm.getHeader('If-None-Match');
+                if(ifNoneMatch && ifNoneMatch === "*")
+                {
+                    log.debug('If-None-Match matches, return status code 412');
+
+                    comm.setStandardHeaders();
+
+                    var date = new Date();
+                    comm.setHeader("ETag", Number(date));
+
+                    comm.setResponseCode(412);
+
+                    comm.appendResBody(xh.getXMLHead());
+
+                    comm.appendResBody("<d:error xmlns:d=\"DAV:\" xmlns:s=\"http://swordlord.org/ns\">");
+                    comm.appendResBody("<s:exception>Fennel\DAV\Exception\PreconditionFailed</s:exception>");
+                    comm.appendResBody("<s:message>An If-None-Match header was specified, but the ETag matched (or * was specified).</s:message>");
+                    comm.appendResBody("<s:header>If-None-Match</s:header>");
+                    comm.appendResBody("</d:error>");
+
+                    comm.flushResponse();
+                    return;
+                }
+                else
+                {
+                    startDate = dtStart.toISOString();
+                    endDate = dtEnd.toISOString();
+
+                    ics.content = comm.getReqBody();
+                    log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
+                }
+            }
+
+            ics.save().then(function()
+            {
+                log.info('ics updated');
+
+                let parsedICS = icsParser(ics.content);
+
+                let bridgeObject = new bridgeSF();
+                bridgeObject.sendSf(parsedICS).then(result => {
+                    log.info(result);
+                }).catch(err => {
+                    log.info(err);
+                });
+
+                // update calendar collection
+                CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
+                {
+                    if(cal !== null && cal !== undefined)
+                    {
+                        cal.increment('synctoken', { by: 1 }).then(function()
+                        {
+                            log.info('synctoken on cal updated');
+                        });
+                    }
+                });
 
                 comm.setStandardHeaders();
 
                 var date = new Date();
                 comm.setHeader("ETag", Number(date));
 
-                comm.setResponseCode(412);
-
-                comm.appendResBody(xh.getXMLHead());
-
-                comm.appendResBody("<d:error xmlns:d=\"DAV:\" xmlns:s=\"http://swordlord.org/ns\">");
-                comm.appendResBody("<s:exception>Fennel\DAV\Exception\PreconditionFailed</s:exception>");
-                comm.appendResBody("<s:message>An If-None-Match header was specified, but the ETag matched (or * was specified).</s:message>");
-                comm.appendResBody("<s:header>If-None-Match</s:header>");
-                comm.appendResBody("</d:error>");
-
+                comm.setResponseCode(201);
                 comm.flushResponse();
-                return;
-            }
-            else
-            {
-                startDate = dtStart.toISOString();
-                endDate = dtEnd.toISOString();
-
-                ics.content = comm.getReqBody();
-                log.debug('Loaded ICS: ' + JSON.stringify(ics, null, 4));
-            }
-        }
-
-        ics.save().then(function()
-        {
-            log.info('ics updated');
-
-            let parsedICS = icsParser(ics.content);
-
-            let bridgeObject = new bridgeSF();
-            bridgeObject.sendSf(parsedICS).then(result => {
-                log.info(result);
-            }).catch(err => {
+            }).catch((err) => {
                 log.info(err);
+                comm.setStandardHeaders();
+                comm.setResponseCode(500);
+                comm.flushResponse();
             });
-
-            // update calendar collection
-            CAL.findOne({ where: {pkey: calendar} } ).then(function(cal)
-            {
-                if(cal !== null && cal !== undefined)
-                {
-                    cal.increment('synctoken', { by: 1 }).then(function()
-                    {
-                        log.info('synctoken on cal updated');
-                    });
-                }
-            });
-
+        }).catch((err) => {
+            log.info(err);
             comm.setStandardHeaders();
-
-            var date = new Date();
-            comm.setHeader("ETag", Number(date));
-
-            comm.setResponseCode(201);
+            comm.setResponseCode(500);
             comm.flushResponse();
         });
-    });
+    } catch (err) {
+        log.info(err);
+        comm.setStandardHeaders();
+        comm.setResponseCode(500);
+        comm.flushResponse();
+    }
 }
 
 //TODO::refactor save method
@@ -257,8 +275,9 @@ function saveICS(options)
     };
 
     return (new Promise((resolve, reject) => {
-        ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).spread(function(ics, created)
-        {
+        ICS.findOrCreate({ where: {pkey: ics_id}, defaults: defaults}).then((res) => {
+            let ics = res[0];
+            let created = res[1];
             let contentOld = '';
             if(created)
             {
@@ -310,8 +329,8 @@ function saveICS(options)
                         displayname: 'ICS server',
                         synctoken: 0
                     };
-                    CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).spread(function(cal)
-                    {
+                    CAL.findOrCreate({ where: {pkey: calendar}, defaults: defaultCalendar } ).then((res) => {
+                        let cal = res[0];
                         if(cal !== null && cal !== undefined) {
                             cal.save({synctoken: sequelize.literal('synctoken +1')}).then(() => {
                                 log.info('synctoken on cal updated');
@@ -1144,22 +1163,23 @@ function makeCalendar(comm)
             displayname: displayname
         };
 
-        CAL.findOrCreate({ where: {pkey: filename}, defaults: defaults }).spread(function(cal, created)
+        CAL.findOrCreate({ where: {pkey: filename}, defaults: defaults }).then((res) => {
+            let cal = res[0];
+            let created = res[1];
+            if(created)
             {
-                if(created)
-                {
-                    log.debug('Created CAL: ' + JSON.stringify(cal, null, 4));
-                }
-                else
-                {
-                    log.debug('Loaded CAL: ' + JSON.stringify(cal, null, 4));
-                }
+                log.debug('Created CAL: ' + JSON.stringify(cal, null, 4));
+            }
+            else
+            {
+                log.debug('Loaded CAL: ' + JSON.stringify(cal, null, 4));
+            }
 
-                cal.save().then(function()
-                {
-                    log.warn('cal saved');
-                });
+            cal.save().then(function()
+            {
+                log.warn('cal saved');
             });
+        });
 
         comm.setResponseCode(201);
         comm.appendResBody(response);

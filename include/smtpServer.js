@@ -1,18 +1,18 @@
-const SmtpServer = require("smtp-server").SMTPServer;
-const MailParser = require("mailparser").simpleParser;
-const config = require('../config').config;
-const Bridge = require('./helper/bridge');
-const BridgeSF = require('./helper/bridgeSF');
+
 const log = require('../libs/log').log;
-const parse = require('./helper/mailParser');
 
 /**
  * @constructor
  * */
-let CustomSMTPServer = function () {
-  this.bridge = new Bridge();
-  this.bridgeSF = new BridgeSF();
-  this.parse = new parse();
+let CustomSMTPServer = function (di) {
+  this.di = di;
+  this.bridge = this.di.get('helper-caldav-bridge');
+  this.bridgeSF = this.di.get('helper-sf-bridge');
+  this.parse = this.di.get('helper-mail-parser');
+  this.MailParser = this.di.get("mailparser").simpleParser;
+  this.SmtpServer = this.di.get("smtp-server").SMTPServer;
+  this.config = this.di.get('config');
+
 };
 
 CustomSMTPServer.prototype.run = function() {
@@ -20,7 +20,7 @@ CustomSMTPServer.prototype.run = function() {
 
   log.info('Starting SMTP server...');
 
-  const server = new SmtpServer({
+  const server = new this.SmtpServer({
     authOptional: true,
     onData(stream, session, callback) {
       let string = '';
@@ -36,7 +36,7 @@ CustomSMTPServer.prototype.run = function() {
     }
   });
 
-  server.listen(config.smtpServer.port);
+  server.listen(this.config.smtpServer.port);
 
   server.on('error', function (e) {
     log.info('Caught error: ' + e.message);
@@ -44,7 +44,7 @@ CustomSMTPServer.prototype.run = function() {
   });
 
 // Put a friendly message on the terminal
-  log.info("Server running at port " + config.smtpServer.port);
+  log.info("Server running at port " + this.config.smtpServer.port);
 };
 
 /**
@@ -53,7 +53,7 @@ CustomSMTPServer.prototype.run = function() {
  * */
 CustomSMTPServer.prototype.process = function (stream) {
   return new Promise((resolve, reject) => {
-    MailParser(stream)
+    this.MailParser(stream)
       .then(parsedMail => {
         this.parse.parseAttachments(parsedMail).then(result => {
           //Send parsed ICS to caldav/SF

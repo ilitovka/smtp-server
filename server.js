@@ -29,11 +29,12 @@
  **
 -----------------------------------------------------------------------------*/
 try {
+    let di = new require('./di');
+    // TODO: remove caldav OCE-45571
     let caldavServer = require('./include/caldavServer');
-    let SMTPServer = require('./include/smtpServer');
+    let customSmtpServer = di.get('smtpServer');
 
     //run smtp server
-    let customSmtpServer = new SMTPServer();
     customSmtpServer.run();
 } catch (e) {
     console.log('Caught error: ' + e.message);
