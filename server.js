@@ -30,12 +30,23 @@
 -----------------------------------------------------------------------------*/
 try {
     let di = new require('./di');
-    // TODO: remove caldav OCE-45571
-    let caldavServer = require('./include/caldavServer');
+    let config = di.get('config');
     let customSmtpServer = di.get('smtpServer');
 
     //run smtp server
     customSmtpServer.run();
+
+    //run http server for monitoring service
+    const express = require('express');
+    const app = express();
+    
+    app.get('/health', (req, res) => {
+        res.send('Ok');
+    });
+
+    app.listen(config.port, () => {
+        console.log(`Monitoring endpoint running on port: ${config.port}`)
+    })
 } catch (e) {
     console.log('Caught error: ' + e.message);
     console.log(e.stack);

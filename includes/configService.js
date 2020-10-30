@@ -1,12 +1,11 @@
-const log = require('../libs/log').log;
-
 /**
  * ConfigService client, being used to validate ord id
  *
  */
-let configServiceClient = function (config, request) {
+let configServiceClient = function (config, request, logger) {
   this.config = config;
   this.Request = request;
+  this.logger = logger;
 };
 
 /**
@@ -68,7 +67,7 @@ configServiceClient.prototype.getAccessToken = function (orgId) {
       return reject('Config Service API KEY should be configured');
     }
 
-    log.debug(this.config.configService.url + '/api/sf/token/' + orgId);
+    this.logger.log(this.config.configService.url + '/api/sf/token/' + orgId);
     this.Request({
       method: 'GET',
       headers: {

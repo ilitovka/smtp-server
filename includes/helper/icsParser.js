@@ -1,7 +1,6 @@
-const iCal = require('node-ical');
-const log = require('../../libs/log').log;
-
-const icsParse = function () {
+const icsParse = function (ical, logger) {
+  this.ical = ical;
+  this.logger = logger;
 };
 
 /**
@@ -11,7 +10,7 @@ const icsParse = function () {
  *
  * */
 icsParse.prototype.parse = function (text) {
-  return iCal.sync.parseICS(text);
+  return this.ical.sync.parseICS(text);
 };
 
 /**
@@ -25,19 +24,19 @@ icsParse.prototype.parseFirst = function (text) {
       if (events.hasOwnProperty(k)) {
         const event = events[k];
         if (event.type === 'VEVENT') {
-          log.info('Attachment parsed successfully');
+          this.logger.log('Attachment parsed successfully');
 
           return event;
         }
       } else {
-        log.info('Couldn\'t parse attachment object');
+        this.logger.log('Couldn\'t parse attachment object');
       }
     }
   } else {
-    log.info('Couldn\'t parse attachment');
+    this.logger.log('Couldn\'t parse attachment');
   }
 
-  return false;
+  return null;
 };
 
 module.exports = icsParse;

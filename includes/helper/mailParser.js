@@ -1,17 +1,10 @@
-const config = require('../../config');
-const icsParser = require('./icsParser');
-const log = require('../../libs/log').log;
-const baseAdapter = require('../adapters/base');
-const googleAdapter = require('../adapters/google');
-const outlookAdapter = require('../adapters/outlook');
-
-let MailParser = function () {
-  this.parser = new icsParser();
+let MailParser = function (icsParser, logger, baseAdapter, googleAdapter, outlookAdapter) {
+  this.logger = logger;
 
   this.adapters = {
-    google: new googleAdapter(),
-    outlook: new outlookAdapter(),
-    def: new baseAdapter(),
+    google: new googleAdapter(icsParser, logger),
+    outlook: new outlookAdapter(icsParser, logger),
+    def: new baseAdapter(icsParser, logger),
   };
 };
 

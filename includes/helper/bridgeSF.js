@@ -1,11 +1,10 @@
-const log = require('../../libs/log').log;
-
 /**
  * @description Bridge to SF
  * @constructor
  * */
-const BridgeSF = function (sfAPi) {
+const BridgeSF = function (sfAPi, logger) {
   this.sfApi = sfAPi;
+  //this.logger = logger;
 };
 
 /**
@@ -21,10 +20,10 @@ BridgeSF.prototype.sendSf = function (parsedICS) {
     }
     //send to SalesForce
     this.sfApi.sendAttendeeStatuses(parsedICS).then(result => {
-      log.debug(result);
+      //this.logger.log(result);
       return resolve(result);
     }).catch(err => {
-      log.debug(err);
+      //this.logger.log(err);
       return reject(err);
     });
   });

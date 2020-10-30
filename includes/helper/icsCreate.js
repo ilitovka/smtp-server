@@ -1,5 +1,4 @@
 const ics = require('ics');
-const log = require('../../libs/log').log;
 const moment = require('moment');
 
 /**
@@ -41,8 +40,7 @@ const icsCreate = function (event) {
 
     return ics.createEvent(eventMerged).value;
   } catch (e) {
-    log.debug(e.stack);
-    return '';
+    throw e;
   }
 };
 

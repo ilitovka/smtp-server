@@ -1,9 +1,7 @@
-const icsParser = require('../helper/icsParser');
-const log = require('../../libs/log').log;
-
 class BaseAdapter {
-  constructor() {
-    this.parser = new icsParser();
+  constructor(parser, logger) {
+    this.parser = parser;
+    this.logger = logger;
   }
 
   parseAttachment(parsedMail) {
@@ -15,9 +13,9 @@ class BaseAdapter {
         let checksumArray = [];
         for (let i = 0; i < parsedMail.attachments.length; i++) {
           let checksumValue = parsedMail.attachments[i].checksum;
-          log.debug('Checksum: ' + checksumValue);
+          this.logger.log('Checksum: ' + checksumValue);
           if (checksumArray.includes(checksumValue)) {
-            log.debug('Duplicated: ' + checksumValue);
+            this.logger.log('Duplicated: ' + checksumValue);
             continue;
           }
           checksumArray.push(checksumValue);
@@ -67,8 +65,8 @@ class BaseAdapter {
           }
           event.xTRID = this.retrieveXTRID(event);
 
-          log.debug('Event info: ');
-          log.debug({
+          this.logger.log('Event info: ');
+          this.logger.log({
             organizer: event.organizer,
             attendee: event.attendee,
             uid: event.uid,

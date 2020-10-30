@@ -1,24 +1,20 @@
-
-const log = require('../libs/log').log;
-
 /**
  * @constructor
  * */
 let CustomSMTPServer = function (di) {
   this.di = di;
-  this.bridge = this.di.get('helper-caldav-bridge');
   this.bridgeSF = this.di.get('helper-sf-bridge');
   this.parse = this.di.get('helper-mail-parser');
   this.MailParser = this.di.get("mailparser").simpleParser;
   this.SmtpServer = this.di.get("smtp-server").SMTPServer;
   this.config = this.di.get('config');
-
+  this.logger = this.di.get('logger');
 };
 
 CustomSMTPServer.prototype.run = function() {
   let self = this;
 
-  log.info('Starting SMTP server...');
+  this.logger.log('Starting SMTP server...');
 
   const server = new this.SmtpServer({
     authOptional: true,
@@ -29,7 +25,7 @@ CustomSMTPServer.prototype.run = function() {
         string += data.toString();
       });
       stream.on("end", () => {
-        log.info('Stream finished.');
+        this.logger.log('Stream finished.');
         self.process(string);
         callback(null, "Message queued");
       });
@@ -39,12 +35,12 @@ CustomSMTPServer.prototype.run = function() {
   server.listen(this.config.smtpServer.port);
 
   server.on('error', function (e) {
-    log.info('Caught error: ' + e.message);
-    log.info(e.stack);
+    this.logger.log('Caught error: ' + e.message);
+    this.logger.log(e.stack);
   });
 
 // Put a friendly message on the terminal
-  log.info("Server running at port " + this.config.smtpServer.port);
+  this.logger.log("Server running at port " + this.config.smtpServer.port);
 };
 
 /**
@@ -57,12 +53,10 @@ CustomSMTPServer.prototype.process = function (stream) {
       .then(parsedMail => {
         this.parse.parseAttachments(parsedMail).then(result => {
           //Send parsed ICS to caldav/SF
-          log.info('Attachment saving to DB');
-          return this.bridge.send(result.content, result.event);
-        }).then(result => {
-          return this.bridgeSF.sendSf(result);
+          this.logger.log('Attachment saving to SF');
+          return this.bridgeSF.sendSf(result.event);
         }).catch(err => {
-          log.debug('Attachment parse failed');
+          this.logger.log('Attachment parse failed');
 
           return reject(err);
         }).finally((result) => {
@@ -70,8 +64,8 @@ CustomSMTPServer.prototype.process = function (stream) {
         });
       })
       .catch(error => {
-        log.info('Caught error: ' + error.message);
-        log.info(error.stack);
+        this.logger.log('Caught error: ' + error.message);
+        this.logger.log(error.stack);
 
         return reject(error);
       });

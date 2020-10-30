@@ -1,11 +1,9 @@
-const log = require('../libs/log').log;
-
 /**
  * @constructor
  *
  * @description Storage for access tokens
  * */
-let sfTokenStorage = function (config, moment, helperCrypto, configService) {
+let sfTokenStorage = function (config, moment, helperCrypto, configService, logger) {
   this.accessTokens = [];
 
   this.config = config;
@@ -13,6 +11,8 @@ let sfTokenStorage = function (config, moment, helperCrypto, configService) {
   this.helperCrypto = helperCrypto;
 
   this.configService = configService;
+  
+  //this.logger = logger;
 };
 
 /**
@@ -60,7 +60,7 @@ sfTokenStorage.prototype.createToken = function (access_token, instance_url, exp
 sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
   return (new Promise((resolve, reject) => {
     if (!orgId) {
-      log.info('OrgID is undefined');
+      //this.logger.log('OrgID is undefined');
       return reject('OrgID is undefined');
     }
 
@@ -69,7 +69,7 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
 
       if (accessTokenObject instanceof accessToken) {
         if (!accessTokenObject.isExpire()) {
-          log.info('Access token found in memory: getAccessTokenByOrgId');
+          //this.logger.log('Access token found in memory: getAccessTokenByOrgId');
           return resolve(accessTokenObject);
         }
       }
@@ -77,11 +77,11 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
 
     this._getAccessToken(orgId)
       .then(result => {
-        log.info('Access token successfully received');
+        //this.logger.log('Access token successfully received');
         return resolve(result);
       })
       .catch(err => {
-        log.info('Get Access token is failed');
+        //this.logger.log('Get Access token is failed');
         return reject(err);
       });
   }));
@@ -101,7 +101,7 @@ sfTokenStorage.prototype._refreshToken = function (orgId) {
 
     this.configService.refreshAccessToken(orgId).then((result) => {
       if (result) {
-        log.info('Access token successfully refreshed.');
+        //this.logger.log('Access token successfully refreshed.');
         this._getAccessToken(orgId)
           .then(result => {
             return resolve(result);
@@ -110,11 +110,11 @@ sfTokenStorage.prototype._refreshToken = function (orgId) {
             return reject(err);
           });
       } else {
-        log.info('Refresh Access token is failed: _refreshToken.then()');
+        //this.logger.log('Refresh Access token is failed: _refreshToken.then()');
         return reject('Refresh Access token is failed.');
       }
     }).catch(err => {
-      log.info('Refresh Access token is failed: _refreshToken.catch()');
+      //this.logger.log('Refresh Access token is failed: _refreshToken.catch()');
       return reject(err);
     });
   }));
@@ -131,24 +131,25 @@ sfTokenStorage.prototype._getAccessToken = function (orgId) {
     if (!orgId) {
       return reject('OrgID is undefined');
     }
-
+    
     this.configService.getAccessToken(orgId).then((result) => {
-      log.debug(result);
+      //this.logger.log(result.instance_url);
+      //this.logger.log(result.access_token_expiration);
       if (result) {
         let expire = result.access_token_expiration !== undefined ?
           this.moment(result.access_token_expiration).unix()
           : this.moment().unix() + this.config.configService.defaultLifetime;
         let prefix = result.namespace_prefix !== undefined ? result.namespace_prefix : this.config.sfApi.defaultNamespace;
 
-        log.info('Access token successfully received: _getAccessToken');
+        //this.logger.log('Access token successfully received: _getAccessToken');
 
         return resolve(this.addToken(orgId, new accessToken(result.access_token, result.instance_url, expire, prefix, this.helperCrypto, this.moment)));
       } else {
-        log.info('Access token failed: _getAccessToken.then()');
+        //this.logger.log('Access token failed: _getAccessToken.then()');
         return reject('Something wrong');
       }
     }).catch(err => {
-      log.info('Access token failed: _getAccessToken.catch()');
+      //this.logger.log('Access token failed: _getAccessToken.catch()');
       return reject(err);
     });
   }));

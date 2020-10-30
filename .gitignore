@@ -6,3 +6,4 @@ utils/*
 .idea/
 node_modules/
 .env
+config.json
