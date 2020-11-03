@@ -14,6 +14,7 @@
     "smtp-server": { "require": "smtp-server" },
     "mime-types": {"require":  "mime-types"},
     "node-ical": {"require":  "node-ical"},
+    "redis": {"require":  "redis"},
     "app": {
       "require":  "express",
       "new":      true
@@ -44,7 +45,7 @@
     "sf-token-storage": {
       "require": "includes/sf-token-storage.js",
       "new":      true,
-      "args":     ["config", "moment", "helper-crypto", "config-service", "logger"]
+      "args":     ["config", "moment", "helper-crypto", "config-service", "logger", "helper-redis"]
     },
     "config": {
       "require": "config.js",
@@ -59,6 +60,11 @@
       "require": "includes/helper/crypto.js",
       "new":      true,
       "args":     ["crypto", "config"]
+    },
+    "helper-redis": {
+      "require": "includes/helper/redis.js",
+      "new":      true,
+      "args":     ["di"]
     },
     "helper-ics-parser": {
       "require": "includes/helper/icsParser.js",
@@ -100,6 +106,11 @@
     },
     "console": {
       "require":  "test/mocks/console.js"
+    },
+    "helper-redis": {
+      "require":  "test/mocks/helper-redis.js", 
+      "new":      true,
+      "args":     ["di"]
     }
   }
 }

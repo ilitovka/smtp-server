@@ -34,7 +34,7 @@ CustomSMTPServer.prototype.run = function() {
 
   server.listen(this.config.smtpServer.port);
 
-  server.on('error', function (e) {
+  server.on('error', (e) => {
     this.logger.log('Caught error: ' + e.message);
     this.logger.log(e.stack);
   });
