@@ -45,7 +45,7 @@
     "sf-token-storage": {
       "require": "includes/sf-token-storage.js",
       "new":      true,
-      "args":     ["config", "moment", "helper-crypto", "config-service", "logger"]
+      "args":     ["config", "moment", "helper-crypto", "config-service", "logger", "helper-redis"]
     },
     "config": {
       "require": "config.js",
