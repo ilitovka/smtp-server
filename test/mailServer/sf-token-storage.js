@@ -8,6 +8,6 @@ test('Calling token storage', function (t) {
   tokenStorageObject.getAccessTokenByOrgId('00DS0000003Eixf').then(res => {
     t.pass("Token received successfully");
   }).catch(err => {
-    t.fail('Failed get token: ' + err.message);
+    t.fail('Failed get token: ' + JSON.stringify(err.log));
   });
 });

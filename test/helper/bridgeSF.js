@@ -64,7 +64,7 @@ test('Calling bridgeSF', function (t) {
     t.pass("Sent successfully");
     di.get('request').setCallback(false);
   }).catch(err => {
-    t.fail('Failed send ics to SF: ' + err.message);
+    t.fail('Failed send ics to SF: ' + JSON.stringify(err));
     di.get('request').setCallback(false);
   });
 });

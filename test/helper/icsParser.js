@@ -1,5 +1,6 @@
 let test = require('tape');
-let icsParser = require('../../include/helper/icsParser');
+const di = require('../../di');
+const icsParseObject = di.get('helper-ics-parser');
 
 test('Calling icsParser', function (t) {
   let ics = 'BEGIN:VCALENDAR\n' +
@@ -72,8 +73,6 @@ test('Calling icsParser', function (t) {
   };
 
   t.plan(1);
-
-  let icsParseObject = new icsParser();
 
   let parsed = icsParseObject.parseFirst(ics);
 
