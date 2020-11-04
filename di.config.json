@@ -38,14 +38,14 @@
       "args":     ["console"]
     },
     "sf-api": {
-      "require": "includes/sf-api.js",
+      "require": "include/sf-api.js",
       "new":      true,
       "args":     ["logger", "config", "jsforce", "sf-token-storage"]
     },
     "sf-token-storage": {
       "require": "includes/sf-token-storage.js",
       "new":      true,
-      "args":     ["config", "moment", "helper-crypto", "config-service", "logger", "helper-redis"]
+      "args":     ["config", "moment", "helper-crypto", "config-service", "logger"]
     },
     "config": {
       "require": "config.js",

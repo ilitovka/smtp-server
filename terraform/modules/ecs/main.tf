@@ -2,27 +2,28 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_ecs_cluster" "app" {
-  name = "oce-ics-api-${local.environment}"
+  name = "${var.app}-${var.environment}"
   #capacity_providers = ["FARGATE","FARGATE_SPOT"]
 }
 
 
 data "template_file" "container" {
-  template = "${file("task-definition.json")}"
+  template = file("${path.module}/task-definition.json")
 
   vars = {
     container_name = var.app
-    environment = "${local.environment}"
-    image_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/oce-ics-api:${var.aws_ecr_image_tag}"
+    environment = var.environment
+    app_name_slug = replace(var.app, "-", "/")
+    image_url = var.ecr_image_url
 
-    region = local.region
-    account = local.account
-    log_group_name = "/ecs/${var.app}/${local.environment}"
+    region = var.region
+    account = var.account_id
+    log_group_name = aws_cloudwatch_log_group.logs.name
   }
 }
 
 resource "aws_ecs_task_definition" "task" {
-  family = "${var.app}-${local.environment}"
+  family = "${var.app}-${var.environment}"
 
   container_definitions = data.template_file.container.rendered
 
@@ -36,13 +37,13 @@ resource "aws_ecs_task_definition" "task" {
 }
 
 data "aws_ecs_task_definition" "task" {
-  task_definition = "${aws_ecs_task_definition.task.family}"
+  task_definition = aws_ecs_task_definition.task.family
   depends_on = [ aws_ecs_task_definition.task ]
 }
 
 
 resource "aws_ecs_service" "app" {
-  name = "oce-ics-${local.environment}"
+  name = "${var.app}-${var.environment}"
   cluster = aws_ecs_cluster.app.id
   
   # Track the latest ACTIVE revision
@@ -54,8 +55,8 @@ resource "aws_ecs_service" "app" {
 
   network_configuration {
     assign_public_ip = false
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = aws_subnet.private.*.id
+    security_groups  = [var.security_group.id]
+    subnets          = var.private_subnets.*.id
   }
 
   deployment_controller {
@@ -63,15 +64,9 @@ resource "aws_ecs_service" "app" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.mail.arn
+    target_group_arn = var.lb_target_group.arn
     container_name   = var.app
     container_port   = 25
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.api.arn
-    container_name   = var.app
-    container_port   = 8888
   }
 
   health_check_grace_period_seconds = 30
@@ -82,18 +77,19 @@ resource "aws_ecs_service" "app" {
     ignore_changes = [desired_count]
   }
 
+  # TODO: remove it
   # workaround for https://github.com/hashicorp/terraform/issues/12634
-  depends_on = [aws_alb_listener.https]
+  depends_on = [var.lb_listener]
 }
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
 resource "aws_iam_role" "ecsTaskExecutionRole" {
-  name = "${var.app}-${local.environment}-ecs"
+  name = "${var.app}-${var.environment}-${var.region}-ecs"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 resource "aws_iam_role_policy" "params" {
-  name = "${var.app}-${local.environment}-params-policy"
+  name = "${var.app}-${var.environment}-params-policy"
   role = aws_iam_role.ecsTaskExecutionRole.id
 
   policy = <<EOF
@@ -105,7 +101,7 @@ resource "aws_iam_role_policy" "params" {
         "ssm:GetParameters"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:ssm:${local.region}:${local.account}:parameter/oce/*"
+      "Resource": "arn:aws:ssm:${var.region}:${var.account_id}:parameter/oce/*"
     }
   ]
 }
@@ -135,7 +131,7 @@ variable "logs_retention_in_days" {
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  name              = "/ecs/${var.app}/${local.environment}"
+  name              = "/ecs/${var.app}/${var.environment}"
   retention_in_days = var.logs_retention_in_days
   #tags              = var.tags
 }
