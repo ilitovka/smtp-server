@@ -39,6 +39,11 @@ try {
     //run http server for monitoring service
     const express = require('express');
     const app = express();
+
+    app.get('/', (req, res) => {
+        console.log(`Root request...`)
+        res.send('Ok');
+    });
     
     app.get('/health', (req, res) => {
         console.log(`Monitoring request...`)
