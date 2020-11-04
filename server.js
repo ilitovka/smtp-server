@@ -41,6 +41,7 @@ try {
     const app = express();
     
     app.get('/health', (req, res) => {
+        console.log(`Monitoring request...`)
         res.send('Ok');
     });
 

@@ -11,7 +11,8 @@
   "readmeFilename": "README.md",
   "scripts": {
     "start": "node server.js --type run",
-    "test": "tape test/**/*.js | faucet"
+    "test": "tape test/**/*.js | faucet",
+    "postinstall": "node ./post-install.js"
   },
   "homepage": "https://github.com/LordEidi/fennel",
   "repository": {
