@@ -4,7 +4,7 @@ stages:
   - deploy
 
 # Run unit/integration testing
-.run-tests-abstract: &run-tests-template
+Tests:
   stage: test
   image: node:12.13
   services:
@@ -27,16 +27,6 @@ stages:
   tags:
     - "694723881910"
 
-run-tests-qa:
-  <<: *run-tests-template
-  only:
-    - dev
-
-run-tests-prod:
-  <<: *run-tests-template
-  only:
-    - master
-
 
 # Build Docker image, push to AWS ECS registry and tag by commit hash and env
 .build-push-image-abstract: &build-push-image-template
@@ -54,14 +44,21 @@ run-tests-prod:
   tags:
     - "694723881910"
 
-build-push-image-qa:
+Build Dev:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "qa"
+    ENVIRONMENT: "dev"
   only:
     - dev
 
-build-push-image-prod:
+# Build Qa:
+#   <<: *build-push-image-template
+#   variables:
+#     ENVIRONMENT: "qa"
+#   only:
+#     - dev
+
+Build Prod:
   <<: *build-push-image-template
   variables:
     ENVIRONMENT: "prod"
