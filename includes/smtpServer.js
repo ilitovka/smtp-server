@@ -25,8 +25,11 @@ CustomSMTPServer.prototype.run = function() {
         string += data.toString();
       });
       stream.on("end", () => {
-        this.logger.log('Stream finished.');
-        self.process(string);
+        self.logger.log('Stream finished.');
+        self.process(string).then((res) => {
+          self.logger.log('Message processed.');
+          self.logger.log(res);
+        }).catch((err) => self.logger.error(err));
         callback(null, "Message queued");
       });
     }
@@ -52,7 +55,6 @@ CustomSMTPServer.prototype.process = function (stream) {
     this.MailParser(stream)
       .then(parsedMail => {
         this.parse.parseAttachments(parsedMail).then(result => {
-          //Send parsed ICS to caldav/SF
           this.logger.log('Attachment saving to SF');
           return this.bridgeSF.sendSf(result.event);
         }).catch(err => {
