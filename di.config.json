@@ -38,7 +38,7 @@
       "args":     ["console"]
     },
     "sf-api": {
-      "require": "include/sf-api.js",
+      "require": "includes/sf-api.js",
       "new":      true,
       "args":     ["logger", "config", "jsforce", "sf-token-storage"]
     },
