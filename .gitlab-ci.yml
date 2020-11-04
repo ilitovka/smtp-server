@@ -73,31 +73,91 @@ build-push-image-prod:
 # Internet Gateway, NAT Gateway, LBs (application and network), ECS cluster, service, task definition, IAM role
 .update-ecs-abstract: &update-ecs-template
   stage: deploy
-  image: corevaluedh/terraform-v0.12
+  image: 
+    name: hashicorp/terraform:0.13.5
+    entrypoint: [""]
   before_script:
-    - cd terraform
+    - cd terraform/environments/$ENVIRONMENT
     - export TF_IN_AUTOMATION=1
     - export TF_VAR_aws_ecr_image_tag=$CI_COMMIT_SHA
     - export TF_VAR_autoscale_enabled="true"
   script:
-    - terraform init -input=false
-    - terraform workspace new ${TERRAFORM_WORKSPACE:-qa} || true
-    - terraform workspace select ${TERRAFORM_WORKSPACE:-qa}
-    - terraform plan -out=tfplan -input=false 
-    - terraform apply -input=false tfplan
+    - export TF_VAR_config_service_api_key=$CONFIG_SERVICE_API_KEY
+    - export TF_VAR_config_service_url=$CONFIG_SERVICE_URL
+    - export TF_VAR_crypto_key=$CRYPTO_KEY
+    - export TF_VAR_crypto_algo=$CRYPTO_ALGORITHM
+    - export TF_VAR_sf_api_endpoint=$SFAPI_ENDPOINT
+
+    - terraform init
+    - terraform workspace new $REGION || true
+    - terraform workspace select $REGION
+    - terraform plan -out=tfplan -var "region=$REGION" -var-file $REGION.tfvars
+    - terraform apply tfplan
   tags:
     - "694723881910"
 
-update-ecs-qa:
+Deploy Dev EU:
   <<: *update-ecs-template
   variables:
-    TERRAFORM_WORKSPACE: "qa"
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_DEV
+    CRYPTO_KEY: $CRYPTO_KEY_DEV
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_DEV
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_DEV
+
+    REGION: "eu-west-1"
+    ENVIRONMENT: "dev"
   only:
     - dev
 
-update-ecs-prod:
-  <<: *update-ecs-template
-  variables:
-    TERRAFORM_WORKSPACE: "prod"
-  only:
-    - master
+
+# # QA
+# .qa-variables-abstract: &qa-variables-temlate
+#     ENVIRONMENT: "qa"
+#     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
+#     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
+#     CRYPTO_KEY: $CRYPTO_KEY_QA
+#     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
+#     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
+
+# Deploy QA US:
+#   <<: *update-ecs-template
+#   variables:
+#     <<: *qa-variables-temlate
+#     REGION: "us-east-1"
+#   only:
+#     - dev
+
+# Deploy QA EU:
+#   <<: *update-ecs-template
+#   variables:
+#     <<: *qa-variables-temlate
+#     REGION: "eu-west-1"
+#   only:
+#     - dev
+
+
+# # Production
+# .prod-variables-abstract: &prod-variables-temlate
+#     ENVIRONMENT: "prod"
+#     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_PROD
+#     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_PROD
+#     CRYPTO_KEY: $CRYPTO_KEY_PROD
+#     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
+#     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
+
+# Deploy Prod US:
+#   <<: *update-ecs-template
+#   variables:
+#     <<: *prod-variables-temlate
+#     REGION: "us-east-1"
+#   only:
+#     - master
+
+# Deploy Prod EU:
+#   <<: *update-ecs-template
+#   variables:
+#     <<: *prod-variables-temlate
+#     REGION: "eu-west-1"
+#   only:
+#     - master

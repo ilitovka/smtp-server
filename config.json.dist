@@ -1,0 +1,47 @@
+{
+    "version_nr": "1.0.0",
+    "port": 8888,
+    "type": "test",
+
+    "smtpServer": {
+        "port": 25
+    },
+    "sfApi": {
+        "endpoint": "",
+        "accessToken": "",
+        "orgID": "",
+        "defaultNamespace": ""
+    },
+    "configService": {
+        "apiKey": "",
+        "url": "",
+        "defaultLifetime": 300
+    },
+    "crypto": {
+        "algorithm": "aes-256-cbc",
+        "key": ""
+    },
+    "mode": "sandbox",
+    "log": {
+        "datetimeFormat": "Y-m-d H:i:s T",
+        "connectors": ["console-logger"]
+    },
+    "redis": {
+        "endpoint": ""
+    },
+    "env": {
+        "CONFIG_SERVICE_URL": ["configService", "url"],
+        "CONFIG_SERVICE_API_KEY": ["configService", "apiKey"],
+        "ACCESS_TOKEN_DEFAULT_LIFETIME": ["configService", "defaultLifetime"],
+        "SFAPI_ENDPOINT": ["sfApi", "user"],
+        "SFAPI_ACCESSTOKEN": ["sfApi", "user"],
+        "SFAPI_ORGID": ["sfApi", "user"],
+        "SFAPI_NAMESPACE": ["sfApi", "user"],
+        "CRYPTO_ALGORITHM": ["crypto", "algorithm"],
+        "CRYPTO_KEY": ["crypto", "key"],
+        "type": ["type"],
+        "port": ["port"],
+        "SMTP_PORT": ["smtpServer", "port"],
+        "REDIS_ENDPOINT": ["redis", "endpoint"]
+    }
+}

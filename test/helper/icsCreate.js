@@ -1,5 +1,5 @@
 let test = require('tape');
-let icsCreate = require('../../include/helper/icsCreate');
+let icsCreate = require('../../includes/helper/icsCreate');
 
 test('Calling icsCreate', function (t) {
   let compareString = 'BEGIN:VCALENDAR\r\n' +

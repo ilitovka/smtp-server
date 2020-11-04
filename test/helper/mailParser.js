@@ -1,11 +1,10 @@
 let test = require('tape');
-const MailParser = require("mailparser").simpleParser;
-let mailParserAttachment = require('../../include/helper/mailParser');
+const di = require('../../di');
+const MailParser = di.get("mailparser").simpleParser;
+let mailParserAttachmentObject = di.get('helper-mail-parser');
 
 test('Calling MailParser', function (t) {
   t.plan(1);
-
-  let mailParserAttachmentObject = new mailParserAttachment();
 
   let stream = 'Received: by mail-ed1-f73.google.com with SMTP id cy24so19885102edb.12\n' +
     '        for <00DS0000003Eixf@igrik.site>; Tue, 31 Dec 2019 01:32:56 -0800 (PST)\n' +
@@ -232,12 +231,12 @@ test('Calling MailParser', function (t) {
         //Send parsed ICS to caldav/SF
         t.pass("Mail parsed successfully");
       }).catch(err => {
-        t.fail('Failed mail parse');
+        t.fail('Failed mail parse: ' + JSON.stringify(err));
       });
 
     })
     .catch(error => {
-      t.fail('Failed mail parse');
+      t.fail('Failed mail parse: ' + JSON.stringify(err));
     });
 
 });
