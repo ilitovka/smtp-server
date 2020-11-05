@@ -6,23 +6,10 @@ stages:
 # Run unit/integration testing
 Tests:
   stage: test
-  image: node:12.13
-  services:
-    - postgres:alpine
-  variables:
-    POSTGRES_USER: "tests"
-    POSTGRES_PASSWORD: "testspass"
-    POSTGRES_DB: "testsdb"
-    DB_HOST: "postgres"
-    DB_USER: "$POSTGRES_USER"
-    DB_PASSWORD: "$POSTGRES_PASSWORD"
-    DB_NAME: "$POSTGRES_DB"
-    DB_TYPE: "postgres"
-    DB_SSL: 0
-
+  image:
+    name: node:12-alpine
   script:
-    - npm install
-    - npm start & while ! $(curl -s 127.0.0.1:8888); do echo "Waiting for the app to start"; sleep 5; done;
+    - npm i --unsafe-perm=true
     - npm test
   tags:
     - "694723881910"

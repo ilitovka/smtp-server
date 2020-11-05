@@ -6,4 +6,5 @@ utils/*
 .idea/
 node_modules/
 .env
+.envrc
 config.json
