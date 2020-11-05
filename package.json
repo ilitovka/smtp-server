@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "crossroads": "^0.12.2",
-    "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",

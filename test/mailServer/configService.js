@@ -2,7 +2,7 @@ let test = require('tape');
 let expect = require('chai').expect;
 const di = require('../../di');
 const configServiceObject = di.get('config-service');
-const config  = di.get('config');
+let config  = di.get('config');
 const Request = di.get('request');
 
 const orgID = '00DS0000003Eixf';
@@ -10,6 +10,8 @@ const orgID = '00DS0000003Eixf';
 test('Calling configService: getAccessToken success', function (t) {
   t.plan(1);
 
+  config.configService.url = 'url';
+  config.configService.apiKey = 'apiKey';
 
   Request.setCallback((params, callback) => {
     expect(params).to.deep.equal({
@@ -33,7 +35,7 @@ test('Calling configService: getAccessToken success', function (t) {
     t.pass("Token received successfully");
     Request.setCallback(false);
   }).catch(err => {
-    t.fail('Failed get token: ' + err.message);
+    t.fail('Failed get token: ' + JSON.stringify(err));
     Request.setCallback(false);
   });
 });
