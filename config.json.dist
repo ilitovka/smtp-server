@@ -19,7 +19,7 @@
     },
     "crypto": {
         "algorithm": "aes-256-cbc",
-        "key": ""
+        "key": "szkhw4t4hqed7453wejpfk352shxw8pd"
     },
     "mode": "sandbox",
     "log": {
