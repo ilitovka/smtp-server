@@ -1,4 +1,8 @@
 
+locals {
+  app_name_space = replace(var.app, "-", "/")
+}
+
 data "aws_caller_identity" "current" {}
 
 resource "aws_ecs_cluster" "app" {
@@ -13,7 +17,7 @@ data "template_file" "container" {
   vars = {
     container_name = var.app
     environment = var.environment
-    app_name_slug = replace(var.app, "-", "/")
+    app_name_space = local.app_name_space
     image_url = var.ecr_image_url
 
     region = var.region
@@ -47,7 +51,7 @@ resource "aws_ecs_service" "app" {
   cluster = aws_ecs_cluster.app.id
   
   # Track the latest ACTIVE revision
-  task_definition = "${aws_ecs_task_definition.task.family}:${max("${aws_ecs_task_definition.task.revision}", "${data.aws_ecs_task_definition.task.revision}")}"
+  task_definition = "${aws_ecs_task_definition.task.family}:${max(aws_ecs_task_definition.task.revision, data.aws_ecs_task_definition.task.revision)}"
   launch_type = "FARGATE"
   desired_count = 1
 
@@ -131,7 +135,7 @@ variable "logs_retention_in_days" {
 }
 
 resource "aws_cloudwatch_log_group" "logs" {
-  name              = "/ecs/${var.app}/${var.environment}"
+  name              = "/ecs/${local.app_name_space}/${var.environment}"
   retention_in_days = var.logs_retention_in_days
   #tags              = var.tags
 }

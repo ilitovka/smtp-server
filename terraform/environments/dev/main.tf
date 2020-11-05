@@ -38,6 +38,7 @@ module "dns" {
     
     environment = var.environment
     region = var.region
+    failover_primary_region = var.failover_primary_region
 }
 
 

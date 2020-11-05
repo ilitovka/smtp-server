@@ -24,28 +24,28 @@
       "secrets": [
         {
             "name": "CONFIG_SERVICE_API_KEY",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/CONFIG_SERVICE_API_KEY"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/CONFIG_SERVICE_API_KEY"
         },
         {
             "name": "CRYPTO_KEY",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/CRYPTO_KEY"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/CRYPTO_KEY"
         },
 
         {
             "name": "SFAPI_ENDPOINT",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/SFAPI_ENDPOINT"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/SFAPI_ENDPOINT"
         },
         {
             "name": "CONFIG_SERVICE_URL",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/CONFIG_SERVICE_URL"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/CONFIG_SERVICE_URL"
         },
         {
             "name": "CRYPTO_ALGORITHM",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/CRYPTO_ALGORITHM"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/CRYPTO_ALGORITHM"
         },
         {
             "name": "REDIS_ENDPOINT",
-            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_slug}/${environment}/REDIS_ENDPOINT"
+            "valueFrom": "arn:aws:ssm:${region}:${account}:parameter/${app_name_space}/${environment}/REDIS_ENDPOINT"
         }
       ]
     }

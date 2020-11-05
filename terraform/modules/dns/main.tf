@@ -37,7 +37,6 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_route53_health_check" "check" {
-  count = var.failover_primary_region != "" ? 1: 0
 
   fqdn              = var.lb-mail.dns_name
   port              = "25"
@@ -48,14 +47,13 @@ resource "aws_route53_health_check" "check" {
 }
 
 resource "aws_route53_record" "mail-failover" {
-  count = var.failover_primary_region != "" ? 1: 0
 
   zone_id = data.aws_route53_zone.zone.id
   name    = "${var.region}.${var.app_domain_name}"
   type    = "MX"
   ttl     = var.dns_record_ttl
 
-  health_check_id = aws_route53_health_check.check[count.index].id
+  health_check_id = aws_route53_health_check.check.id
   
 
   failover_routing_policy  {
@@ -71,7 +69,6 @@ resource "aws_route53_record" "mail-failover" {
 
 
 resource "aws_route53_record" "mail-geo" {
-  count = var.failover_primary_region != "" ? 1: 0
 
   zone_id = data.aws_route53_zone.zone.id
   name    = var.app_domain_name
@@ -84,7 +81,7 @@ resource "aws_route53_record" "mail-geo" {
   set_identifier = "geo-${var.region}"
 
    alias {
-     name = aws_route53_record.mail-failover[count.index].name
+     name = aws_route53_record.mail-failover.name
      zone_id = data.aws_route53_zone.zone.id
 
      evaluate_target_health = true
@@ -107,25 +104,11 @@ resource "aws_route53_record" "mail-geo-default" {
   set_identifier = "geo-default-${var.region}"
 
    alias {
-     name = aws_route53_record.mail-failover[count.index].name
+     name = aws_route53_record.mail-failover.name
      zone_id = data.aws_route53_zone.zone.id
 
      evaluate_target_health = true
    }
 }
 
-
-resource "aws_route53_record" "mail" {
-  # in case of no failover set create this resource
-  count = var.failover_primary_region != "" ? 0: 1
-
-  zone_id = data.aws_route53_zone.zone.id
-  name    = var.app_domain_name
-  type    = "MX"
-  ttl = var.dns_record_ttl
-
-  records = [
-    "10 ${var.lb-mail.dns_name}."
-  ]
-}
 
