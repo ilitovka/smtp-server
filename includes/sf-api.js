@@ -3,7 +3,7 @@ let sfApi = function (logger, config, jsforce, sfTokenStorage) {
   this.jsforce = jsforce;
   this.tokenStorage = sfTokenStorage;
   this.connection = null;
-  //this.logger = logger;
+  this.logger = logger;
 };
 
 /**
@@ -37,16 +37,16 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
         });
       }
 
-      //this.logger.log(body);
+      this.logger.log(body);
       this._sendAttendeeStatuses(body).then(res => {
-        //this.logger.log('Attendee statuses sent successfully: _sendAttendeeStatuses');
+        this.logger.log('Attendee statuses sent successfully: _sendAttendeeStatuses');
         return resolve(res);
       }).catch(err => {
-        //this.logger.log('Attendee statuses sent failed: _sendAttendeeStatuses');
+        this.logger.log('Attendee statuses sent failed: _sendAttendeeStatuses');
         return reject({message: err, code: 'SF_API_ATTENDEESTATUSESS_METHOD_ERROR'});
       });
     }).catch(err => {
-      //this.logger.log('Attendee statuses sent failed: _sendAttendeeStatuses');
+      this.logger.log('Attendee statuses sent failed: _sendAttendeeStatuses');
       return reject({message: err.message, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR', err: err});
     });
   }));
@@ -57,49 +57,49 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
  * */
 sfApi.prototype.connect = function (accessToken) {
   try {
-    //this.logger.log('Connecting to SF');
+    this.logger.log('Connecting to SF');
     this.prefix = accessToken.getPrefix() ? accessToken.getPrefix() + '/' : '';
     this.connection = new this.jsforce.Connection({
       instanceUrl: accessToken.getInstanceUrl(),
       accessToken: accessToken.getToken()
     });
-    //this.logger.log('connected');
+    this.logger.log('connected');
   } catch (e) {
-    //this.logger.log(e);
+    this.logger.log(e);
     throw new Error('Couldn\'t connect to SF API');
   }
 };
 
 sfApi.prototype._sendAttendeeStatuses = function (body) {
   try {
-    //this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'EmailStatus/');
+    this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'EmailStatus/');
     return this.connection.apex.patch('/services/apexrest/' + this.prefix + 'EmailStatus/', body, (err, res) => {
       if (err) {
-        return //this.logger.error(err);
+        return this.logger.error(err);
       }
 
-      //this.logger.log("response: ", res);
+      this.logger.log("response: ", res);
 
       return res;
     });
   } catch (e) {
-    //this.logger.log(e);
+    this.logger.log(e);
     throw new Error('Couldn\'t send attendee statuses to SF API. Error: ' + e.message);
   }
 };
 
 sfApi.prototype._sendInvite = function (attendees) {
   try {
-    //this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'SendEmail/');
+    this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'SendEmail/');
     return this.connection.apex.post('/services/apexrest/' + this.prefix + 'SendEmail/', attendees, (err, res) => {
       if (err) {
-        return //this.logger.error(err);
+        return this.logger.error(err);
       }
 
       return res;
     });
   } catch (e) {
-    //this.logger.log(e);
+    this.logger.log(e);
     throw new Error('Couldn\'t send invites to attendee via SF API');
   }
 };

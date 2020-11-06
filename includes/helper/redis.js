@@ -33,7 +33,22 @@ RedisClient.prototype.hmset = function (key, field, value) {
 RedisClient.prototype.hget = function(key, field) {
   return new Promise((resolve, reject) => {
     try {
-      this.redis.hget(key, field, function (err, obj) {
+      this.client.hget(key, field, function (err, obj) {
+        resolve(obj);
+      });
+    } catch(e) {
+      reject(e);
+    }
+  })
+};
+
+RedisClient.prototype.ping = function() {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!this.client.connected) {
+        return reject(false);
+      }
+      this.client.ping(function (err, obj) {
         resolve(obj);
       });
     } catch(e) {
