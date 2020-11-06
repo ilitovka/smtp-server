@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
+RUN npm install --unsafe-perm=true
 
 EXPOSE 8888
 EXPOSE 25
