@@ -4,7 +4,7 @@
  * */
 const BridgeSF = function (sfAPi, logger) {
   this.sfApi = sfAPi;
-  //this.logger = logger;
+  this.logger = logger;
 };
 
 /**
@@ -20,10 +20,10 @@ BridgeSF.prototype.sendSf = function (parsedICS) {
     }
     //send to SalesForce
     this.sfApi.sendAttendeeStatuses(parsedICS).then(result => {
-      //this.logger.log(result);
+      this.logger.log(result);
       return resolve(result);
     }).catch(err => {
-      //this.logger.log(err);
+      this.logger.log(err);
       return reject(err);
     });
   });
