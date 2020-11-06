@@ -2,6 +2,10 @@ output "ecs_tasks_security_group" {
     value = aws_security_group.ecs_tasks
 }
 
+output "redis_security_group" {
+    value = aws_security_group.redis
+}
+
 output "private_subnets" {
     value = aws_subnet.private
 }

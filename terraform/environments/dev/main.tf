@@ -11,7 +11,10 @@ module "ecs" {
 
     ecr_image_url = var.aws_ecr_image_url
 
-    security_group = module.vpc.ecs_tasks_security_group
+    ecs_security_group = module.vpc.ecs_tasks_security_group
+    redis_security_group = module.vpc.redis_security_group
+
+
     private_subnets = module.vpc.private_subnets
     lb_target_group = module.vpc.lb_target_group-mail
     lb_listener = module.vpc.lb_listener-mail

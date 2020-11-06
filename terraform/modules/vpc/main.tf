@@ -118,18 +118,43 @@ resource "aws_route_table_association" "public" {
 }
 
 
-# Traffic to the ECS Cluster should only come from the load balancer.
+# Allow tcp connection from public to 25 port
 resource "aws_security_group" "ecs_tasks" {
   name        = "ecs-tasks"
-  description = "allow inbound access from the NLB only"
+  description = "Allow inbound access from the public"
   vpc_id      = aws_vpc.main.id
 
-  # For Network Load Balancer the trafic must be filtered in the target SG (here)
-  # No reference to NLB security group because it does not have such
   ingress {
     protocol        = "tcp"
     from_port       = "25"
     to_port         = "25"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ tags = {
+    Name = "oce-ics-sg-${var.environment}-private"
+  }
+}
+
+# Allow access to the Redis. 
+# Opening up the ElastiCache cluster to 0.0.0.0/0 does not expose the cluster to the Internet 
+# because it has no public IP address and therefore cannot be accessed from outside the VPC.
+resource "aws_security_group" "redis" {
+  name        = "redis"
+  description = "Allow inbound access from the public"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = "6379"
+    to_port         = "6379"
     cidr_blocks     = ["0.0.0.0/0"]
   }
 
