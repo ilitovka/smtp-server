@@ -5,7 +5,7 @@ resource "aws_elasticache_subnet_group" "private" {
 
 resource "aws_elasticache_security_group" "sg" {
   name                 = "${var.app}-${var.environment}-security-group"
-  security_group_names = [ var.security_group.id ]
+  security_group_names = [ var.redis_security_group.id ]
 }
 
 resource "aws_elasticache_cluster" "redis" {

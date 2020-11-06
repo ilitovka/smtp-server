@@ -33,7 +33,10 @@ variable "environment" {}
 variable "app" {}
 
 
-variable "security_group" {}
+variable "ecs_security_group" {}
+variable "redis_security_group" {}
+
+
 variable "private_subnets" {}
 variable "lb_target_group" {}
 variable "lb_listener" {}
