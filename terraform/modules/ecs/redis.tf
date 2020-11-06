@@ -15,7 +15,7 @@ resource "aws_elasticache_cluster" "redis" {
   security_group_ids   = aws_elasticache_security_group.sg.security_group_names
 
   engine               = "redis"
-  node_type            = "cache.t2.micro"
+  node_type            = "cache.t3.micro"
   num_cache_nodes      = 1
   parameter_group_name = "default.redis3.2"
   engine_version       = "3.2.10"
