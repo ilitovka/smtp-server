@@ -47,7 +47,18 @@ try {
     
     app.get('/health', (req, res) => {
         console.log(`Monitoring request...`)
-        res.send('Ok');
+        
+        di.get('helper-redis').ping().then((result) => {
+            console.log(result);
+            if (result && result === 'PONG') {
+                res.send('Ok');
+            } else {
+                res.status(500).send('Redis failed.');
+            }
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send('Redis failed.');
+        });
     });
 
     app.listen(config.port, () => {
