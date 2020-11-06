@@ -6,11 +6,10 @@ module "vpc" {
     app = var.app
 }
 
-
 module "ecs" {
     source = "../../modules/ecs"
 
-    ecr_image_url = "${var.account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.app}:${var.aws_ecr_image_tag}"
+    ecr_image_url = var.aws_ecr_image_url
 
     security_group = module.vpc.ecs_tasks_security_group
     private_subnets = module.vpc.private_subnets

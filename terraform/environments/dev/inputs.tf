@@ -1,4 +1,4 @@
-variable "aws_ecr_image_tag" {}
+variable "aws_ecr_image_url" {}
 
 variable "app" {}
 variable "app_domain_name" {}
