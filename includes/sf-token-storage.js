@@ -39,6 +39,9 @@ sfTokenStorage.prototype.setToken = function (orgId, token) {
 sfTokenStorage.prototype.getToken = function (orgId) {
   return new Promise((resolve, reject) => {
     this.redis.hget(`sfTokens:${orgId}`, 'tokenObj').then(result => {
+      if (!result) {
+        resolve(null);
+      }
       let resultParsed = JSON.parse(result);
 
       resolve(this.createToken(this.helperCrypto.decrypt(resultParsed.tokenCrypted), resultParsed.instance_url, resultParsed.expire, resultParsed.prefix));
@@ -70,7 +73,7 @@ sfTokenStorage.prototype.getAccessTokenByOrgId = function (orgId) {
     }
 
     this.getToken(orgId).then(accessTokenObject => {
-      if (accessTokenObject !== undefined) {
+      if (accessTokenObject) {
         if (accessTokenObject instanceof accessToken) {
           if (!accessTokenObject.isExpire()) {
             this.logger.log('Access token found in memory: getAccessTokenByOrgId');
