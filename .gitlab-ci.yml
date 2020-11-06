@@ -23,7 +23,7 @@ Tests:
     entrypoint: [""]
   script:
     - echo $CI_PROJECT_DIR
-    - echo $CI_REGISTRY_IMAGE
+    - echo $REGISTRY_IMAGE
     - echo $CI_COMMIT_TAG
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json

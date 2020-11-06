@@ -33,7 +33,7 @@ resource "aws_ssm_parameter" "sf_api_endpoint" {
 resource "aws_ssm_parameter" "redis_endpoint" {
   name  = "/${local.app_name_space}/${var.environment}/REDIS_ENDPOINT"
   type  = "String"
-  value = aws_elasticache_cluster.redis.cache_nodes.0.address
+  value = "redis://${aws_elasticache_cluster.redis.cache_nodes.0.address}:6379"
 }
 
 
