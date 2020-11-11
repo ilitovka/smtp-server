@@ -47,6 +47,22 @@ Build Dev:
 #   only:
 #     - dev
 
+Build UAT EU:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: "uat"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - dev
+
+Build UAT US:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: "uat"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - dev
+
 Build Prod EU:
   <<: *build-push-image-template
   variables:
@@ -91,7 +107,7 @@ Build Prod US:
   tags:
     - "694723881910"
 
-Deploy Dev EU:
+Deploy UAT EU:
   <<: *update-ecs-template
   variables:
     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
@@ -101,7 +117,22 @@ Deploy Dev EU:
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_DEV
 
     REGION: "eu-west-1"
-    ENVIRONMENT: "dev"
+    ENVIRONMENT: "uat"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - dev
+
+Deploy UAT EU:
+  <<: *update-ecs-template
+  variables:
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_DEV
+    CRYPTO_KEY: $CRYPTO_KEY_DEV
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_DEV
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_DEV
+
+    REGION: "us-west-2"
+    ENVIRONMENT: "uat"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - dev
