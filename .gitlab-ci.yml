@@ -122,7 +122,7 @@ Deploy UAT EU:
   only:
     - dev
 
-Deploy UAT EU:
+Deploy UAT US:
   <<: *update-ecs-template
   variables:
     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
