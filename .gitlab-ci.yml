@@ -3,6 +3,11 @@ stages:
   - build
   - deploy
 
+variables:
+  ENVIRONMENT_QA: "qa"
+  ENVIRONMENT_UAT: "uat"
+  ENVIRONMENT_PROD: "prod"
+
 # Run unit/integration testing
 Tests:
   stage: test
@@ -31,42 +36,37 @@ Tests:
   tags:
     - "694723881910"
 
-Build Dev:
+
+Build QA EU:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "dev"
+    ENVIRONMENT: $ENVIRONMENT_QA
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - dev
 
-# Build QA EU:
-#   <<: *build-push-image-template
-#   variables:
-#     ENVIRONMENT: "qa"
-#     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
-#   only:
-#     - dev
 
 Build UAT EU:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "uat"
+    ENVIRONMENT: $ENVIRONMENT_UAT
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
-    - dev
+    - staging
 
 Build UAT US:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "uat"
+    ENVIRONMENT: $ENVIRONMENT_UAT
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
-    - dev
+    - staging
+
 
 Build Prod EU:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "prod"
+    ENVIRONMENT: $ENVIRONMENT_PROD
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - master
@@ -74,7 +74,7 @@ Build Prod EU:
 Build Prod US:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "prod"
+    ENVIRONMENT: $ENVIRONMENT_PROD
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
     - master
@@ -107,54 +107,51 @@ Build Prod US:
   tags:
     - "694723881910"
 
-Deploy UAT EU:
+
+.qa-variables-abstract: &qa-variables-temlate
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
+    CRYPTO_KEY: $CRYPTO_KEY_QA
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
+    ENVIRONMENT: $ENVIRONMENT_QA
+
+Deploy QA EU:
   <<: *update-ecs-template
   variables:
-    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
-    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_DEV
-    CRYPTO_KEY: $CRYPTO_KEY_DEV
-    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_DEV
-    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_DEV
-
+    <<: *qa-variables-temlate
     REGION: "eu-west-1"
-    ENVIRONMENT: "uat"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - dev
+
+
+.uat-variables-abstract: &uat-variables-temlate
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
+    CRYPTO_KEY: $CRYPTO_KEY_QA
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
+    ENVIRONMENT: $ENVIRONMENT_UAT
+
+Deploy UAT EU:
+  <<: *update-ecs-template
+  variables:
+    <<: *uat-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - staging
 
 Deploy UAT US:
   <<: *update-ecs-template
   variables:
-    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_DEV
-    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_DEV
-    CRYPTO_KEY: $CRYPTO_KEY_DEV
-    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_DEV
-    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_DEV
-
+    <<: *uat-variables-temlate
     REGION: "us-west-2"
-    ENVIRONMENT: "uat"
-    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
-    - dev
+    - staging
 
-
-# # QA
-# .qa-variables-abstract: &qa-variables-temlate
-#     ENVIRONMENT: "qa"
-#     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
-#     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
-#     CRYPTO_KEY: $CRYPTO_KEY_QA
-#     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
-#     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
-
-# # Deploy QA EU:
-# #   <<: *update-ecs-template
-# #   variables:
-# #     <<: *qa-variables-temlate
-# #     REGION: "eu-west-1"
-# #     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
-# #   only:
-# #     - dev
 
 
 # # Production
