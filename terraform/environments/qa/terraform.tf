@@ -4,6 +4,6 @@ terraform {
     key    = "terraform.tfstate"
     region = "us-east-2"
     dynamodb_table = "iqvia-oce-terraform-state-lock"
-    workspace_key_prefix = "ics/dev"
+    workspace_key_prefix = "ics/qa"
   }
 }
