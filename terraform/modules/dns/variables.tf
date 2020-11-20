@@ -5,7 +5,7 @@ variable "environment" {}
 
 variable "lb-mail" {}
 variable "dns_record_ttl" {
-  default = "300"
+  default = "60"
 }
 
 variable "region" {}
