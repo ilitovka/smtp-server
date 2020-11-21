@@ -70,6 +70,7 @@ Build UAT SA:
   only:
     - staging
 
+
 Build Prod EU:
   <<: *build-push-image-template
   variables:
@@ -168,29 +169,29 @@ Deploy UAT SA:
   only:
     - staging
 
-# # Production
-# .prod-variables-abstract: &prod-variables-temlate
-#     ENVIRONMENT: "prod"
-#     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_PROD
-#     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_PROD
-#     CRYPTO_KEY: $CRYPTO_KEY_PROD
-#     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
-#     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
+# Production
+.prod-variables-abstract: &prod-variables-temlate
+    ENVIRONMENT: $ENVIRONMENT_PROD
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_PROD
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_PROD
+    CRYPTO_KEY: $CRYPTO_KEY_PROD
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
 
-# Deploy Prod US:
-#   <<: *update-ecs-template
-#   variables:
-#     <<: *prod-variables-temlate
-#     REGION: "us-east-1"
-#     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
-#   only:
-#     - master
+Deploy Prod US:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - master
 
-# Deploy Prod EU:
-#   <<: *update-ecs-template
-#   variables:
-#     <<: *prod-variables-temlate
-#     REGION: "eu-west-1"
-#     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
-#   only:
-#     - master
+Deploy Prod EU:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - master
