@@ -3,39 +3,21 @@ stages:
   - build
   - deploy
 
-# Run unit/integration testing
-.run-tests-abstract: &run-tests-template
-  stage: test
-  image: node:12.13
-  services:
-    - postgres:alpine
-  variables:
-    POSTGRES_USER: "tests"
-    POSTGRES_PASSWORD: "testspass"
-    POSTGRES_DB: "testsdb"
-    DB_HOST: "postgres"
-    DB_USER: "$POSTGRES_USER"
-    DB_PASSWORD: "$POSTGRES_PASSWORD"
-    DB_NAME: "$POSTGRES_DB"
-    DB_TYPE: "postgres"
-    DB_SSL: 0
+variables:
+  ENVIRONMENT_QA: "qa"
+  ENVIRONMENT_UAT: "uat"
+  ENVIRONMENT_PROD: "prod"
 
+# Run unit/integration testing
+Tests:
+  stage: test
+  image:
+    name: node:12-alpine
   script:
-    - npm install
-    - npm start & while ! $(curl -s 127.0.0.1:8888); do echo "Waiting for the app to start"; sleep 5; done;
+    - npm i --unsafe-perm=true
     - npm test
   tags:
     - "694723881910"
-
-run-tests-qa:
-  <<: *run-tests-template
-  only:
-    - dev
-
-run-tests-prod:
-  <<: *run-tests-template
-  only:
-    - master
 
 
 # Build Docker image, push to AWS ECS registry and tag by commit hash and env
@@ -46,25 +28,54 @@ run-tests-prod:
     entrypoint: [""]
   script:
     - echo $CI_PROJECT_DIR
-    - echo $CI_REGISTRY_IMAGE
+    - echo $REGISTRY_IMAGE
     - echo $CI_COMMIT_TAG
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:${ENVIRONMENT:-qa} --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $REGISTRY_IMAGE:${ENVIRONMENT:-dev} --destination $REGISTRY_IMAGE:$CI_COMMIT_SHA
   tags:
     - "694723881910"
 
-build-push-image-qa:
+
+Build QA EU:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "qa"
+    ENVIRONMENT: $ENVIRONMENT_QA
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - dev
 
-build-push-image-prod:
+
+Build UAT EU:
   <<: *build-push-image-template
   variables:
-    ENVIRONMENT: "prod"
+    ENVIRONMENT: $ENVIRONMENT_UAT
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - staging
+
+Build UAT US:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: $ENVIRONMENT_UAT
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - staging
+
+
+Build Prod EU:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: $ENVIRONMENT_PROD
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - master
+
+Build Prod US:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: $ENVIRONMENT_PROD
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
     - master
 
@@ -73,30 +84,98 @@ build-push-image-prod:
 # Internet Gateway, NAT Gateway, LBs (application and network), ECS cluster, service, task definition, IAM role
 .update-ecs-abstract: &update-ecs-template
   stage: deploy
-  image: corevaluedh/terraform-v0.12
+  image: 
+    name: hashicorp/terraform:0.13.5
+    entrypoint: [""]
   before_script:
-    - cd terraform
+    - cd terraform/environments/$ENVIRONMENT
     - export TF_IN_AUTOMATION=1
-    - export TF_VAR_aws_ecr_image_tag=$CI_COMMIT_SHA
+    - export TF_VAR_aws_ecr_image_url="$REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - export TF_VAR_autoscale_enabled="true"
   script:
-    - terraform init -input=false
-    - terraform workspace new ${TERRAFORM_WORKSPACE:-qa} || true
-    - terraform workspace select ${TERRAFORM_WORKSPACE:-qa}
-    - terraform plan -out=tfplan -input=false 
-    - terraform apply -input=false tfplan
+    - export TF_VAR_config_service_api_key=$CONFIG_SERVICE_API_KEY
+    - export TF_VAR_config_service_url=$CONFIG_SERVICE_URL
+    - export TF_VAR_crypto_key=$CRYPTO_KEY
+    - export TF_VAR_crypto_algo=$CRYPTO_ALGORITHM
+    - export TF_VAR_sf_api_endpoint=$SFAPI_ENDPOINT
+
+    - terraform init
+    - terraform workspace new $REGION || true
+    - terraform workspace select $REGION
+    - terraform plan -out=tfplan -var "region=$REGION" -var-file $REGION.tfvars
+    - terraform apply tfplan
   tags:
     - "694723881910"
 
-update-ecs-qa:
+
+.qa-variables-abstract: &qa-variables-temlate
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
+    CRYPTO_KEY: $CRYPTO_KEY_QA
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
+    ENVIRONMENT: $ENVIRONMENT_QA
+
+Deploy QA EU:
   <<: *update-ecs-template
   variables:
-    TERRAFORM_WORKSPACE: "qa"
+    <<: *qa-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - dev
 
-update-ecs-prod:
+
+.uat-variables-abstract: &uat-variables-temlate
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
+    CRYPTO_KEY: $CRYPTO_KEY_QA
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
+    ENVIRONMENT: $ENVIRONMENT_UAT
+
+Deploy UAT EU:
   <<: *update-ecs-template
   variables:
-    TERRAFORM_WORKSPACE: "prod"
+    <<: *uat-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - staging
+
+Deploy UAT US:
+  <<: *update-ecs-template
+  variables:
+    <<: *uat-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - staging
+
+
+# Production
+.prod-variables-abstract: &prod-variables-temlate
+    ENVIRONMENT: $ENVIRONMENT_PROD
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_PROD
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_PROD
+    CRYPTO_KEY: $CRYPTO_KEY_PROD
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
+
+Deploy Prod US:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - master
+
+Deploy Prod EU:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
     - master

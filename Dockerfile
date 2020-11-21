@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
+# unsafe-perm is reasonable because app requires root access to listen 25 tcp port
+RUN npm install --unsafe-perm=true
 
 EXPOSE 8888
 EXPOSE 25

@@ -1,0 +1,116 @@
+{
+  "run": {
+    "fs": { "require":  "fs" },
+    "http": { "require":  "http" },
+    "path": { "require":  "path" },
+    "dotenv": { "require":  "dotenv" },
+    "ics": { "require":  "ics" },
+    "crypto": { "require": "crypto" },
+    "jsforce": { "require":  "jsforce" },
+    "express": { "require":  "express" },
+    "moment": { "require":  "moment" },
+    "request": { "require":  "request" },
+    "mailparser": { "require": "mailparser" },
+    "smtp-server": { "require": "smtp-server" },
+    "mime-types": {"require":  "mime-types"},
+    "node-ical": {"require":  "node-ical"},
+    "redis": {"require":  "redis"},
+    "app": {
+      "require":  "express",
+      "new":      true
+    },
+    "smtpServer": {
+      "require":  "includes/smtpServer.js",
+      "new":      true,
+      "args":     ["di"]
+    },
+    "logger": {
+      "require":  "includes/logger.js",
+      "new":      true,
+      "args":     ["di"]
+    },
+    "console": {
+      "require":  "console"
+    },
+    "console-logger": {
+      "require":  "includes/loggers/console.js",
+      "new":      true,
+      "args":     ["console"]
+    },
+    "sf-api": {
+      "require": "includes/sf-api.js",
+      "new":      true,
+      "args":     ["logger", "config", "jsforce", "sf-token-storage"]
+    },
+    "sf-token-storage": {
+      "require": "includes/sf-token-storage.js",
+      "new":      true,
+      "args":     ["config", "moment", "helper-crypto", "config-service", "logger", "helper-redis"]
+    },
+    "config": {
+      "require": "config.js",
+      "new":      false
+    },
+    "config-service": {
+      "require": "includes/configService.js",
+      "new":      true,
+      "args":     ["config", "request", "logger"]
+    },
+    "helper-crypto": {
+      "require": "includes/helper/crypto.js",
+      "new":      true,
+      "args":     ["crypto", "config"]
+    },
+    "helper-redis": {
+      "require": "includes/helper/redis.js",
+      "new":      true,
+      "args":     ["di"]
+    },
+    "helper-ics-parser": {
+      "require": "includes/helper/icsParser.js",
+      "new":      true,
+      "args":     ["node-ical", "logger"]
+    },
+    "helper-mail-parser": {
+      "require": "includes/helper/mailParser.js",
+      "new":      true,
+      "args":     ["helper-ics-parser", "logger", "mail-parser-adapter-base", "mail-parser-adapter-google", "mail-parser-adapter-outlook"]
+    },
+    "mail-parser-adapter-base": {
+      "require": "includes/adapters/base.js",
+      "args":     ["helper-ics-parser", "logger"]
+    },
+    "mail-parser-adapter-google": {
+      "require": "includes/adapters/google.js",
+      "args":     ["helper-ics-parser", "logger"]
+    },
+    "mail-parser-adapter-outlook": {
+      "require": "includes/adapters/outlook.js",
+      "args":     ["helper-ics-parser", "logger"]
+    },
+    "helper-sf-bridge": {
+      "require": "includes/helper/bridgeSF.js",
+      "new":      true,
+      "args":     ["sf-api", "logger"]
+    }
+  },
+  "test": {
+    "jsforce": {
+      "require":  "test/mocks/jsforce.js"
+    },
+    "fs": {
+      "require":  "test/mocks/fs.js"
+    },
+    "request": {
+      "require":  "test/mocks/request.js"
+    },
+    "console": {
+      "require":  "test/mocks/console.js"
+    },
+    "helper-redis": {
+      "require":  "test/mocks/helper-redis.js", 
+      "new":      true,
+      "args":     ["di"]
+    }
+  }
+}

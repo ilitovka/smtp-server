@@ -1,14 +1,13 @@
 let test = require('tape');
-const MailParser = require("mailparser").simpleParser;
-let mailParserAttachment = require('../../include/helper/mailParser');
+const di = require('../../di');
+const MailParser = di.get("mailparser").simpleParser;
+let mailParserAttachmentObject = di.get('helper-mail-parser');
 
 test('Calling MailParser', function (t) {
   t.plan(1);
 
-  let mailParserAttachmentObject = new mailParserAttachment();
-
   let stream = 'Received: by mail-ed1-f73.google.com with SMTP id cy24so19885102edb.12\n' +
-    '        for <00d5d000000devvua4@igrik.site>; Tue, 31 Dec 2019 01:32:56 -0800 (PST)\n' +
+    '        for <00DS0000003Eixf@igrik.site>; Tue, 31 Dec 2019 01:32:56 -0800 (PST)\n' +
     'DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\n' +
     '        d=google.com; s=20161025;\n' +
     '        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject\n' +
@@ -57,7 +56,7 @@ test('Calling MailParser', function (t) {
     'Date: Tue, 31 Dec 2019 09:32:56 +0000\n' +
     'Subject: Accepted: summary @ Tue Jan 7, 2020 3:21pm - 3:51pm (EET) (OCEADMIN OCEADMIN)\n' +
     'From: ihor.litovka@avenga.com\n' +
-    'To: OCEADMIN OCEADMIN <00d5d000000devvua4@igrik.site>\n' +
+    'To: OCEADMIN OCEADMIN <00DS0000003Eixf@igrik.site>\n' +
     'Content-Type: multipart/mixed; boundary="0000000000001ecf8a059afca5d0"\n' +
     '\n' +
     '--0000000000001ecf8a059afca5d0\n' +
@@ -167,7 +166,7 @@ test('Calling MailParser', function (t) {
     '888;border-top:1px Solid #ccc;font-family:Arial,Sans-serif;font-size:11px">=\n' +
     '<p>Invitation from <a href=3D"https://www.google.com/calendar/" target=3D"_=\n' +
     'blank" style=3D"">Google Calendar</a></p><p>You are receiving this courtesy=\n' +
-    ' email at the account 00d5d000000devvua4@igrik.site because you are an atte=\n' +
+    ' email at the account 00DS0000003Eixf@igrik.site because you are an atte=\n' +
     'ndee of this event.</p><p>To stop receiving future updates for this event, =\n' +
     'decline this event. Alternatively you can sign up for a Google account at h=\n' +
     'ttps://www.google.com/calendar/ and control your notification settings for =\n' +
@@ -189,7 +188,7 @@ test('Calling MailParser', function (t) {
     'DTSTART:20200107T132147Z\n' +
     'DTEND:20200107T135147Z\n' +
     'DTSTAMP:20191231T093256Z\n' +
-    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00d5d000000devvua4@test.com\n' +
+    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00DS0000003Eixf@test.com\n' +
     'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000001\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=ihor.l\n' +
     ' itovka@avenga.com;X-NUM-GUESTS=0:mailto:ihor.litovka@avenga.com\n' +
@@ -201,7 +200,7 @@ test('Calling MailParser', function (t) {
     'STATUS:CONFIRMED\n' +
     'SUMMARY:summary\n' +
     'TRANSP:OPAQUE\n' +
-    'X-ORGID:00D5D000000DEVVUA4\n' +
+    'X-ORGID:00DS0000003Eixf\n' +
     'END:VEVENT\n' +
     'END:VCALENDAR\n' +
     '\n' +
@@ -232,12 +231,12 @@ test('Calling MailParser', function (t) {
         //Send parsed ICS to caldav/SF
         t.pass("Mail parsed successfully");
       }).catch(err => {
-        t.fail('Failed mail parse');
+        t.fail('Failed mail parse: ' + JSON.stringify(err));
       });
 
     })
     .catch(error => {
-      t.fail('Failed mail parse');
+      t.fail('Failed mail parse: ' + JSON.stringify(err));
     });
 
 });

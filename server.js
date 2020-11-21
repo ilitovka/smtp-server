@@ -29,12 +29,41 @@
  **
 -----------------------------------------------------------------------------*/
 try {
-    let caldavServer = require('./include/caldavServer');
-    let SMTPServer = require('./include/smtpServer');
+    let di = new require('./di');
+    let config = di.get('config');
+    let customSmtpServer = di.get('smtpServer');
 
     //run smtp server
-    let customSmtpServer = new SMTPServer();
     customSmtpServer.run();
+
+    //run http server for monitoring service
+    const express = require('express');
+    const app = express();
+
+    app.get('/', (req, res) => {
+        console.log(`Root request...`)
+        res.send('Ok');
+    });
+    
+    app.get('/health', (req, res) => {
+        console.log(`Monitoring request...`)
+        
+        di.get('helper-redis').ping().then((result) => {
+            console.log(result);
+            if (result && result === 'PONG') {
+                res.send('Ok');
+            } else {
+                res.status(500).send('Redis failed.');
+            }
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send('Redis failed.');
+        });
+    });
+
+    app.listen(config.port, () => {
+        console.log(`Monitoring endpoint running on port: ${config.port}`)
+    })
 } catch (e) {
     console.log('Caught error: ' + e.message);
     console.log(e.stack);

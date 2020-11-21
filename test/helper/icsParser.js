@@ -1,5 +1,6 @@
 let test = require('tape');
-let icsParser = require('../../include/helper/icsParser');
+const di = require('../../di');
+const icsParseObject = di.get('helper-ics-parser');
 
 test('Calling icsParser', function (t) {
   let ics = 'BEGIN:VCALENDAR\n' +
@@ -12,7 +13,7 @@ test('Calling icsParser', function (t) {
     'DTEND:20191229T135147Z\n' +
     'DTSTAMP:20191219T142147Z\n' +
     'DTSTART:20191229T132147Z\n' +
-    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00D5D000000DEVVUA4@test.com\n' +
+    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00DS0000003Eixf@test.com\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\n' +
     ' X-NUM-GUESTS=0;CN=Attendee 1:mailto:attendee1@gmail.com\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\n' +
@@ -22,7 +23,7 @@ test('Calling icsParser', function (t) {
     'SEQUENCE:0\n' +
     'SUMMARY:summary\n' +
     'TRANSP:OPAQUE\n' +
-    'X-ORGID:00D5D000000DEVVUA4\n' +
+    'X-ORGID:00DS0000003Eixf\n' +
     'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000\n' +
     'END:VEVENT\n' +
     'END:VCALENDAR';
@@ -39,7 +40,7 @@ test('Calling icsParser', function (t) {
     organizer:
       {
         params: {CN: 'OCEADMIN OCEADMIN'},
-        val: 'mailto:00D5D000000DEVVUA4@test.com'
+        val: 'mailto:00DS0000003Eixf@test.com'
       },
     attendee:
       [
@@ -67,13 +68,11 @@ test('Calling icsParser', function (t) {
     sequence: '0',
     summary: 'summary',
     transparency: 'OPAQUE',
-    ORGID: '00D5D000000DEVVUA4',
+    ORGID: '00DS0000003Eixf',
     uid: 'qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000',
   };
 
   t.plan(1);
-
-  let icsParseObject = new icsParser();
 
   let parsed = icsParseObject.parseFirst(ics);
 

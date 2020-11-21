@@ -1,5 +1,5 @@
 let test = require('tape');
-let icsCreate = require('../../include/helper/icsCreate');
+let icsCreate = require('../../includes/helper/icsCreate');
 
 test('Calling icsCreate', function (t) {
   let compareString = 'BEGIN:VCALENDAR\r\n' +
@@ -14,7 +14,7 @@ test('Calling icsCreate', function (t) {
     'DTSTAMP:20191219T142147Z\r\n' +
     'DTSTART:20191229T132100Z\r\n' +
     'DTEND:20191229T135100Z\r\n' +
-    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00d5d000000devvua4@test.com\r\n' +
+    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00ds0000003eixf@test.com\r\n' +
     'ATTENDEE;RSVP=TRUE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=Attendee 1\r\n\t' +
     ':mailto:attendee1@gmail.com\r\n' +
     'ATTENDEE;RSVP=TRUE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=Attendee 2\r\n\t' +
@@ -34,7 +34,7 @@ test('Calling icsCreate', function (t) {
     organizer:
       {
         params: {CN: 'OCEADMIN OCEADMIN'},
-        val: 'mailto:00D5D000000DEVVUA4@test.com'
+        val: 'mailto:00DS0000003Eixf@test.com'
       },
     attendee:
       [
@@ -62,7 +62,7 @@ test('Calling icsCreate', function (t) {
     sequence: '0',
     summary: 'summary',
     transparency: 'OPAQUE',
-    ORGID: '00D5D000000DEVVUA4',
+    ORGID: '00DS0000003Eixf',
     uid: 'qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000',
   };
 

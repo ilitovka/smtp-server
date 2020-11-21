@@ -1,11 +1,12 @@
 const test = require('tape');
-const SmtpServer = require('../../include/smtpServer');
+const di = require('../../di');
+const smtpServerObject = di.get('smtpServer');
 
 test('Calling smtpServer', function (t) {
   t.plan(1);
 
   let stream = 'Received: by mail-ed1-f73.google.com with SMTP id cy24so19885102edb.12\n' +
-    '        for <00d5d000000devvua4@igrik.site>; Tue, 31 Dec 2019 01:32:56 -0800 (PST)\n' +
+    '        for <00DS0000003Eixf@igrik.site>; Tue, 31 Dec 2019 01:32:56 -0800 (PST)\n' +
     'DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\n' +
     '        d=google.com; s=20161025;\n' +
     '        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject\n' +
@@ -186,7 +187,7 @@ test('Calling smtpServer', function (t) {
     'DTSTART:20200107T132147Z\n' +
     'DTEND:20200107T135147Z\n' +
     'DTSTAMP:20191231T093256Z\n' +
-    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00d5d000000devvua4@test.com\n' +
+    'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00DS0000003Eixf@test.com\n' +
     'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000001\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=ihor.l\n' +
     ' itovka@avenga.com;X-NUM-GUESTS=0:mailto:ihor.litovka@avenga.com\n' +
@@ -223,11 +224,18 @@ test('Calling smtpServer', function (t) {
     'RU5UDQpFTkQ6VkNBTEVOREFSDQo=\n' +
     '--0000000000001ecf8a059afca5d0--\n';
 
-  let smtpServerObject = new SmtpServer();
+  di.get('request').setCallback((params, callback) => {
+    callback(undefined, { statusCode: 200 }, JSON.stringify({
+      access_token: "access_token",
+      instance_url: "instance_url",
+      access_token_expiration: Date.now() + 3600,
+      namespace_prefix: ""
+    }));
+  });
 
   smtpServerObject.process(stream).then(() => {
     t.pass("Mail parsed successfully");
   }).catch((err) => {
-    t.fail(err);
+    t.fail(err.message);
   });
 });
