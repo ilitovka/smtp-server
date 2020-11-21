@@ -78,6 +78,8 @@ resource "aws_route53_record" "mail-geo" {
   name    = var.app_domain_name
   type    = "MX"
 
+  health_check_id = aws_route53_health_check.check.id
+
   geolocation_routing_policy  {
     continent = local.region_continent_map[var.region]
   }
