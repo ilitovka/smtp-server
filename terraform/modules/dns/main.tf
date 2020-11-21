@@ -53,7 +53,7 @@ resource "aws_route53_health_check" "check" {
 resource "aws_route53_record" "mail-failover" {
 
   zone_id = data.aws_route53_zone.zone.id
-  name    = "${var.region}.${var.app_domain_name}"
+  name    = "failover.${var.app_domain_name}"
   type    = "MX"
   ttl     = var.dns_record_ttl
 
@@ -88,7 +88,8 @@ resource "aws_route53_record" "mail-geo" {
      name = aws_route53_record.mail-failover.name
      zone_id = data.aws_route53_zone.zone.id
 
-     evaluate_target_health = true
+     # we have custom healthcheck, an automatic one has to be off
+     evaluate_target_health = false
    }
 }
 
@@ -101,6 +102,8 @@ resource "aws_route53_record" "mail-geo-default" {
   name    = var.app_domain_name
   type    = "MX"
 
+  health_check_id = aws_route53_health_check.check.id
+
   geolocation_routing_policy  {
     country = "*"
   }
@@ -111,7 +114,8 @@ resource "aws_route53_record" "mail-geo-default" {
      name = aws_route53_record.mail-failover.name
      zone_id = data.aws_route53_zone.zone.id
 
-     evaluate_target_health = true
+     # we have custom healthcheck, an automatic one has to be off
+     evaluate_target_health = false
    }
 }
 
