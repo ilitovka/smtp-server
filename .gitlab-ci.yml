@@ -62,14 +62,6 @@ Build UAT US:
   only:
     - staging
 
-Build UAT SA:
-  <<: *build-push-image-template
-  variables:
-    ENVIRONMENT: $ENVIRONMENT_UAT
-    REGISTRY_IMAGE: $REGISTRY_IMAGE_SA
-  only:
-    - staging
-
 
 Build Prod EU:
   <<: *build-push-image-template
@@ -160,14 +152,6 @@ Deploy UAT US:
   only:
     - staging
 
-Deploy UAT SA:
-  <<: *update-ecs-template
-  variables:
-    <<: *uat-variables-temlate
-    REGION: "sa-east-1"
-    REGISTRY_IMAGE: $REGISTRY_IMAGE_SA
-  only:
-    - staging
 
 # Production
 .prod-variables-abstract: &prod-variables-temlate
