@@ -26,7 +26,6 @@ locals {
         "af-south-1" = "AF"
     }
 
-    failover_type = var.region == var.failover_primary_region ? "PRIMARY": "SECONDARY"
 }
 
 
@@ -50,33 +49,14 @@ resource "aws_route53_health_check" "check" {
 
 }
 
-resource "aws_route53_record" "mail-failover" {
-
-  zone_id = data.aws_route53_zone.zone.id
-  name    = "failover.${var.app_domain_name}"
-  type    = "MX"
-  ttl     = var.dns_record_ttl
-
-  health_check_id = aws_route53_health_check.check.id
-  
-
-  failover_routing_policy  {
-    type = local.failover_type
-  }
-
-  set_identifier = "failover-${var.region}"
-
-  records = [
-    "10 ${var.lb-mail.dns_name}."
-  ]
-}
-
-
 resource "aws_route53_record" "mail-geo" {
 
   zone_id = data.aws_route53_zone.zone.id
   name    = var.app_domain_name
   type    = "MX"
+  ttl     = var.dns_record_ttl
+
+  health_check_id = aws_route53_health_check.check.id
 
   geolocation_routing_policy  {
     continent = local.region_continent_map[var.region]
@@ -84,23 +64,20 @@ resource "aws_route53_record" "mail-geo" {
 
   set_identifier = "geo-${var.region}"
 
-   alias {
-     name = aws_route53_record.mail-failover.name
-     zone_id = data.aws_route53_zone.zone.id
-
-     # we have custom healthcheck, an automatic one has to be off
-     evaluate_target_health = false
-   }
+  records = [
+    "10 ${var.lb-mail.dns_name}."
+  ]
 }
 
 resource "aws_route53_record" "mail-geo-default" {
   # current region has to match failover region
   # then create this resource
-  count = var.failover_primary_region == var.region? 1: 0
+  count = var.primary_region == var.region? 1: 0
 
   zone_id = data.aws_route53_zone.zone.id
   name    = var.app_domain_name
   type    = "MX"
+  ttl     = var.dns_record_ttl
 
   health_check_id = aws_route53_health_check.check.id
 
@@ -110,13 +87,9 @@ resource "aws_route53_record" "mail-geo-default" {
 
   set_identifier = "geo-default-${var.region}"
 
-   alias {
-     name = aws_route53_record.mail-failover.name
-     zone_id = data.aws_route53_zone.zone.id
-
-     # we have custom healthcheck, an automatic one has to be off
-     evaluate_target_health = false
-   }
+  records = [
+    "10 ${var.lb-mail.dns_name}."
+  ]
 }
 
 
