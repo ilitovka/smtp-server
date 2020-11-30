@@ -54,6 +54,7 @@ resource "aws_route53_record" "mail-geo" {
   zone_id = data.aws_route53_zone.zone.id
   name    = var.app_domain_name
   type    = "MX"
+  ttl     = var.dns_record_ttl
 
   health_check_id = aws_route53_health_check.check.id
 
@@ -76,6 +77,7 @@ resource "aws_route53_record" "mail-geo-default" {
   zone_id = data.aws_route53_zone.zone.id
   name    = var.app_domain_name
   type    = "MX"
+  ttl     = var.dns_record_ttl
 
   health_check_id = aws_route53_health_check.check.id
 
