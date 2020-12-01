@@ -8,7 +8,6 @@ variable "environment" {}
 variable "account_id" {}
 variable "region" {}
 variable "vpc_cidr_block" {}
-variable "failover_primary_region" {}
 
 
 variable "config_service_api_key" {}

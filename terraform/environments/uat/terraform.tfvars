@@ -4,5 +4,3 @@ account_id = "694723881910"
 
 app_domain_name = "uat.mail.oce.solutions.iqvia.com"
 environment = "uat"
-
-failover_primary_region = "us-west-2"
