@@ -40,7 +40,6 @@ module "dns" {
     
     environment = var.environment
     region = var.region
-    primary_region = var.primary_region
 }
 
 
