@@ -9,4 +9,4 @@ variable "dns_record_ttl" {
 }
 
 variable "region" {}
-variable "primary_region" {}
+variable "failover_primary_region" {}
