@@ -141,6 +141,7 @@ Deploy QA EU apply:
     TFRunApply: "TRUE"
   only:
     - dev
+  when: manual
 
 
 .uat-variables-abstract: &uat-variables-temlate
@@ -170,6 +171,7 @@ Deploy UAT EU apply:
     TFRunApply: "TRUE"
   only:
     - staging
+  when: manual
 
 Deploy UAT US plan:
   <<: *update-ecs-template
@@ -190,6 +192,7 @@ Deploy UAT US apply:
     TFRunApply: "TRUE"
   only:
     - staging
+  when: manual
 
 
 # Production
@@ -220,6 +223,7 @@ Deploy Prod US apply:
     TFRunApply: "TRUE"
   only:
     - master
+  when: manual
 
 Deploy Prod EU plan:
   <<: *update-ecs-template
@@ -240,3 +244,4 @@ Deploy Prod EU apply:
     TFRunApply: "TRUE"
   only:
     - master
+  when: manual
