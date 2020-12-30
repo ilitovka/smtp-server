@@ -103,7 +103,13 @@ Build Prod US:
     - terraform workspace new $REGION || true
     - terraform workspace select $REGION
     - terraform plan -out=tfplan -var "region=$REGION" -var-file $REGION.tfvars
-    - terraform apply tfplan
+    - |
+      if [ ${TFRunApply} == "TRUE" ]
+      then
+        terraform apply "tfplan"
+      else
+        echo "Terraform command 'apply' is skipped"
+      fi
   tags:
     - "694723881910"
 
@@ -116,12 +122,23 @@ Build Prod US:
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
     ENVIRONMENT: $ENVIRONMENT_QA
 
-Deploy QA EU:
+Deploy QA EU plan:
   <<: *update-ecs-template
   variables:
     <<: *qa-variables-temlate
     REGION: "eu-west-1"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "FALSE"
+  only:
+    - dev
+
+Deploy QA EU apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *qa-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "TRUE"
   only:
     - dev
 
@@ -134,21 +151,43 @@ Deploy QA EU:
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
     ENVIRONMENT: $ENVIRONMENT_UAT
 
-Deploy UAT EU:
+Deploy UAT EU plan:
   <<: *update-ecs-template
   variables:
     <<: *uat-variables-temlate
     REGION: "eu-west-1"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "FALSE"
   only:
     - staging
 
-Deploy UAT US:
+Deploy UAT EU apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *uat-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "TRUE"
+  only:
+    - staging
+
+Deploy UAT US plan:
   <<: *update-ecs-template
   variables:
     <<: *uat-variables-temlate
     REGION: "us-west-2"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "FALSE"
+  only:
+    - staging
+
+Deploy UAT US apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *uat-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "TRUE"
   only:
     - staging
 
@@ -162,20 +201,42 @@ Deploy UAT US:
     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
 
-Deploy Prod US:
+Deploy Prod US plan:
   <<: *update-ecs-template
   variables:
     <<: *prod-variables-temlate
     REGION: "us-west-2"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "FALSE"
   only:
     - master
 
-Deploy Prod EU:
+Deploy Prod US apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "TRUE"
+  only:
+    - master
+
+Deploy Prod EU plan:
   <<: *update-ecs-template
   variables:
     <<: *prod-variables-temlate
     REGION: "eu-west-1"
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "FALSE"
+  only:
+    - master
+
+Deploy Prod EU apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *prod-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "TRUE"
   only:
     - master
