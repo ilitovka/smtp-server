@@ -7,5 +7,5 @@ variable "app" {}
 variable "common_tags" {
   type = "map"
   default = {
-    CostDims = "pr:OCE-S c:shared e:pdo p:io"
+    "CostDims" = "pr:OCE-S c:shared e:pdo p:io"
   }
