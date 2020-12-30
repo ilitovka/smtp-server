@@ -9,9 +9,9 @@ data "aws_availability_zones" "available" {
 resource "aws_vpc" "main" {
   cidr_block = var.cidr_block
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-${var.environment}"
-  }
+  })
 }
 
 locals {
@@ -28,9 +28,9 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.main.id
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-${var.environment} - Private ${count.index + 1}"
-  }
+  })
 
 }
 
@@ -43,35 +43,35 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   map_public_ip_on_launch = true
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-${var.environment} - Public ${count.index + 1}"
-  }
+  })
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-ig-${var.environment}"
-  }
+  })
 }
 
 resource "aws_eip" "gw" {
   vpc        = true
   depends_on = [aws_internet_gateway.gw]
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-eip-${var.environment}"
-  }
+  })
 }
 
 resource "aws_nat_gateway" "gw" {
   subnet_id     = aws_subnet.public.0.id
   allocation_id = aws_eip.gw.id
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-ng-${var.environment}"
-  }
+  })
 }
 
 # Create a new route table for the private subnets.
@@ -85,9 +85,9 @@ resource "aws_route_table" "private" {
     nat_gateway_id = aws_nat_gateway.gw.id
   }
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-rt-${var.environment}-private-${count.index + 1}"
-  }
+  })
 }
 
 # Explicitely associate the newly created route tables to the private subnets (so they don't default to the main route table).
@@ -106,9 +106,9 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-rt-${var.environment}-public-${count.index + 1}"
-  }
+  })
 }
 
 resource "aws_route_table_association" "public" {
@@ -138,9 +138,9 @@ resource "aws_security_group" "ecs_tasks" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- tags = {
+ tags = merge(var.common_tags, {
     Name = "oce-ics-sg-${var.environment}-private"
-  }
+  })
 }
 
 # Allow access to the Redis. 
@@ -165,9 +165,9 @@ resource "aws_security_group" "redis" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- tags = {
+ tags = merge(var.common_tags, {
     Name = "oce-ics-sg-${var.environment}-private"
-  }
+  })
 }
 
 
@@ -178,9 +178,9 @@ resource "aws_lb" "mail" {
 
   subnets         = aws_subnet.public.*.id
 
-  tags = {
+  tags = merge(var.common_tags, {
     Name = "oce-ics-alb-${var.environment}"
-  }
+  })
 }
 
 # Redirect all traffic from the load balancer to the target group.
