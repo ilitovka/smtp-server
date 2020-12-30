@@ -5,7 +5,7 @@ variable "az_count" {
 variable "environment" {}
 variable "app" {}
 variable "common_tags" {
-  type = "map"
+  type = map(string)
   default = {
     "CostDims" = "pr:OCE-S c:shared e:pdo p:io"
   }

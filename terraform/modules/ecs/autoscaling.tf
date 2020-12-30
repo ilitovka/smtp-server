@@ -7,7 +7,6 @@ resource "aws_appautoscaling_target" "app_scale_target" {
   scalable_dimension = "ecs:service:DesiredCount"
   max_capacity       = var.ecs_autoscale_max_instances
   min_capacity       = var.ecs_autoscale_min_instances
-  tags = var.common_tags
 }
 
 
