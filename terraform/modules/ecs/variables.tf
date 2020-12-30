@@ -46,3 +46,8 @@ variable "config_service_url" {}
 variable "crypto_key" {}
 variable "crypto_algo" {}
 variable "sf_api_endpoint" {}
+variable "common_tags" {
+  type = map
+  default = {
+    CostDims = "pr:OCE-S c:shared e:pdo p:io"
+  }
