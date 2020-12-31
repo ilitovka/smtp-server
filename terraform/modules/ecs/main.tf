@@ -37,6 +37,7 @@ resource "aws_ecs_task_definition" "task" {
 
   execution_role_arn = aws_iam_role.ecsTaskExecutionRole.arn
   requires_compatibilities = ["FARGATE"]
+  tags = var.common_tags
 
 }
 
@@ -55,7 +56,7 @@ resource "aws_ecs_service" "app" {
   launch_type = "FARGATE"
   desired_count = 1
 
-  platform_version ="LATEST"
+  platform_version = "LATEST"
 
   network_configuration {
     assign_public_ip = false
@@ -74,7 +75,7 @@ resource "aws_ecs_service" "app" {
   }
 
   health_check_grace_period_seconds = 30
-  tags = {}
+  tags = var.common_tags
 
   # Optional: Allow external changes without Terraform plan difference
   lifecycle {
@@ -90,6 +91,7 @@ resource "aws_ecs_service" "app" {
 resource "aws_iam_role" "ecsTaskExecutionRole" {
   name = "${var.app}-${var.environment}-${var.region}-ecs"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+  tags = var.common_tags
 }
 
 resource "aws_iam_role_policy" "params" {
@@ -137,5 +139,6 @@ variable "logs_retention_in_days" {
 resource "aws_cloudwatch_log_group" "logs" {
   name              = "/ecs/${local.app_name_space}/${var.environment}"
   retention_in_days = var.logs_retention_in_days
+  tags = var.common_tags
   #tags              = var.tags
 }
