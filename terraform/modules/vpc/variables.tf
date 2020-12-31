@@ -9,3 +9,4 @@ variable "common_tags" {
   default = {
     "CostDims" = "pr:OCE-S c:shared e:pdo p:io"
   }
+}
