@@ -45,7 +45,6 @@ Build QA EU:
   only:
     - dev
 
-
 Build UAT EU:
   <<: *build-push-image-template
   variables:
@@ -61,7 +60,6 @@ Build UAT US:
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
     - staging
-
 
 Build Prod EU:
   <<: *build-push-image-template
@@ -98,7 +96,10 @@ Build Prod US:
     - export TF_VAR_crypto_key=$CRYPTO_KEY
     - export TF_VAR_crypto_algo=$CRYPTO_ALGORITHM
     - export TF_VAR_sf_api_endpoint=$SFAPI_ENDPOINT
-
+    - export TF_VAR_SLACK_CHANNEL=$SLACK_CHANNEL
+    - export TF_VAR_SLACK_NOTIFICATION_URL=$SLACK_NOTIFICATION_URL
+    - export TF_VAR_SLACK_USERNAME=$SLACK_USERNAME
+    - echo "$SLACK_CHANNEL"
     - terraform init
     - terraform workspace new $REGION || true
     - terraform workspace select $REGION
@@ -113,7 +114,6 @@ Build Prod US:
   tags:
     - "694723881910"
 
-
 .qa-variables-abstract: &qa-variables-temlate
     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
@@ -121,6 +121,9 @@ Build Prod US:
     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
     ENVIRONMENT: $ENVIRONMENT_QA
+    SLACK_CHANNEL: $SLACK_CHANNEL_QA
+    SLACK_NOTIFICATION_URL: $SLACK_NOTIFICATION_URL_QA
+    SLACK_USERNAME: $SLACK_USER_NAME
 
 Deploy QA EU plan:
   <<: *update-ecs-template
@@ -143,7 +146,6 @@ Deploy QA EU apply:
     - dev
   when: manual
 
-
 .uat-variables-abstract: &uat-variables-temlate
     CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_QA
     CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_QA
@@ -151,6 +153,9 @@ Deploy QA EU apply:
     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_QA
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_QA
     ENVIRONMENT: $ENVIRONMENT_UAT
+    SLACK_CHANNEL: $SLACK_CHANNEL_UAT
+    SLACK_NOTIFICATION_URL: $SLACK_NOTIFICATION_URL_UAT
+    SLACK_USERNAME: $SLACK_USER_NAME
 
 Deploy UAT EU plan:
   <<: *update-ecs-template
@@ -194,7 +199,6 @@ Deploy UAT US apply:
     - staging
   when: manual
 
-
 # Production
 .prod-variables-abstract: &prod-variables-temlate
     ENVIRONMENT: $ENVIRONMENT_PROD
@@ -203,6 +207,9 @@ Deploy UAT US apply:
     CRYPTO_KEY: $CRYPTO_KEY_PROD
     CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_PROD
     SFAPI_ENDPOINT: $SFAPI_ENDPOINT_PROD
+    SLACK_CHANNEL: $SLACK_CHANNEL_PROD
+    SLACK_NOTIFICATION_URL: $SLACK_NOTIFICATION_URL_PROD
+    SLACK_USERNAME: $SLACK_USER_NAME
 
 Deploy Prod US plan:
   <<: *update-ecs-template

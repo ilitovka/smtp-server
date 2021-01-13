@@ -42,6 +42,10 @@ module "dns" {
     region = var.region
 
     dns_record_ttl = "60"
+
+    SLACK_CHANNEL = var.SLACK_CHANNEL
+    SLACK_NOTIFICATION_URL = var.SLACK_NOTIFICATION_URL
+    SLACK_USERNAME = var.SLACK_USERNAME
 }
 
 
