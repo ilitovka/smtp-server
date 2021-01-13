@@ -5,7 +5,7 @@ provider "aws" {
 }
 
 resource "aws_iam_role" "iam_lambda_role" {
-  name = "${var.environment}-route53-sns2slack-lambda-role"
+  name = "${var.environment}-${var.region}-sns2slack-lambda-role"
   provider  = aws.virginia
   assume_role_policy = <<EOF
 {
@@ -26,7 +26,7 @@ EOF
 
 resource "aws_lambda_function" "sns2slack_lambda" {
   filename      = "../../modules/dns/sns2slack.py.zip"
-  function_name = "${var.environment}-route53-sns2slack-lambda"
+  function_name = "${var.environment}-${var.region}-sns2slack-lambda"
   role          = aws_iam_role.iam_lambda_role.arn
   handler       = "sns2slack.lambda_handler"
   runtime       = "python3.6"
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "sns2slack_lambda" {
 }
 
 resource "aws_sns_topic" "route53_alerts" {
-  name = "${var.environment}-route53-slack-alerts"
+  name = "${var.environment}-${var.region}-route53-slack-alerts"
   provider  = aws.virginia
 }
 
@@ -62,7 +62,7 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cw_metric_alarm" {
-  alarm_name          = "${var.environment}-route53-alarm"
+  alarm_name          = "${var.environment}-${var.region}-route53-alarm"
   namespace           = "AWS/Route53"
   metric_name         = "HealthCheckStatus"
   comparison_operator = "LessThanThreshold"
@@ -75,7 +75,7 @@ resource "aws_cloudwatch_metric_alarm" "cw_metric_alarm" {
   dimensions          = {
     HealthCheckId = aws_route53_health_check.check.id
   }
-  alarm_description   = "${var.environment}: ${var.region}.${var.app_domain_name}"
+  alarm_description   = "*${var.environment}*: ${var.region}.${var.app_domain_name}"
   alarm_actions       = [aws_sns_topic.route53_alerts.arn]
   ok_actions          = [aws_sns_topic.route53_alerts.arn]
   insufficient_data_actions = []
