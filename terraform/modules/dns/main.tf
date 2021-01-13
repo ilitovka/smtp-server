@@ -11,7 +11,6 @@ resource "aws_route53_health_check" "check" {
   type              = "TCP"
   failure_threshold = "3"
   request_interval  = "30"
-
   tags = merge(var.common_tags, {
     Name = "${var.region}.${var.app_domain_name}"
   })

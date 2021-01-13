@@ -15,3 +15,7 @@ variable "config_service_url" {}
 variable "crypto_key" {}
 variable "crypto_algo" {}
 variable "sf_api_endpoint" {}
+
+variable "SLACK_CHANNEL" {}
+variable "SLACK_NOTIFICATION_URL" {}
+variable "SLACK_USERNAME" {}

@@ -9,6 +9,9 @@ variable "dns_record_ttl" {
 }
 
 variable "region" {}
+variable "SLACK_CHANNEL" {}
+variable "SLACK_NOTIFICATION_URL" {}
+variable "SLACK_USERNAME" {}
 
 variable "common_tags" {
   type = map(string)
