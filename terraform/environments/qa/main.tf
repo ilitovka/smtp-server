@@ -40,6 +40,10 @@ module "dns" {
     
     environment = var.environment
     region = var.region
+
+    SLACK_CHANNEL = var.SLACK_CHANNEL
+    SLACK_NOTIFICATION_URL = var.SLACK_NOTIFICATION_URL
+    SLACK_USERNAME = var.SLACK_USERNAME
 }
 
 
