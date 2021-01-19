@@ -38,11 +38,13 @@ resource "aws_lambda_function" "sns2slack_lambda" {
       slack_username = var.SLACK_USERNAME
     }
   }
+  tags = var.common_tags
 }
 
 resource "aws_sns_topic" "route53_alerts" {
   name = "${var.environment}-${var.region}-route53-slack-alerts"
   provider  = aws.virginia
+  tags = var.common_tags
 }
 
 resource "aws_sns_topic_subscription" "route53_alerts_target" {
@@ -80,4 +82,5 @@ resource "aws_cloudwatch_metric_alarm" "cw_metric_alarm" {
   ok_actions          = [aws_sns_topic.route53_alerts.arn]
   insufficient_data_actions = []
   depends_on          = [aws_route53_health_check.check]
+  tags = var.common_tags
 }
