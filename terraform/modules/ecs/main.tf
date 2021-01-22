@@ -38,14 +38,12 @@ resource "aws_ecs_task_definition" "task" {
   execution_role_arn = aws_iam_role.ecsTaskExecutionRole.arn
   requires_compatibilities = ["FARGATE"]
   tags = var.common_tags
-
 }
 
 data "aws_ecs_task_definition" "task" {
   task_definition = aws_ecs_task_definition.task.family
   depends_on = [ aws_ecs_task_definition.task ]
 }
-
 
 resource "aws_ecs_service" "app" {
   name = "${var.app}-${var.environment}"
