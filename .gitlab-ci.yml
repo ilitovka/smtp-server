@@ -6,6 +6,7 @@ stages:
 variables:
   ENVIRONMENT_QA: "qa"
   ENVIRONMENT_UAT: "uat"
+  ENVIRONMENT_STAGE: "stage"
   ENVIRONMENT_PROD: "prod"
 
 # Run unit/integration testing
@@ -51,12 +52,28 @@ Build UAT EU:
     ENVIRONMENT: $ENVIRONMENT_UAT
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
-    - staging
+    - uat
 
 Build UAT US:
   <<: *build-push-image-template
   variables:
     ENVIRONMENT: $ENVIRONMENT_UAT
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+  only:
+    - uat
+
+Build Stage EU:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: $ENVIRONMENT_STAGE
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+  only:
+    - staging
+
+Build Stage US:
+  <<: *build-push-image-template
+  variables:
+    ENVIRONMENT: $ENVIRONMENT_STAGE
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
   only:
     - staging
@@ -165,7 +182,7 @@ Deploy UAT EU plan:
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
     TFRunApply: "FALSE"
   only:
-    - staging
+    - uat
 
 Deploy UAT EU apply:
   <<: *update-ecs-template
@@ -175,7 +192,7 @@ Deploy UAT EU apply:
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
     TFRunApply: "TRUE"
   only:
-    - staging
+    - uat
   when: manual
 
 Deploy UAT US plan:
@@ -186,7 +203,7 @@ Deploy UAT US plan:
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
     TFRunApply: "FALSE"
   only:
-    - staging
+    - uat
 
 Deploy UAT US apply:
   <<: *update-ecs-template
@@ -196,7 +213,7 @@ Deploy UAT US apply:
     REGISTRY_IMAGE: $REGISTRY_IMAGE_US
     TFRunApply: "TRUE"
   only:
-    - staging
+    - uat
   when: manual
 
 # Production
@@ -251,4 +268,58 @@ Deploy Prod EU apply:
     TFRunApply: "TRUE"
   only:
     - master
+  when: manual
+
+#--- Staging
+.stage-variables-abstract: &stage-variables-temlate
+    ENVIRONMENT: $ENVIRONMENT_STAGE
+    CONFIG_SERVICE_API_KEY: $CONFIG_SERVICE_API_KEY_STAGE
+    CONFIG_SERVICE_URL: $CONFIG_SERVICE_URL_STAGE
+    CRYPTO_KEY: $CRYPTO_KEY_STAGE
+    CRYPTO_ALGORITHM: $CRYPTO_ALGORITHM_STAGE
+    SFAPI_ENDPOINT: $SFAPI_ENDPOINT_STAGE
+    SLACK_CHANNEL: $SLACK_CHANNEL_STAGE
+    SLACK_NOTIFICATION_URL: $SLACK_NOTIFICATION_URL_STAGE
+    SLACK_USERNAME: $SLACK_USER_NAME
+
+Deploy Stage US plan:
+  <<: *update-ecs-template
+  variables:
+    <<: *stage-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "FALSE"
+  only:
+    - staging
+
+Deploy Stage US apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *stage-variables-temlate
+    REGION: "us-west-2"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_US
+    TFRunApply: "TRUE"
+  only:
+    - staging
+  when: manual
+
+Deploy Stage EU plan:
+  <<: *update-ecs-template
+  variables:
+    <<: *stage-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "FALSE"
+  only:
+    - staging
+
+Deploy Stage EU apply:
+  <<: *update-ecs-template
+  variables:
+    <<: *stage-variables-temlate
+    REGION: "eu-west-1"
+    REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
+    TFRunApply: "TRUE"
+  only:
+    - staging
   when: manual
