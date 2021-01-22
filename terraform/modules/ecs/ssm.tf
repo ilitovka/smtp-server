@@ -27,13 +27,6 @@ resource "aws_ssm_parameter" "crypto_algo" {
   tags = var.common_tags
 }
 
-resource "aws_ssm_parameter" "sf_api_endpoint" {
-  name  = "/${local.app_name_space}/${var.environment}/SFAPI_ENDPOINT"
-  type  = "String"
-  value = var.sf_api_endpoint
-  tags = var.common_tags
-}
-
 resource "aws_ssm_parameter" "redis_endpoint" {
   name  = "/${local.app_name_space}/${var.environment}/REDIS_ENDPOINT"
   type  = "String"
