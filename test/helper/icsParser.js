@@ -14,9 +14,9 @@ test('Calling icsParser', function (t) {
     'DTSTAMP:20191219T142147Z\n' +
     'DTSTART:20191229T132147Z\n' +
     'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00DS0000003Eixf@test.com\n' +
-    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\n' +
+    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;\n' +
     ' X-NUM-GUESTS=0;CN=Attendee 1:mailto:attendee1@gmail.com\n' +
-    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;\n' +
+    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED;\n' +
     ' X-NUM-GUESTS=0;CN=Attendee 2:mailto:attendee2@gmail.com\n' +
     'LOCATION:some location\n' +
     'PRIORITY:1\n' +
@@ -48,7 +48,7 @@ test('Calling icsParser', function (t) {
           params: {
             CUTYPE: 'INDIVIDUAL',
             ROLE: 'REQ-PARTICIPANT',
-            PARTSTAT: 'NEEDS-ACTION',
+            PARTSTAT: 'ACCEPTED',
             'X-NUM-GUESTS': 0,
             CN: 'Attendee 1'
           },
@@ -57,7 +57,7 @@ test('Calling icsParser', function (t) {
         {
           params: { CUTYPE: 'INDIVIDUAL',
             ROLE: 'REQ-PARTICIPANT',
-            PARTSTAT: 'NEEDS-ACTION',
+            PARTSTAT: 'DECLINED',
             'X-NUM-GUESTS': 0,
             CN: 'Attendee 2' },
           val: 'mailto:attendee2@gmail.com'

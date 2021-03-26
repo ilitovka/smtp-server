@@ -54,7 +54,7 @@ test('Calling MailParser', function (t) {
     'Auto-Submitted: auto-generated\n' +
     'Message-ID: <0000000000001ecfa5059afca5d1@google.com>\n' +
     'Date: Tue, 31 Dec 2019 09:32:56 +0000\n' +
-    'Subject: Accepted: summary @ Tue Jan 7, 2020 3:21pm - 3:51pm (EET) (OCEADMIN OCEADMIN)\n' +
+    'Subject: Відхилено: Test event @ Tue Jan 7, 2020 3:21pm - 3:51pm (EET) (OCEADMIN OCEADMIN)\n' +
     'From: ihor.litovka@avenga.com\n' +
     'To: OCEADMIN OCEADMIN <00DS0000003Eixf@igrik.site>\n' +
     'Content-Type: multipart/mixed; boundary="0000000000001ecf8a059afca5d0"\n' +
@@ -192,6 +192,8 @@ test('Calling MailParser', function (t) {
     'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000001\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=ihor.l\n' +
     ' itovka@avenga.com;X-NUM-GUESTS=0:mailto:ihor.litovka@avenga.com\n' +
+    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED;CN=ihor.l\n' +
+    ' itovka@yahoo.com;X-NUM-GUESTS=0:mailto:ihor.litovka@yahoo.com\n' +
     'CREATED:20191219T142147Z\n' +
     'DESCRIPTION:\n' +
     'LAST-MODIFIED:20191231T093255Z\n' +
@@ -228,7 +230,6 @@ test('Calling MailParser', function (t) {
   MailParser(stream)
     .then(parsedMail => {
       mailParserAttachmentObject.parseAttachments(parsedMail).then(result => {
-        //Send parsed ICS to caldav/SF
         t.pass("Mail parsed successfully");
       }).catch(err => {
         t.fail('Failed mail parse: ' + JSON.stringify(err));
