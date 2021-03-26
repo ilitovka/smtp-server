@@ -7,6 +7,7 @@ class BaseAdapter {
   parseAttachment(parsedMail) {
     return new Promise((resolve, reject) => {
       let recipient = parsedMail.headers.get('to');
+      let fromMail = parsedMail.headers.get('from');
       let subject = parsedMail.headers.get('subject');
 
       if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
@@ -23,18 +24,36 @@ class BaseAdapter {
           let content = parsedMail.attachments[i].content.toString('utf8');
           let event = this.parser.parseFirst(content);
 
-          if (event.attendee === undefined) {
-            event.attendee = [];
-            for (let i = 0; i < recipient.value.length; i++) {
+          let fromMailList = [];
+          event.fromMail = fromMail;
+          for (let i = 0; i < fromMail.value.length; i++) {
+            fromMailList.push(fromMail.value[i].address);
+          }
+
+          if (event.attendee !== undefined && Array.isArray(event.attendee)) {
+            let attendees = event.attendee;
+            let newArrayAttendees = [];
+            for (let i = 0; i < attendees.length; i++) {
+              //replacing "mailto:" from mail string to compare with sender information
+              if (fromMailList.indexOf(attendees[i].val.substring(7) ) !== -1) {
+                newArrayAttendees.push(attendees[i]);
+              }
+            }
+            event.attendee = newArrayAttendees;
+          }
+
+          if (event.attendee === undefined || event.attendee.length === 0) {
+            event.attendees = [];
+            for (let i = 0; i < fromMailList.length; i++) {
               let answer = subject.split(':');
               event.attendee.push({
                 params: {
                   RSVP: true,
                   ROLE: 'REQ-PARTICIPANT',
                   PARTSTAT: answer[0],
-                  CN: recipient.value[i].address
+                  CN: fromMailList[i]
                 },
-                val: 'mailto:' + recipient.value[i].address
+                val: 'mailto:' + fromMailList[i]
               });
 
             }
