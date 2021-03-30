@@ -70,17 +70,20 @@ class BaseAdapter {
           if (recipient.value[0] !== undefined && recipient.value[0].address !== undefined) {
             organizer = recipient.value[0].address;
           }
-          if (event.ORGID === undefined) {
-            event.ORGID = organizer.split('@')[0];
-          }
+
           event.eventId = null;
           if (event.uid !== undefined) {
             let uid = event.uid.split(':');
-            event.uid = uid[0];
+            event.ORGID = uid[0];
             if (uid[1] !== undefined) {
               event.eventId = uid[1];
             }
           }
+
+          if (event.ORGID === undefined || !event.ORGID) {
+            event.ORGID = organizer.split('@')[0];
+          }
+
           if (event.organizer === undefined) {
             event.organizer = {
               params: organizer,
