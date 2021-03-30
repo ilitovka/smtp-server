@@ -10,6 +10,9 @@ class BaseAdapter {
       let fromMail = parsedMail.headers.get('from');
       let subject = parsedMail.headers.get('subject');
 
+      this.logger.log('From mail: ' + JSON.stringify(fromMail));
+      this.logger.log('Subject: ' + JSON.stringify(subject));
+
       if (parsedMail.attachments !== undefined && parsedMail.attachments.length > 0) {
         let checksumArray = [];
         for (let i = 0; i < parsedMail.attachments.length; i++) {
@@ -23,6 +26,8 @@ class BaseAdapter {
 
           let content = parsedMail.attachments[i].content.toString('utf8');
           let event = this.parser.parseFirst(content);
+
+          this.logger.log('Event parsed: ' + JSON.stringify(event));
 
           let fromMailList = [];
           event.fromMail = fromMail;
@@ -43,7 +48,7 @@ class BaseAdapter {
           }
 
           if (event.attendee === undefined || event.attendee.length === 0) {
-            event.attendees = [];
+            event.attendee = [];
             for (let i = 0; i < fromMailList.length; i++) {
               let answer = subject.split(':');
               event.attendee.push({
@@ -85,12 +90,12 @@ class BaseAdapter {
           event.xTRID = this.retrieveXTRID(event);
 
           this.logger.log('Event info: ');
-          this.logger.log({
+          this.logger.log(JSON.stringify({
             organizer: event.organizer,
             attendee: event.attendee,
             uid: event.uid,
             eventId: event.eventId
-          });
+          }));
 
           return resolve({content: content, event: event});
         }
