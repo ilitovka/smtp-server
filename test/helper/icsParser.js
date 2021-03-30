@@ -24,7 +24,7 @@ test('Calling icsParser', function (t) {
     'SUMMARY:summary\n' +
     'TRANSP:OPAQUE\n' +
     'X-ORGID:00DS0000003Eixf\n' +
-    'UID:qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000\n' +
+    'UID:00DS0000003Eixf:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000\n' +
     'END:VEVENT\n' +
     'END:VCALENDAR';
 
@@ -69,7 +69,7 @@ test('Calling icsParser', function (t) {
     summary: 'summary',
     transparency: 'OPAQUE',
     ORGID: '00DS0000003Eixf',
-    uid: 'qwerty:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000',
+    uid: '00DS0000003Eixf:oce__emailtransaction__c-D0000000-0000-0000-0000-000000000000',
   };
 
   t.plan(1);
