@@ -74,9 +74,14 @@ class BaseAdapter {
           event.eventId = null;
           if (event.uid !== undefined) {
             let uid = event.uid.split(':');
-            event.ORGID = uid[0];
-            if (uid[1] !== undefined) {
-              event.eventId = uid[1];
+            switch (uid.length) {
+              case 3:
+                event.ORGID = uid[0];
+                event.eventId = uid[2];
+                break;
+              case 2:
+                event.eventId = uid[1];
+                break;
             }
           }
 
