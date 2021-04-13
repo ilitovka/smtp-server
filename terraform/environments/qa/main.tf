@@ -36,6 +36,9 @@ module "dns" {
     app_domain_name = var.app_domain_name
     lb-mail = module.vpc.lb-mail
     
+    domain_name_hosted_zone = var.domain_name_hosted_zone
+    application_domain_name = var.application_domain_name
+
     environment = var.environment
     region = var.region
 

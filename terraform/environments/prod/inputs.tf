@@ -4,6 +4,9 @@ variable "app" {}
 variable "app_domain_name" {}
 variable "domain_name_zone" {}
 
+variable "application_domain_name" {}
+variable "domain_name_hosted_zone" {}
+
 variable "environment" {}
 variable "account_id" {}
 variable "region" {}

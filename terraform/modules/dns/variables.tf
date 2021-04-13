@@ -3,6 +3,9 @@ variable "domain_name_zone" {}
 variable "app_domain_name" {}
 variable "environment" {}
 
+variable "application_domain_name" {}
+variable "domain_name_hosted_zone" {}
+
 variable "lb-mail" {}
 variable "dns_record_ttl" {
   default = "60"
