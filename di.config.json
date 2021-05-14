@@ -13,7 +13,7 @@
     "mailparser": { "require": "mailparser" },
     "smtp-server": { "require": "smtp-server" },
     "mime-types": {"require":  "mime-types"},
-    "node-ical": {"require":  "node-ical"},
+    "ical": {"require":  "ical"},
     "redis": {"require":  "redis"},
     "app": {
       "require":  "express",
@@ -69,7 +69,7 @@
     "helper-ics-parser": {
       "require": "includes/helper/icsParser.js",
       "new":      true,
-      "args":     ["node-ical", "logger"]
+      "args":     ["ical", "logger"]
     },
     "helper-mail-parser": {
       "require": "includes/helper/mailParser.js",

@@ -15,9 +15,9 @@ test('Calling icsParser', function (t) {
     'DTSTART:20191229T132147Z\n' +
     'ORGANIZER;CN=OCEADMIN OCEADMIN:mailto:00DS0000003Eixf@test.com\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;\n' +
-    ' X-NUM-GUESTS=0;CN=Attendee 1:mailto:attendee1@gmail.com\n' +
+    ' X-NUM-GUESTS=0;X-COMMENT=;CN=Attendee 1:mailto:attendee1@gmail.com\n' +
     'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED;\n' +
-    ' X-NUM-GUESTS=0;CN=Attendee 2:mailto:attendee2@gmail.com\n' +
+    ' X-NUM-GUESTS=0;X-COMMENT=;CN=Attendee 2:mailto:attendee2@gmail.com\n' +
     'LOCATION:some location\n' +
     'PRIORITY:1\n' +
     'SEQUENCE:0\n' +
@@ -36,7 +36,6 @@ test('Calling icsParser', function (t) {
     end: new Date('2019-12-29T13:51:47.000Z'),
     dtstamp: new Date('2019-12-19T14:21:47.000Z'),
     start: new Date('2019-12-29T13:21:47.000Z'),
-    datetype: 'date-time',
     organizer:
       {
         params: {CN: 'OCEADMIN OCEADMIN'},
@@ -50,6 +49,7 @@ test('Calling icsParser', function (t) {
             ROLE: 'REQ-PARTICIPANT',
             PARTSTAT: 'ACCEPTED',
             'X-NUM-GUESTS': 0,
+            'X-COMMENT': 0,
             CN: 'Attendee 1'
           },
           val: 'mailto:attendee1@gmail.com'
@@ -59,6 +59,7 @@ test('Calling icsParser', function (t) {
             ROLE: 'REQ-PARTICIPANT',
             PARTSTAT: 'DECLINED',
             'X-NUM-GUESTS': 0,
+            'X-COMMENT': 0,
             CN: 'Attendee 2' },
           val: 'mailto:attendee2@gmail.com'
         }
