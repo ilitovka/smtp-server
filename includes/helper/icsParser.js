@@ -10,7 +10,7 @@ const icsParse = function (ical, logger) {
  *
  * */
 icsParse.prototype.parse = function (text) {
-  return this.ical.sync.parseICS(text);
+  return this.ical.parseICS(text);
 };
 
 /**
