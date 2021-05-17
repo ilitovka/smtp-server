@@ -9,6 +9,17 @@ variables:
   ENVIRONMENT_STAGE: "stage"
   ENVIRONMENT_PROD: "prod"
 
+audit:
+  stage: test
+  image:
+    name: node:12-alpine
+  script:
+    - npm audit
+  tags:
+    - avenga-light
+  when: manual
+  allow_failure: true
+
 # Run unit/integration testing
 Tests:
   stage: test
