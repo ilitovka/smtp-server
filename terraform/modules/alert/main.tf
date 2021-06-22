@@ -1,8 +1,12 @@
 # Sends notificatiion to Slack when ECS task count reach max autoscaling limit 
+provider "aws" {
+  alias  = "virginia"
+  region = "us-east-1"
+}
 
 resource "aws_sns_topic" "ecs_autoscaling_alerts" {
-  name     = "${var.environment}-${var.region}-ecs-autoscaling-slack-alerts"
-  tags     = var.common_tags
+  name = "${var.environment}-${var.region}-ecs-autoscaling-slack-alerts"
+  tags = var.common_tags
 }
 
 resource "aws_sns_topic_subscription" "ecs_autoscaling_alerts_target" {
@@ -17,6 +21,8 @@ resource "aws_lambda_permission" "with_sns" {
   function_name = var.sns2slack_lambda_function_name
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.ecs_autoscaling_alerts.arn
+  provider      = aws.virginia
+
 }
 
 resource "aws_cloudwatch_metric_alarm" "autoscaling_limit_alarm" {
