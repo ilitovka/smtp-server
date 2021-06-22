@@ -49,6 +49,22 @@ module "dns" {
     SLACK_USERNAME = var.SLACK_USERNAME
 }
 
+module "alert" {
+    source = "../../modules/alert"
+
+    app = var.app
+
+    sns2slack_lambda_function_name = module.dns.sns2slack_lambda_function_name
+    sns2slack_lambda_function_arn = module.dns.sns2slack_lambda_function_arn 
+    ecs_autoscaler_threshold = module.ecs.ecs_autoscale_max_instances
+    
+    app_domain_name = var.app_domain_name
+
+    environment = var.environment
+    region = var.region
+
+}
+
 provider "aws" {
     region = var.region
 }
