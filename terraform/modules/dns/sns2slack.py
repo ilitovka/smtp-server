@@ -12,26 +12,50 @@ def lambda_handler(event, context):
     
     if sns["NewStateValue"] == "OK":
         scolor = "#36a64f"
+        msg_text = "ECS task count has back to normal."
     else:
         scolor = "#FF0000"
-
-    stext = sns["Trigger"]["Namespace"]+"/"+sns["Trigger"]["MetricName"]+"\n"+sns["AlarmDescription"]+"\n\n"
-    stext2 = "Status is changed from \""+sns["OldStateValue"]+"\" to \"*"+sns["NewStateValue"]+"*\""
-    msg = {
-        "channel": channel,
-        "username": username,
-        "text": stext,
-        "attachments": [
-            {
-                "text": stext2,
-                "color": scolor,
-            }
-        ],
-        "icon_emoji": ""
-    }
+        msg_text = "ECS task count has reached maximum limit."
+        
+    if "autoscaling" in sns["AlarmName"]:
+        stext = sns["Trigger"]["Namespace"]+"/"+sns["Trigger"]["MetricName"]+"\n"+sns["AlarmDescription"]+"\n\n"
+        stext2 = msg_text
+        msg = {
+            "channel": channel,
+            "username": username,
+            "text": stext,
+            "attachments": [
+                {
+                    "text": stext2,
+                    "color": scolor,
+                }
+            ],
+            "icon_emoji": ""
+        }
     
-    encoded_msg = json.dumps(msg).encode('utf-8')
-    resp = http.request('POST',url, body=encoded_msg)
+        encoded_msg = json.dumps(msg).encode('utf-8')
+        resp = http.request('POST',url, body=encoded_msg)
+        
+    else:
+
+        stext = str(sns["Trigger"]["Namespace"]+"/"+sns["Trigger"]["MetricName"]+"\n"+sns["AlarmDescription"]+"\n\n")
+        stext2 = "Status is changed from \""+sns["OldStateValue"]+"\" to \"*"+sns["NewStateValue"]+"*\""
+        msg = {
+            "channel": channel,
+            "username": username,
+            "text": stext,
+            "attachments": [
+                {
+                    "text": stext2,
+                    "color": scolor,
+                }
+            ],
+            "icon_emoji": ""
+        }
+        
+        encoded_msg = json.dumps(msg).encode('utf-8')
+        resp = http.request('POST',url, body=encoded_msg)
+        
     print({
         "message": event['Records'][0]['Sns']['Message'], 
         "status_code": resp.status, 
