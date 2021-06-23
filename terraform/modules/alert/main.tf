@@ -29,15 +29,17 @@ resource "aws_cloudwatch_metric_alarm" "autoscaling_limit_alarm" {
   alarm_name          = "${var.environment}-${var.region}-ecs-autoscaling-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = "TaskCount"
-  namespace           = "ECS/ContainerInsights"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
   period              = "60"
-  statistic           = "Average"
+  statistic           = "SampleCount"
   threshold           = var.ecs_autoscaler_threshold
 
   dimensions = {
     ClusterName = "${var.app}-${var.environment}"
+    Servicename = "${var.app}-${var.environment}"
   }
+  
   alarm_description         = "*${var.environment}*: ${var.region}.${var.app_domain_name}"
   alarm_actions             = [aws_sns_topic.ecs_autoscaling_alerts.arn]
   ok_actions                = [aws_sns_topic.ecs_autoscaling_alerts.arn]
