@@ -16,7 +16,7 @@ resource "aws_sns_topic_subscription" "ecs_autoscaling_alerts_target" {
 }
 
 resource "aws_lambda_permission" "with_sns" {
-  statement_id  = "AllowExecutionFromSNS"
+  statement_id  = "AllowExecutionFromSNSNew"
   action        = "lambda:InvokeFunction"
   function_name = var.sns2slack_lambda_function_name
   principal     = "sns.amazonaws.com"
