@@ -7,3 +7,4 @@ environment = "qa"
 
 domain_name_hosted_zone = "oceremoteengagement.com."
 application_domain_name = "qa.mail.oceremoteengagement.com"
+application_domain_name2 = "qa.oceremoteengagement.com"

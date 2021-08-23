@@ -7,3 +7,4 @@ environment = "staging"
 
 domain_name_hosted_zone = "oceremoteengagement.com."
 application_domain_name = "staging.mail.oceremoteengagement.com"
+application_domain_name2 = "staging.oceremoteengagement.com"

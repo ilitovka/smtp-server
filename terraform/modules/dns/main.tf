@@ -76,3 +76,38 @@ resource "aws_route53_record" "mail_record" {
     "10 ${var.lb-mail.dns_name}."
   ]
 }
+
+#Additional domain
+
+resource "aws_route53_health_check" "health_check2" {
+
+  fqdn              = var.lb-mail.dns_name
+  port              = "25"
+  type              = "TCP"
+  failure_threshold = "3"
+  request_interval  = "30"
+  tags = merge(var.common_tags, {
+    Name = "${var.region}.${var.application_domain_name2}"
+  })
+
+}
+
+resource "aws_route53_record" "mail_record2" {
+
+  zone_id = data.aws_route53_zone.hosted_zone.id
+  name    = var.application_domain_name2
+  type    = "MX"
+  ttl     = var.dns_record_ttl
+
+  health_check_id = aws_route53_health_check.health_check2.id
+
+  latency_routing_policy  {
+    region = var.region
+  }
+
+  set_identifier = "latency-${var.region}"
+
+  records = [
+    "10 ${var.lb-mail.dns_name}."
+  ]
+}

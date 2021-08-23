@@ -7,3 +7,4 @@ environment = "uat"
 
 domain_name_hosted_zone = "oceremoteengagement.com."
 application_domain_name = "uat.mail.oceremoteengagement.com"
+application_domain_name2 = "uat.oceremoteengagement.com"

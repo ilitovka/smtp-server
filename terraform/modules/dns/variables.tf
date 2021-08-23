@@ -4,6 +4,7 @@ variable "app_domain_name" {}
 variable "environment" {}
 
 variable "application_domain_name" {}
+variable "application_domain_name2" {}
 variable "domain_name_hosted_zone" {}
 
 variable "lb-mail" {}
