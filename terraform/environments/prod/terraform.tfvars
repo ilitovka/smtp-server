@@ -7,3 +7,4 @@ environment = "prod"
 
 domain_name_hosted_zone = "oceremoteengagement.com."
 application_domain_name = "mail.oceremoteengagement.com"
+application_domain_name2 = "oceremoteengagement.com"

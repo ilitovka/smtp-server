@@ -108,3 +108,27 @@ resource "aws_cloudwatch_metric_alarm" "cloudwatch_metric_alarm" {
   depends_on          = [aws_route53_health_check.health_check]
   tags = var.common_tags
 }
+
+#Additional domain
+
+resource "aws_cloudwatch_metric_alarm" "cloudwatch_metric_alarm2" {
+  alarm_name          = "${var.environment}-${var.region}-route-53-alarm2"
+  namespace           = "AWS/Route53"
+  metric_name         = "HealthCheckStatus"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "1"
+  period              = "60"
+  statistic           = "Minimum"
+  threshold           = "1"
+  unit                = "None"
+  provider            = aws.virginia
+  dimensions          = {
+    HealthCheckId = aws_route53_health_check.health_check2.id
+  }
+  alarm_description   = "*${var.environment}*: ${var.region}.${var.application_domain_name2}"
+  alarm_actions       = [aws_sns_topic.route53_alerts.arn]
+  ok_actions          = [aws_sns_topic.route53_alerts.arn]
+  insufficient_data_actions = []
+  depends_on          = [aws_route53_health_check.health_check2]
+  tags = var.common_tags
+}

@@ -38,6 +38,7 @@ module "dns" {
     
     domain_name_hosted_zone = var.domain_name_hosted_zone
     application_domain_name = var.application_domain_name
+    application_domain_name2 = var.application_domain_name2
 
     environment = var.environment
     region = var.region
