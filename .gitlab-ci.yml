@@ -111,7 +111,7 @@ Build Prod US:
 .update-ecs-abstract: &update-ecs-template
   stage: deploy
   image: 
-    name: hashicorp/terraform:0.13.5
+    name: ${DOCKER_IMAGE_TERRAFORM}
     entrypoint: [""]
   before_script:
     - cd terraform/environments/$ENVIRONMENT
