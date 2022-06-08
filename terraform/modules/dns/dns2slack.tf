@@ -29,7 +29,7 @@ resource "aws_lambda_function" "sns2slack_lambda" {
   function_name = "${var.environment}-${var.region}-sns2slack-lambda"
   role          = aws_iam_role.iam_lambda_role.arn
   handler       = "sns2slack.lambda_handler"
-  runtime       = "python3.6"
+  runtime       = "python3.9"
   provider  = aws.virginia
   environment {
     variables = {
