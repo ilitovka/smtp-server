@@ -31,6 +31,25 @@ Tests:
   tags:
     - avenga-light
 
+Tests-Coverage:
+  stage: test
+  image: $DOCKER_IMAGE_NODEJS12
+  before_script:
+    - apk add curl    
+  script:
+    - npm i --unsafe-perm=true
+    - |
+      PercentCovered=$(npm run test:cov | grep "All files" | awk '{print ($4+$6+$8+$10)/4, "% covered"}')
+      echo $PercentCovered
+      ExpectCount=$(grep -ros 'expect(' . | wc -l)
+      echo $ExpectCount
+      if [[ ${SEND_SLACK_NOTIFICATION:+1} ]]; then
+        SLACK_NOTIFICATION_MESSAGE="Activity Rsvp Service Code Coverage *${CI_COMMIT_REF_NAME}* - $PercentCovered \n expectCount: ${ExpectCount} \n Job: ${CI_JOB_URL} \n Pipeline: ${CI_PIPELINE_URL} \n"
+        curl -s -X POST --data-urlencode "payload={\"username\":\"gitlab\", \"channel\":\"${CODE_COVERAGE_SLACK_CHANNEL}\", \"text\":\"$SLACK_NOTIFICATION_MESSAGE\" }" ${CODE_COVERAGE_SLACK_URL};
+      fi  
+  tags:
+    - avenga-light
+
 
 # Build Docker image, push to AWS ECS registry and tag by commit hash and env
 .build-push-image-abstract: &build-push-image-template
