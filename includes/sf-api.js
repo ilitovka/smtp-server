@@ -13,11 +13,9 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
   return (new Promise((resolve, reject) => {
     let orgId = icsParsed.ORGID.slice(0, 15);
     this.tokenStorage.getAccessTokenByOrgId(orgId).then(accessToken => {
-      if (accessToken === undefined) {
-        return reject('SF token is undefined');
-      }
 
-      this.connect(accessToken);
+      // Init new connection to Salesforce
+      this.initConnection(accessToken);
 
       // body payload structure is depending to the Apex REST method interface.
       let body = {
@@ -38,7 +36,8 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
       }
 
       this.logger.log(body);
-      this._sendAttendeeStatuses(body).then(res => {
+      
+      this._sendAttendeeStatusesWithRetry(body, orgId).then(res => {
         this.logger.log('Attendee statuses sent successfully: _sendAttendeeStatuses');
         return resolve(res);
       }).catch(err => {
@@ -50,6 +49,26 @@ sfApi.prototype.sendAttendeeStatuses = function (icsParsed) {
       return reject({message: err.message, code: 'ICS_STORAGE_GET_ACCESS_TOKEN_ERROR', err: err});
     });
   }));
+};
+
+sfApi.prototype._sendAttendeeStatusesWithRetry = function (body, orgId) {
+  return this._sendAttendeeStatuses(body)
+    .catch(err => {
+      if (!this._isInvalidSessionId(err)) {
+        throw err;
+      }
+
+      this.logger.warn(`${err.message} (OrgId - ${orgId})`);
+
+      // Get new access token from Config Service
+      return this._getAccessToken(orgId)
+        .then(accessToken => {
+            // Init new connection to Salesforce
+            this.initConnection(accessToken);
+
+            return this._sendAttendeeStatuses(body);
+        });
+    });
 };
 
 /**
@@ -70,6 +89,14 @@ sfApi.prototype.connect = function (accessToken) {
   }
 };
 
+sfApi.prototype.initConnection = function (accessToken) {
+  if (accessToken === undefined) {
+    throw new Error('SF token is undefined');
+  }
+
+  this.connect(accessToken);
+}
+
 sfApi.prototype._sendAttendeeStatuses = function (body) {
   try {
     this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'EmailStatus/');
@@ -84,10 +111,16 @@ sfApi.prototype._sendAttendeeStatuses = function (body) {
     });
   } catch (e) {
     this.logger.log(e);
+
+    if (this._isInvalidSessionId(e)) {
+      throw e;
+    }
+
     throw new Error('Couldn\'t send attendee statuses to SF API. Error: ' + e.message);
   }
 };
 
+// TODO: deprecated
 sfApi.prototype._sendInvite = function (attendees) {
   try {
     this.logger.log('Connecting: /services/apexrest/' + this.prefix + 'SendEmail/');
@@ -100,8 +133,21 @@ sfApi.prototype._sendInvite = function (attendees) {
     });
   } catch (e) {
     this.logger.log(e);
+
+    if (this._isInvalidSessionId(e)) {
+      throw e;
+    }
+
     throw new Error('Couldn\'t send invites to attendee via SF API');
   }
+};
+
+sfApi.prototype._isInvalidSessionId = function (error) {
+  if (error && error.errorCode === 'INVALID_SESSION_ID') {
+    return true;
+  }
+
+  return false;
 };
 
 
