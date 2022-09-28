@@ -61,7 +61,7 @@ sfApi.prototype._sendAttendeeStatusesWithRetry = function (body, orgId) {
       this.logger.warn(`${err.message} (OrgId - ${orgId})`);
 
       // Get new access token from Config Service
-      return this._getAccessToken(orgId)
+      return this.tokenStorage._getAccessToken(orgId)
         .then(accessToken => {
             // Init new connection to Salesforce
             this.initConnection(accessToken);
