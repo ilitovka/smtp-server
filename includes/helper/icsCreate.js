@@ -10,8 +10,8 @@ const moment = require('moment');
 const icsCreate = function (event) {
   try {
     const eventMerged = {
-      start: moment(event.start).format('YYYY-M-D-H-m').split("-"),
-      end: moment(event.end).format('YYYY-M-D-H-m').split("-"),
+      start: moment(event.start).format('YYYY-M-D-H-m').split("-").map(elem => +elem),
+      end: moment(event.end).format('YYYY-M-D-H-m').split("-").map(elem => +elem),
       status: event.status,
       organizer: {
         name: event.organizer.params.CN,
@@ -38,7 +38,12 @@ const icsCreate = function (event) {
     }
     eventMerged.attendees = attendees;
 
-    return ics.createEvent(eventMerged).value;
+    const {error, value} = ics.createEvent(eventMerged);
+    if (error) {
+      throw error;
+    }
+
+    return value;
   } catch (e) {
     throw e;
   }
