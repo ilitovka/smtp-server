@@ -44,6 +44,13 @@ Tests-Coverage:
       ExpectCount=$(grep -ros 'expect(' . | wc -l)
       echo $ExpectCount
       if [[ ${SEND_SLACK_NOTIFICATION:+1} ]]; then
+        if [[ $CODE_COVERAGE_SLACK_CHANNEL == "#oce-location-leads" ]]; then
+          cur_day=$(date +%A)
+          if [[ ! $cur_day =~ Sunday|Wednesday ]]; then
+            echo "Skipping code coverage message because it's allowed to be sent only on Sunday or Wednesday."
+            exit #continue
+          fi
+        fi
         SLACK_NOTIFICATION_MESSAGE="Activity Rsvp Service Code Coverage *${CI_COMMIT_REF_NAME}* - $PercentCovered \n expectCount: ${ExpectCount} \n Job: ${CI_JOB_URL} \n Pipeline: ${CI_PIPELINE_URL} \n"
         curl -s -X POST --data-urlencode "payload={\"username\":\"gitlab\", \"channel\":\"${CODE_COVERAGE_SLACK_CHANNEL}\", \"text\":\"$SLACK_NOTIFICATION_MESSAGE\" }" ${CODE_COVERAGE_SLACK_URL};
       fi  
