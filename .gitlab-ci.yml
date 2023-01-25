@@ -60,7 +60,7 @@ Tests-Coverage:
 .build-push-image-abstract: &build-push-image-template
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.1
+    name: gcr.io/kaniko-project/executor:debug-v0.14.0
     entrypoint: [""]
   script:
     - echo $CI_PROJECT_DIR
