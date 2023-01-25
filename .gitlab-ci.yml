@@ -60,7 +60,7 @@ Tests-Coverage:
 .build-push-image-abstract: &build-push-image-template
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:debug-v0.14.0
+    name: gcr.io/kaniko-project/executor:v1.9.1
     entrypoint: [""]
   script:
     - echo $CI_PROJECT_DIR
@@ -68,7 +68,6 @@ Tests-Coverage:
     - echo $CI_COMMIT_SHA
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
-    - cat /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $REGISTRY_IMAGE:${ENVIRONMENT:-dev} --destination $REGISTRY_IMAGE:$CI_COMMIT_SHA
   tags:
     - avenga-light
@@ -80,7 +79,7 @@ Build QA EU:
     ENVIRONMENT: $ENVIRONMENT_QA
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
-    - OCE-131935-nodejs-v18
+    - dev
 
 Build UAT EU:
   <<: *build-push-image-template
