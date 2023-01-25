@@ -34,8 +34,6 @@ Tests:
 Tests-Coverage:
   stage: test
   image: $DOCKER_IMAGE_NODE_18
-  before_script:
-    - apk add curl    
   script:
     - npm i --unsafe-perm=true
     - |
