@@ -12,7 +12,7 @@ variables:
 audit:
   stage: test
   image:
-    name: node:12-alpine
+    name: $DOCKER_IMAGE_NODE_18
   script:
     - npm audit
   tags:
@@ -24,8 +24,9 @@ audit:
 Tests:
   stage: test
   image:
-    name: node:12-alpine
+    name: $DOCKER_IMAGE_NODE_18
   script:
+    - apk add --no-cache python3 make g++
     - npm i --unsafe-perm=true
     - npm test
   tags:
@@ -33,7 +34,7 @@ Tests:
 
 Tests-Coverage:
   stage: test
-  image: $DOCKER_IMAGE_NODEJS12
+  image: $DOCKER_IMAGE_NODE_18
   before_script:
     - apk add curl    
   script:
@@ -81,7 +82,7 @@ Build QA EU:
     ENVIRONMENT: $ENVIRONMENT_QA
     REGISTRY_IMAGE: $REGISTRY_IMAGE_EU
   only:
-    - dev
+    - OCE-131935-nodejs-v18
 
 Build UAT EU:
   <<: *build-push-image-template
