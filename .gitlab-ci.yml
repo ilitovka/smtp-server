@@ -26,7 +26,6 @@ Tests:
   image:
     name: $DOCKER_IMAGE_NODE_18
   script:
-    # - apk add --no-cache python3 make g++
     - npm i --unsafe-perm=true
     - npm test
   tags:
@@ -68,7 +67,7 @@ Tests-Coverage:
   script:
     - echo $CI_PROJECT_DIR
     - echo $REGISTRY_IMAGE
-    - echo $CI_COMMIT_SHORT_SHA
+    - echo $CI_COMMIT_SHA
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $REGISTRY_IMAGE:${ENVIRONMENT:-dev} --destination $REGISTRY_IMAGE:$CI_COMMIT_SHA
