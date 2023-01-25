@@ -12,7 +12,7 @@ variables:
 audit:
   stage: test
   image:
-    name: node:12-alpine
+    name: $DOCKER_IMAGE_NODE_18
   script:
     - npm audit
   tags:
@@ -24,7 +24,7 @@ audit:
 Tests:
   stage: test
   image:
-    name: node:12-alpine
+    name: $DOCKER_IMAGE_NODE_18
   script:
     - npm i --unsafe-perm=true
     - npm test
@@ -33,9 +33,7 @@ Tests:
 
 Tests-Coverage:
   stage: test
-  image: $DOCKER_IMAGE_NODEJS12
-  before_script:
-    - apk add curl    
+  image: $DOCKER_IMAGE_NODE_18
   script:
     - npm i --unsafe-perm=true
     - |
@@ -62,12 +60,12 @@ Tests-Coverage:
 .build-push-image-abstract: &build-push-image-template
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:debug-v0.14.0
+    name: gcr.io/kaniko-project/executor:v1.9.1
     entrypoint: [""]
   script:
     - echo $CI_PROJECT_DIR
     - echo $REGISTRY_IMAGE
-    - echo $CI_COMMIT_TAG
+    - echo $CI_COMMIT_SHA
     - |
       echo "{\"credsStore\": \"ecr-login\"}" > /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $REGISTRY_IMAGE:${ENVIRONMENT:-dev} --destination $REGISTRY_IMAGE:$CI_COMMIT_SHA
