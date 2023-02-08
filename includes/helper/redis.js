@@ -3,7 +3,6 @@ let RedisClient = function (di) {
   this.di = di;
   this.redis = this.di.get("redis");
   this.client = this.redis.createClient({
-    legacyMode: true,
     url: di.get('config').redis.endpoint
   });
   this.logger = this.di.get('logger');
