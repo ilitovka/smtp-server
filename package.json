@@ -8,6 +8,6 @@
     "node": "10.5"
   },
   "dependencies": {
-    "smtp-server": "^3.5.0"
+    "smtp-server": "^3.11.0"
   }
 }
